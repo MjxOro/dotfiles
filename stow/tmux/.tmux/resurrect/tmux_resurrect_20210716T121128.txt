@@ -1,0 +1,104 @@
+pane	0	0	:fish	1	:*	0	:/Users/mattheworo	1	fish	:fish
+pane	1	0	:zsh	1	:*	0	:/Users/mattheworo	1	zsh	:
+pane	10	0	:zsh	1	:*	0	:/Users/mattheworo	1	zsh	:
+pane	11	0	:zsh	1	:*	0	:/Users/mattheworo	1	zsh	:
+pane	12	0	:Main Work	1	:*	0	:/Users/mattheworo/.Trash/Desktop_Folder/brainstation/finished_projects/matthew-oro-bandsite	0	nvim	:/opt/homebrew/bin/fish
+pane	12	0	:Main Work	1	:*	1	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
+pane	12	1	:fish	0	:-	0	:/Users/mattheworo/.Trash/Desktop_Folder	1	fish	:/opt/homebrew/bin/fish
+pane	12	1	:fish	0	:-	1	:/Users/mattheworo	0	fish	:/opt/homebrew/bin/fish
+pane	13	0	:fish	1	:*	0	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
+pane	14	0	:fish	1	:*	0	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
+pane	15	0	:fish	1	:*	0	:/Users/mattheworo/.Trash/Desktop_Folder/brainstation/labs/event_listener_lab-done	1	fish	:/opt/homebrew/bin/fish
+pane	16	0	:fish	1	:*	0	:/Users/mattheworo/.Trash/Desktop_Folder/brainstation/labs/event_listener_lab-done	1	fish	:/opt/homebrew/bin/fish
+pane	17	0	:fish	1	:*	0	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
+pane	18	0	:fish	1	:*	0	:/Users/mattheworo/.Trash/Desktop_Folder/brainstation/labs/event_listener_lab-done	1	fish	:/opt/homebrew/bin/fish
+pane	19	0	:fish	1	:*	0	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
+pane	2	0	:zsh	1	:*	0	:/Users/mattheworo	1	zsh	:
+pane	20	0	:nvim	1	:*	0	:/Users/mattheworo/.Trash/Desktop_Folder/brainstation/finished_projects/matthew-oro-bandsite	1	nvim	:/opt/homebrew/bin/fish
+pane	20	0	:nvim	1	:*	1	:/Users/mattheworo	0	fish	:/opt/homebrew/bin/fish
+pane	20	1	:Sass Compiler	0	:-	0	:/Users/mattheworo/.Trash/Desktop_Folder/brainstation/finished_projects/matthew-oro-bandsite/styles	1	sass	:/opt/homebrew/bin/fish
+pane	21	0	:fish	1	:*	0	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
+pane	22	0	:fish	1	:*	0	:/Users/mattheworo/Library/Mobile\ Documents/com~apple~CloudDocs/.Trash/matthew-oro-bandsite 2	1	fish	:/opt/homebrew/bin/fish
+pane	22	1	:sass	0	:	0	:/Users/mattheworo/.Trash/Desktop_Folder/brainstation/finished_projects/matthew-oro-bandsite/styles	1	sass	:/opt/homebrew/bin/fish
+pane	22	2	:fish	0	:-	0	:/Users/mattheworo/.Trash/Desktop_Folder/brainstation/finished_projects/matthew-oro-bandsite/styles/partials	1	fish	:/opt/homebrew/bin/fish
+pane	23	0	:fish	1	:*	0	:/Users/mattheworo/.Trash/Desktop_Folder/brainstation/finished_projects/matthew-oro-bandsite	1	fish	:/opt/homebrew/bin/fish
+pane	24	0	:fish	1	:*	0	:/Users/mattheworo/.Trash/Desktop_Folder/brainstation/finished_projects/matthew-oro-bandsite	1	fish	:/opt/homebrew/bin/fish
+pane	25	0	:fish	1	:*	0	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
+pane	26	0	:fish	1	:*	0	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
+pane	26	1	:fish	0	:-	0	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
+pane	27	0	:fish	1	:*	0	:/Users/mattheworo/.Trash/Desktop_Folder	1	fish	:/opt/homebrew/bin/fish
+pane	27	1	:Minecraft_Server	0	:-	0	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
+pane	27	2	:fish	0	:	0	:/Users/mattheworo/.Trash/Desktop_Folder/brainstation/finished_projects/matthew-oro-bandsite/styles	0	fish	:/opt/homebrew/bin/fish
+pane	27	2	:fish	0	:	1	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
+pane	27	3	:fish	0	:	0	:/Users/mattheworo/.Trash/Desktop_Folder/brainstation/finished_projects/matthew-oro-bandsite	1	fish	:/opt/homebrew/bin/fish
+pane	28	0	:fish	1	:*	0	:/Users/mattheworo/.Trash/Desktop_Folder/brainstation/finished_projects/matthew-oro-bandsite	1	fish	:/opt/homebrew/bin/fish
+pane	29	0	:nvim	1	:*	0	:/Users/mattheworo/.Trash/Desktop_Folder/brainstation	1	nvim	:/opt/homebrew/bin/fish
+pane	3	0	:fish	1	:*	0	:/Users/mattheworo	1	fish	:fish
+pane	30	0	:Main Work	1	:*	0	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
+pane	31	0	:Main Work	1	:*	0	:/Users/mattheworo/Desktop/mc-react-time-of-day/client/src/components	1	nvim	:/opt/homebrew/bin/fish
+pane	31	0	:Main Work	1	:*	1	:/Users/mattheworo/Desktop/mc-react-time-of-day/client	0	node	:/opt/homebrew/bin/fish
+pane	31	0	:Main Work	1	:*	2	:/Users/mattheworo	0	fish	:/opt/homebrew/bin/fish
+pane	31	1	:Minecraft Server	0	:-	0	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
+pane	31	2	:File Opener	0	:	0	:/Users/mattheworo/Desktop/brainstation/BrainFlix-Sprint-1	0	fish	:/opt/homebrew/bin/fish
+pane	31	2	:File Opener	0	:	1	:/Users/mattheworo	0	fish	:/opt/homebrew/bin/fish
+pane	31	2	:File Opener	0	:	2	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
+pane	31	2	:File Opener	0	:	3	:/Users/mattheworo/Desktop/brainstation/BrainFlix-Sprint-1/Style-Guide-s1	0	fish	:/opt/homebrew/bin/fish
+pane	31	3	:fish	0	:	0	:/Users/mattheworo/Desktop	1	fish	:/opt/homebrew/bin/fish
+pane	32	0	:fish	1	:*	0	:/Users/mattheworo/Desktop	1	fish	:/opt/homebrew/bin/fish
+pane	33	0	:fish	1	:*	0	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
+pane	35	0	:fish	1	:*	0	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
+pane	36	0	:fish	1	:*	0	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
+pane	4	0	:zsh	1	:*	0	:/Users/mattheworo	1	zsh	:
+pane	5	0	:fish	1	:*	0	:/Users/mattheworo	1	fish	:fish
+pane	6	0	:zsh	1	:*	0	:/Users/mattheworo	1	zsh	:
+pane	7	0	:zsh	1	:*	0	:/Users/mattheworo	1	zsh	:
+pane	8	0	:zsh	1	:*	0	:/Users/mattheworo	1	zsh	:
+pane	9	0	:fish	1	:*	0	:/Users/mattheworo	1	fish	:fish
+window	0	0	1	:*	ae5d,80x23,0,0,0
+window	1	0	1	:*	ae5e,80x23,0,0,1
+window	10	0	1	:*	575f,80x23,0,0,10
+window	11	0	1	:*	5760,80x23,0,0,11
+window	12	0	1	:*	5e0b,80x23,0,0[80x21,0,0,12,80x1,0,22,14]
+window	12	1	0	:-	7656,80x23,0,0{39x23,0,0,16,40x23,40,0,17}
+window	13	0	1	:*	5767,80x23,0,0,18
+window	14	0	1	:*	5768,80x23,0,0,19
+window	15	0	1	:*	d75f,80x23,0,0,20
+window	16	0	1	:*	d760,80x23,0,0,21
+window	17	0	1	:*	d761,80x23,0,0,22
+window	18	0	1	:*	d762,80x23,0,0,23
+window	19	0	1	:*	d763,80x23,0,0,24
+window	2	0	1	:*	ae5f,80x23,0,0,2
+window	20	0	1	:*	1e1b,80x23,0,0[80x21,0,0,25,80x1,0,22,27]
+window	20	1	0	:-	d767,80x23,0,0,28
+window	21	0	1	:*	d768,80x23,0,0,29
+window	22	0	1	:*	5760,80x23,0,0,30
+window	22	1	0	:	5761,80x23,0,0,31
+window	22	2	0	:-	5765,80x23,0,0,35
+window	23	0	1	:*	5766,80x23,0,0,36
+window	24	0	1	:*	5767,80x23,0,0,37
+window	25	0	1	:*	5768,80x23,0,0,38
+window	26	0	1	:*	5769,80x23,0,0,39
+window	26	1	0	:-	d760,80x23,0,0,40
+window	27	0	1	:*	d761,80x23,0,0,41
+window	27	1	0	:-	d762,80x23,0,0,42
+window	27	2	0	:	b653,80x23,0,0{39x23,0,0,43,40x23,40,0,46}
+window	27	3	0	:	d764,80x23,0,0,44
+window	28	0	1	:*	d765,80x23,0,0,45
+window	29	0	1	:*	d767,80x23,0,0,47
+window	3	0	1	:*	ae60,80x23,0,0,3
+window	30	0	1	:*	d768,80x23,0,0,48
+window	31	0	1	:*	924d,288x61,0,0[288x49,0,0,63,288x11,0,50{184x11,0,50,57,103x11,185,50,59}]
+window	31	1	0	:-	5763,80x23,0,0,52
+window	31	2	0	:	8f5e,275x59,0,0[275x29,0,0{137x29,0,0,62,137x29,138,0,65},275x29,0,30{137x29,0,30,64,137x29,138,30,66}]
+window	31	3	0	:	6a22,254x59,0,0,70
+window	32	0	1	:*	5769,80x23,0,0,58
+window	33	0	1	:*	d9a1,275x60,0,0,60
+window	35	0	1	:*	eaa9,275x59,0,0,68
+window	36	0	1	:*	5763,80x23,0,0,71
+window	4	0	1	:*	ae61,80x23,0,0,4
+window	5	0	1	:*	ae62,80x23,0,0,5
+window	6	0	1	:*	ae63,80x23,0,0,6
+window	7	0	1	:*	ae64,80x23,0,0,7
+window	8	0	1	:*	ae65,80x23,0,0,8
+window	9	0	1	:*	ae66,80x23,0,0,9
+state	31	8

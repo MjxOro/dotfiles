@@ -1,0 +1,8 @@
+pane	0	0	:Main-Work-Tab	1	:*	0	:/Users/mattheworo	1	fish	:
+pane	0	0	:Main-Work-Tab	1	:*	1	:/Users/mattheworo	0	fish	:
+pane	0	1	:SSH-Minecraft-Cloud	0	:	0	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
+pane	0	2	:SSH-Desktop-Computer	0	:-	0	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
+window	0	0	1	:*	5125,400x124,0,0[400x102,0,0,1,400x21,0,103,2]
+window	0	1	0	:	96a0,400x124,0,0,3
+window	0	2	0	:-	96a1,400x124,0,0,4
+state	0	
