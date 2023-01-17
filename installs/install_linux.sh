@@ -12,6 +12,8 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 # If WSL use this command for opening browsers from CLI
 # sudo apt install wsl-open -y
 # ln -sf $(which wsl-open) /usr/local/bin/xdg-open
+# Change shell to zsh
+sudo chsh -s $(which zsh)
 
 # NEOVIM INSTALLS
 echo "Installing neovim"
