@@ -22,7 +22,7 @@ if [[ "$OS" = *"Linux"* ]]; then
     $currentDir/installs/install_linux.sh
 
     # Changing shell to zshell
-    chsh -s "$zshell"
+    # chsh -s "$(which zsh)"
     echo "Installation Complete. Double check if extensions, plugins and/or updates are manually installed before using apps. Restart terminal to see changes"
 elif [[ "$OS" = *"Darwin"* ]]; then
     # Installing brew
@@ -38,10 +38,11 @@ elif [[ "$OS" = *"Darwin"* ]]; then
     $currentDir/installs/install_mac.sh
 
     # Changing shell to zshell
-    chsh -s "$zshell"
+    # chsh -s "$(which zsh)"
     echo "Installation Complete. Double check if extensions, plugins and/or updates are manually installed before using apps. Restart terminal to see changes"
 else 
   echo "OS Unkown"
 fi
 
+chsh -s "$(which zsh)"
 
