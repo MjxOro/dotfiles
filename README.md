@@ -4,12 +4,22 @@
 
 ### Fresh Machine (Ubuntu or Mac)
 
-- Quick start use this command `git clone https://github.com/MjxOro/dotfiles.git ~/dotfiles && ~/dotfiles/install.sh`
+- Quick start use this command:
+
+```
+git clone https://github.com/MjxOro/dotfiles.git ~/dotfiles && cd ~/dotfiles && ./install.sh
+```
+
 - enter sudo password to install all apps
 
 ### If only want configs
 
-- Quick Link use this command `git clone https://github.com/MjxOro/dotfiles.git ~/dotfiles && ~/dotfiles/instals/link_files.sh`
+- Quick Link use this command:
+
+```
+git clone https://github.com/MjxOro/dotfiles.git ~/dotfiles && cd ~/dotfiles && ./installs/link_files.sh
+```
+
 - Locate dotfiles directory and run `./installs/link_files.sh` command.
 - This will use current configs on the apps I use.
 
