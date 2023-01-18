@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-zshell="which zsh"
+zshell="$(which zsh)"
 
 # ZSH INSTALLS
 echo "Installing zsh"
@@ -19,7 +19,7 @@ git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$
 # ln -sf $(which wsl-open) /usr/local/bin/xdg-open
 
 # Change shell to zsh
-chsh -s $zshell
+chsh -s "$zshell"
 
 # NEOVIM INSTALLS
 echo "Installing neovim"
