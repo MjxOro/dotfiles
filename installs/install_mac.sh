@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+zshell="which zsh"
+
 # ZSH INSTALLS
 echo "Installing zsh"
 
@@ -12,8 +14,8 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 # powerlevel10k theme for omz
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 
-# Change Shell
-chsh -s $(which zsh)
+# Change shell to zsh
+chsh -s $zshell
 
 # NEOVIM INSTALLS
 echo "Installing neovim"
