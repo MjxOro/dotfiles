@@ -19,7 +19,7 @@ if [[ "$OS" = *"Linux"* ]]; then
     $currentDir/installs/link_files.sh
 
     $currentDir/installs/install_linux.sh
-    echo "Installation Complete. Double check if extensions, plugins and/or updates are manually installed before using apps."
+    echo "Installation Complete. Double check if extensions, plugins and/or updates are manually installed before using apps. Restart terminal to see changes"
 elif [[ "$OS" = *"Darwin"* ]]; then
     # Installing brew
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -32,7 +32,7 @@ elif [[ "$OS" = *"Darwin"* ]]; then
     $currentDir/installs/link_files.sh
 
     $currentDir/installs/install_mac.sh
-    echo "Installation Complete. Double check if extensions, plugins and/or updates are manually installed before using apps."
+    echo "Installation Complete. Double check if extensions, plugins and/or updates are manually installed before using apps. Restart terminal to see changes"
 else 
   echo "OS Unkown"
 fi

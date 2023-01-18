@@ -17,7 +17,7 @@ git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$
 # ln -sf $(which wsl-open) /usr/local/bin/xdg-open
 
 # Change shell to zsh
-sudo chsh -s $(which zsh)
+chsh -s $(which zsh)
 
 # NEOVIM INSTALLS
 echo "Installing neovim"
