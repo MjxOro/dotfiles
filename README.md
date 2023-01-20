@@ -1,5 +1,7 @@
 # Install Instructions
 
+- This dotfiles repo uses stow to link dotfiles. Using the scripts will require stow.
+- `install.sh` will fully setup all apps including stow.
 - install scripts only works for ubuntu or mac machines.
 
 ### Fresh Machine (Ubuntu or Mac)
