@@ -15,11 +15,12 @@ if [[ "$OS" = *"Linux"* ]]; then
     sudo apt-get update -y
     sudo apt-get install stow -y
 
+    $currentDir/installs/install_linux.sh
+
     # Run link files
     echo "Linking dotfiles..."
     $currentDir/installs/link_files.sh
 
-    $currentDir/installs/install_linux.sh
 
     # Changing shell to zshell
     echo "Changing default shell, please enter password"
@@ -33,11 +34,12 @@ elif [[ "$OS" = *"Darwin"* ]]; then
     echo "Installing stow"
     brew install stow
 
+    $currentDir/installs/install_mac.sh
+    
     # Run link files
     echo "Linking dotfiles..."
     $currentDir/installs/link_files.sh
 
-    $currentDir/installs/install_mac.sh
 
     # Changing shell to zshell
     echo "Changing default shell, please enter password"
