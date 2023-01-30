@@ -25,8 +25,8 @@ if [[ "$OS" = *"Linux"* ]]; then
 
 
     # Changing shell to zshell
-    echo "Changing default shell, please enter password"
-    chsh -s "$(which zsh)"
+    # echo "Changing default shell, please enter password"
+    # chsh -s "$(which zsh)"
 
     echo "Installation Complete. Double check if extensions, plugins and/or updates are manually installed before using apps. Restart terminal to see changes"
 elif [[ "$OS" = *"Darwin"* ]]; then
@@ -46,8 +46,8 @@ elif [[ "$OS" = *"Darwin"* ]]; then
 
 
     # Changing shell to zshell
-    echo "Changing default shell, please enter password"
-    chsh -s "$(which zsh)"
+    # echo "Changing default shell, please enter password"
+    # chsh -s "$(which zsh)"
 
     echo "Installation Complete. Double check if extensions, plugins and/or updates are manually installed before using apps. Restart terminal to see changes"
 else 
