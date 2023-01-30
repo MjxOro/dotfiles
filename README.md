@@ -9,7 +9,7 @@
 - Quick start use this command:
 
 ```
-git clone https://github.com/MjxOro/dotfiles.git ~/dotfiles && cd ~/dotfiles && ./install.sh
+git clone https://github.com/MjxOro/dotfiles.git ~/dotfiles && cd ~/dotfiles && ./install.sh && ./installs/link_files.sh
 ```
 
 - enter sudo password to install all apps

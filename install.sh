@@ -20,8 +20,8 @@ if [[ "$OS" = *"Linux"* ]]; then
     rm ~/.zshrc
 
     # Run link files
-    echo "Linking dotfiles..."
-    $currentDir/installs/link_files.sh
+    # echo "Linking dotfiles..."
+    # $currentDir/installs/link_files.sh
 
 
     # Changing shell to zshell
@@ -41,8 +41,8 @@ elif [[ "$OS" = *"Darwin"* ]]; then
     rm ~/.zshrc
     
     # Run link files
-    echo "Linking dotfiles..."
-    $currentDir/installs/link_files.sh
+    # echo "Linking dotfiles..."
+    # $currentDir/installs/link_files.sh
 
 
     # Changing shell to zshell
