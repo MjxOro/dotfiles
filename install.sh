@@ -16,6 +16,8 @@ if [[ "$OS" = *"Linux"* ]]; then
     sudo apt-get install stow -y
 
     $currentDir/installs/install_linux.sh
+    
+    rm ~/.zshrc
 
     # Run link files
     echo "Linking dotfiles..."
@@ -35,6 +37,8 @@ elif [[ "$OS" = *"Darwin"* ]]; then
     brew install stow
 
     $currentDir/installs/install_mac.sh
+
+    rm ~/.zshrc
     
     # Run link files
     echo "Linking dotfiles..."
