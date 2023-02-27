@@ -30,8 +30,6 @@ if [[ "$OS" = *"Linux"* ]]; then
 
     echo "Installation Complete. Double check if extensions, plugins and/or updates are manually installed before using apps. Restart terminal to see changes"
 elif [[ "$OS" = *"Darwin"* ]]; then
-    # Installing brew
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     # Install stow
     echo "Installing stow"
     brew install stow
