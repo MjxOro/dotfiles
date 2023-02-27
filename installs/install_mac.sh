@@ -5,9 +5,6 @@ echo "Installing zsh"
 
 brew install zsh
 
-echo "Installing oh-my-zsh"
-
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 # powerlevel10k theme for omz
 git clone https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerlevel10k
