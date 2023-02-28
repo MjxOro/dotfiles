@@ -8,8 +8,8 @@
 #### Mac
 1. Install Brew
 ```
-    # Installing brew
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# Installing brew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 2. Install oh-my-zsh
 ```
@@ -25,11 +25,20 @@ git clone https://github.com/MjxOro/dotfiles.git ~/dotfiles && cd ~/dotfiles && 
 ---
 
 #### Ubuntu
-- Instuctions WIP
+1. Install oh-my-zsh
+```
+# Installing oh-my-zsh
 
-- enter sudo password to install all apps
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+
+2. Install dotfiles
+```
+git clone https://github.com/MjxOro/dotfiles.git ~/dotfiles && cd ~/dotfiles && ./install.sh && ./installs/link_files.sh
+```
 
 ---
+
 
 # Uninstall
 
