@@ -1,5 +1,5 @@
 -- Cursor
-vim.opt.guicursor = ""
+-- vim.opt.guicursor = ""
 -- Line number
 vim.opt.nu = true
 vim.opt.relativenumber = true
