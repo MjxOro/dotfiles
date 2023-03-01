@@ -10,18 +10,23 @@ zshell="$(which zsh)"
 echo "Checking OS"
 
 if [[ "$OS" = *"Linux"* ]]; then
+    rm ~/.zshrc
+
     # Install stow
+
     echo "Installing stow"
     sudo apt-get update -y
     sudo apt-get install stow -y
 
+    # Run link files
+    
+    echo "Linking dotfiles..."
+    $currentDir/installs/link_files.sh
+
+    # Running Install script for Ubuntu
     $currentDir/installs/install_linux.sh
     
-    rm ~/.zshrc
 
-    # Run link files
-    # echo "Linking dotfiles..."
-    # $currentDir/installs/link_files.sh
 
 
     # Changing shell to zshell
@@ -30,17 +35,20 @@ if [[ "$OS" = *"Linux"* ]]; then
 
     echo "Installation Complete. Double check if extensions, plugins and/or updates are manually installed before using apps. Restart terminal to see changes"
 elif [[ "$OS" = *"Darwin"* ]]; then
+    rm ~/.zshrc
+
     # Install stow
     echo "Installing stow"
     brew install stow
 
+    # Run link files
+    echo "Linking dotfiles..."
+    $currentDir/installs/link_files.sh
+
+    # Running Install script for macOs
     $currentDir/installs/install_mac.sh
 
-    rm ~/.zshrc
     
-    # Run link files
-    # echo "Linking dotfiles..."
-    # $currentDir/installs/link_files.sh
 
 
     # Changing shell to zshell
