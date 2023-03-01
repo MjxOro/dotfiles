@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-# ZSH INSTALLS
-echo "Installing zsh"
-
-sudo apt install zsh -y
-
 # powerlevel10k theme for omz
 git clone https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerlevel10k
 

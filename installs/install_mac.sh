@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-# ZSH INSTALLS
-echo "Installing zsh"
-
-brew install zsh
-
 
 # powerlevel10k theme for omz
 git clone https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerlevel10k
@@ -12,7 +7,7 @@ git clone https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerl
 # NEOVIM INSTALLS
 echo "Installing neovim"
 brew install neovim
-brew install clang # To compile ya treesitter thangs
+#brew install clang # To compile ya treesitter thangs
 
 echo "Installing nvim packer and plugins"
 
