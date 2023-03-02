@@ -28,6 +28,9 @@ echo "Installing tmux"
 
 brew install tmux
 
+# Removing initial conf file and tmux assets
+rm -rf $HOME/.tmux.conf $HOME/.tmux 
+
 echo "Please install your plugins (ctrl + b + shift + i)"
 
 # lazygit Installation
