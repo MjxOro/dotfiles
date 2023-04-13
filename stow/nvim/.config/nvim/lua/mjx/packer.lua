@@ -33,17 +33,30 @@ return require("packer").startup(function(use)
 	})
 
 	-- LSP
-  use 'neovim/nvim-lspconfig' -- Configurations for Nvim LSP
+  use {
+    'neovim/nvim-lspconfig',
+    requires = {
+      -- Automatically install LSPs to stdpath to nvim
+      -- Mason
+      "williamboman/mason.nvim",
+      "williamboman/mason-lspconfig.nvim",
+
+      -- useful updates for LSP
+      'j-hui/fidget.nvim'
+    }
+  } 
+  -- Auto completion
+  use {
+    'hrsh7th/nvim-cmp',
+    requires = {
+      'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip'
+    }
+  }
 	--Null-ls
   use({
     "jose-elias-alvarez/null-ls.nvim",
     requires = { "nvim-lua/plenary.nvim" },
   })
-  -- Mason
-  use {
-    "williamboman/mason.nvim",
-    run = ":MasonUpdate" -- :MasonUpdate updates registry contents
-  }
 	-- LuaLine
 	use({
 		"nvim-lualine/lualine.nvim",
