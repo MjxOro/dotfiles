@@ -11,7 +11,7 @@ return require("packer").startup(function(use)
 		tag = "0.1.0",
 		-- or                            , branch = '0.1.x',
 		requires = { { "nvim-lua/plenary.nvim" } },
-	})
+  })
 	use({ "nvim-telescope/telescope-file-browser.nvim" })
 	-- Poinmandres theme
 	-- Lua
@@ -23,9 +23,9 @@ return require("packer").startup(function(use)
 				-- leave this setup function empty for default config
 				-- or refer to the configuration section
 				-- for configuration options
-			})
-		end,
-	})
+      })
+      end,
+    })
 	-- Treesitter
 	use({
 		"nvim-treesitter/nvim-treesitter",
@@ -33,35 +33,17 @@ return require("packer").startup(function(use)
 	})
 
 	-- LSP
-	use({
-		"VonHeikemen/lsp-zero.nvim",
-		requires = {
-			-- LSP Support
-			{ "neovim/nvim-lspconfig" },
-			{ "williamboman/mason.nvim" },
-			{ "williamboman/mason-lspconfig.nvim" },
-
-			-- Autocompletion
-			{ "hrsh7th/nvim-cmp" },
-			{ "hrsh7th/cmp-buffer" },
-			{ "hrsh7th/cmp-path" },
-			{ "saadparwaiz1/cmp_luasnip" },
-			{ "hrsh7th/cmp-nvim-lsp" },
-			{ "hrsh7th/cmp-nvim-lua" },
-
-			-- Snippets
-			{ "L3MON4D3/LuaSnip" },
-			{ "rafamadriz/friendly-snippets" },
-		},
-	})
+  use 'neovim/nvim-lspconfig' -- Configurations for Nvim LSP
 	--Null-ls
-	use({
-		"jose-elias-alvarez/null-ls.nvim",
-		config = function()
-			require("null-ls").setup()
-		end,
-		requires = { "nvim-lua/plenary.nvim" },
-	})
+  use({
+    "jose-elias-alvarez/null-ls.nvim",
+    requires = { "nvim-lua/plenary.nvim" },
+  })
+  -- Mason
+  use {
+    "williamboman/mason.nvim",
+    run = ":MasonUpdate" -- :MasonUpdate updates registry contents
+  }
 	-- LuaLine
 	use({
 		"nvim-lualine/lualine.nvim",
@@ -80,13 +62,6 @@ return require("packer").startup(function(use)
 		"numToStr/Comment.nvim",
 		config = function()
 			require("Comment").setup()
-		end,
-	})
-	-- Guess indent
-	use({
-		"nmac427/guess-indent.nvim",
-		config = function()
-			require("guess-indent").setup({})
 		end,
 	})
 	-- MarkdownPreview
