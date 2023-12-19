@@ -1,3 +1,2 @@
-require("mjx.packer")
-require("mjx.set")
-require("mjx.remap")
+-- bootstrap lazy.nvim, LazyVim and your plugins
+require("config.lazy")
