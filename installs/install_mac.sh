@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 # powerlevel10k theme for omz
 git clone https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerlevel10k
 
@@ -8,15 +7,6 @@ git clone https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerl
 echo "Installing neovim"
 brew install neovim
 #brew install clang # To compile ya treesitter thangs
-
-echo "Installing nvim packer and plugins"
-
-git clone --depth 1 https://github.com/wbthomason/packer.nvim\
- ~/.local/share/nvim/site/pack/packer/start/packer.nvim
-
-nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
-
-echo "NOTE: Please install your LSPs. I'm too lazy to add all the commands"
 
 # NODE VERSION MANAGER INSTALLS
 # NVM directory already setup in .zshrc
