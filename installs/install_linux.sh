@@ -3,6 +3,9 @@
 # powerlevel10k theme for omz
 git clone https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerlevel10k
 
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
+echo 'source ~/powerlevel10k/powerlevel10k.zsh-theme' >>~/.zshrc
+
 # If WSL use this command for opening browsers from CLI
 # sudo apt install wsl-open -y
 # ln -sf $(which wsl-open) /usr/local/bin/xdg-open
@@ -11,7 +14,11 @@ git clone https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerl
 echo "Installing neovim"
 curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
 chmod u+x nvim.appimage
-./nvim.appimage
+./nvim.appimage --appimage-extract
+./squashfs-root/AppRun --version
+# Optional: exposing nvim globally.
+sudo mv squashfs-root /
+sudo ln -s /squashfs-root/AppRun /usr/bin/nvim
 
 # NODE VERSION MANAGER INSTALLS
 # NVM directory already setup in .zshrc
