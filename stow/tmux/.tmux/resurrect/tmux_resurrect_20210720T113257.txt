@@ -1,4 +1,0 @@
-pane	0	0	:fish	1	:*	0	:/Users/mattheworo	0	fish	:/opt/homebrew/bin/fish
-pane	0	0	:fish	1	:*	1	:/Users/mattheworo	1	fish	:/opt/homebrew/bin/fish
-window	0	0	1	:*	c1c0,300x99,0,0[300x89,0,0,0,300x9,0,90,1]
-state	0	
