@@ -11,7 +11,7 @@ if [[ -z "$SCRIPT_DIR_RAW" ]]; then
 fi
 SCRIPT_DIR_TEMP="$(cd "$(dirname "$SCRIPT_DIR_RAW")" >/dev/null 2>&1 && pwd)"
 SCRIPT_DIR_EXIT_CODE=$?
-set -e
+set -e # Enable errexit now
 if [ $SCRIPT_DIR_EXIT_CODE -ne 0 ] || [ -z "$SCRIPT_DIR_TEMP" ] || [ ! -d "$SCRIPT_DIR_TEMP" ]; then
   echo -e "\033[0;31mFATAL ERROR: Failed to determine script directory.\033[0m" >&2
   exit 1
@@ -65,22 +65,22 @@ show_help() {
   echo "  -u, --unlink         Unlink dotfiles for specified packages (or all)"
   echo "  -y, --yes            Assume yes for all prompts (use with caution)"
   echo "  -i, --interactive    Force interactive mode for prompts (default if TTY)"
-  echo "  -q, --quiet          Minimize output (stow errors will still be shown)"
+  echo "  -q, --quiet          Minimize output"
   echo "  -p, --packages       Comma-separated list of packages to link/unlink (default: all)"
+  echo "                       (e.g., nvim,tmux,zsh)"
   echo
   echo "Example:"
-  echo "  ./install.sh -d ~/my-dotfiles -p nvim,tmux"
-  echo "  ./install.sh -u       # Unlink all dotfiles"
-  echo "  ./install.sh -l       # Link dotfiles, skip dependency installation"
+  echo "  ./install.sh -d ~/my-dotfiles -p nvim,zsh"
+  echo "  ./install.sh -u       # Unlink all managed dotfiles"
 }
 
 # Parse arguments
-DOTFILES_DIR="$SCRIPT_DIR"
+DOTFILES_DIR="$SCRIPT_DIR" 
 UNLINK=false
 ASSUME_YES=false
 INTERACTIVE=false
 QUIET=false
-PACKAGES=""
+PACKAGES_TO_PROCESS="" 
 LINK_ONLY=false
 
 if [ -t 0 ] && [ -t 1 ]; then INTERACTIVE=true; fi
@@ -88,48 +88,15 @@ if [ -t 0 ] && [ -t 1 ]; then INTERACTIVE=true; fi
 while [[ $# -gt 0 ]]; do
   key="$1"
   case $key in
-  -h | --help)
-    show_help
-    exit 0
-    ;;
-  -d | --dotfiles-dir)
-    DOTFILES_DIR="$2"
-    shift
-    shift
-    ;;
-  -l | --link-only)
-    LINK_ONLY=true
-    shift
-    ;;
-  -u | --unlink)
-    UNLINK=true
-    shift
-    ;;
-  -y | --yes)
-    ASSUME_YES=true
-    INTERACTIVE=false
-    shift
-    ;;
-  -i | --interactive)
-    INTERACTIVE=true
-    ASSUME_YES=false
-    shift
-    ;;
-  -q | --quiet)
-    QUIET=true
-    INTERACTIVE=false
-    shift
-    ;;
-  -p | --packages)
-    PACKAGES="$2"
-    shift
-    shift
-    ;;
-  *)
-    print_message "$RED" "Unknown option: $1"
-    show_help
-    exit 1
-    ;;
+  -h | --help) show_help; exit 0 ;;
+  -d | --dotfiles-dir) DOTFILES_DIR="$2"; shift; shift ;;
+  -l | --link-only) LINK_ONLY=true; shift ;;
+  -u | --unlink) UNLINK=true; shift ;;
+  -y | --yes) ASSUME_YES=true; INTERACTIVE=false; shift ;;
+  -i | --interactive) INTERACTIVE=true; ASSUME_YES=false; shift ;;
+  -q | --quiet) QUIET=true; INTERACTIVE=false; shift ;;
+  -p | --packages) PACKAGES_TO_PROCESS="$2"; shift; shift ;; 
+  *) print_message "$RED" "Unknown option: $1"; show_help; exit 1 ;;
   esac
 done
 
@@ -137,13 +104,21 @@ if [ -d "$DOTFILES_DIR" ]; then DOTFILES_DIR="$(cd "$DOTFILES_DIR" && pwd)"; els
   print_message "$RED" "Error: Dotfiles directory not found at '$DOTFILES_DIR'"
   exit 1
 fi
-STOW_DIR="$DOTFILES_DIR/stow"
-if [ ! -d "$STOW_DIR" ]; then
-  print_message "$RED" "Error: Stow directory not found at: $STOW_DIR"
+LINK_SRC_BASE_DIR="$DOTFILES_DIR" # Source for packages is the DOTFILES_DIR itself
+if [ ! -d "$LINK_SRC_BASE_DIR" ]; then
+  print_message "$RED" "Error: Source base directory for packages not found at: $LINK_SRC_BASE_DIR"
   exit 1
 fi
 
-get_available_packages() { find "$STOW_DIR" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort; }
+get_available_packages() {
+  # Exclude .git and other common VCS/temporary files/dirs from being listed as packages
+  find "$LINK_SRC_BASE_DIR" -mindepth 1 -maxdepth 1 \
+    -not -path "$LINK_SRC_BASE_DIR/.git*" \
+    -not -name ".DS_Store" \
+    -not -name "README.md" \
+    -not -name "install.sh" \
+    -exec basename {} \; | sort
+}
 
 ask_yes_no() {
   local prompt_msg="$1" ans_default="${2:-y}" prompt_ind
@@ -161,322 +136,404 @@ ask_yes_no() {
   done
 }
 
-unlink_dotfiles() {
-  print_header "Unlinking Dotfiles"
-  if ! command_exists stow; then
-    print_message "$RED" "Error: GNU stow not found."
-    exit 1
-  fi
-  local pkgs_arr=()
-  if [ -n "$PACKAGES" ]; then IFS=',' read -ra pkgs_arr <<<"$PACKAGES"; else
-    local all_dirs=()
-    while IFS= read -r -d $'\0' dir; do all_dirs+=("$(basename "$dir")"); done < <(find "$STOW_DIR" -mindepth 1 -maxdepth 1 -type d -print0)
-    pkgs_arr=("${all_dirs[@]}")
-  fi
-  if [ ${#pkgs_arr[@]} -eq 0 ]; then
-    print_message "$YELLOW" "No packages to unlink."
-    return 0
-  fi
-  if [ "$QUIET" = false ]; then print_message "$BLUE" "Unlinking: ${pkgs_arr[*]}"; fi
-  local succ=0 fail=0 fail_pkgs_arr=()
-  for pkg_name in "${pkgs_arr[@]}"; do
-    if [ ! -d "$STOW_DIR/$pkg_name" ]; then
-      print_message "$YELLOW" "Pkg dir $STOW_DIR/$pkg_name not found. Skipping."
-      continue
+process_single_item() {
+  local action="$1"
+  local source_path="$2"
+  local target_path="$3"
+  local display_name="$4"
+  local main_backup_dir="$5"
+
+  echo -e "${PURPLE}  DEBUG: process_single_item: action='$action', source='$source_path', target='$target_path', name='$display_name'${NC}"
+
+  if [ "$action" = "link" ]; then
+    if [ ! -e "$source_path" ]; then
+        print_message "$RED" "  ERROR: Source path '$source_path' for '$display_name' does not exist. Skipping."
+        return 1
     fi
-    if [ "$QUIET" = false ]; then echo -n -e "${CYAN}Unlinking $pkg_name... ${NC}"; fi
-    local stow_out stow_ec
-    stow_out=$(stow -vD "$pkg_name" --dir="$STOW_DIR" --target="$HOME" 2>&1)
-    stow_ec=$?
-    if [ $stow_ec -eq 0 ]; then
-      if [ "$QUIET" = false ]; then echo -e "${GREEN}✓${NC}"; fi
-      ((succ++))
-    else
-      if [ "$QUIET" = false ]; then echo -e "${RED}✗${NC}"; fi
-      print_message "$RED" "❌ Fail unlink '$pkg_name' (code: $stow_ec)"
-      if [ -n "$stow_out" ]; then
-        print_message "$RED" "Stow output:"
-        echo -e "${GRAY}$(echo "$stow_out" | sed 's/^/  /')\n${NC}"
+    local target_parent_dir; target_parent_dir=$(dirname "$target_path")
+    if [ ! -d "$target_parent_dir" ]; then
+      if [ "$QUIET" = false ]; then print_message "$BLUE" "  Creating parent directory '$target_parent_dir' for '$display_name'"; fi
+      if ! mkdir -p "$target_parent_dir"; then
+        print_message "$RED" "  ERROR: Failed to create parent directory '$target_parent_dir' for '$display_name'."; return 1
       fi
-      ((fail++))
-      fail_pkgs_arr+=("$pkg_name")
     fi
-  done
-  echo
-  print_message "$BLUE" "Unlink Summary"
-  print_message "$GREEN" "Success: $succ"
-  if [ $fail -gt 0 ]; then
-    print_message "$RED" "Failed: $fail (${fail_pkgs_arr[*]}). Check output."
-    return 1
-  fi
-  if [ $succ -gt 0 ] && [ $fail -eq 0 ]; then print_message "$GREEN" "✨ All unlinked!"; elif [ $succ -eq 0 ] && [ $fail -eq 0 ]; then print_message "$YELLOW" "No packages unlinked."; fi
-  return 0
-}
 
-link_dotfiles() {
-  local pkgs_to_link_str="$1"
-  print_header "Linking Dotfiles (Pre-clear & Re-stow)"
-  if ! command_exists stow; then
-    print_message "$RED" "Error: GNU stow not found."
-    exit 1
-  fi
-
-  if [ -f "$SCRIPT_DIR/link_files.sh" ]; then
-    print_message "$BLUE" "Using external link_files.sh..."
-    local link_args=""
-    if [ -n "$DOTFILES_DIR" ]; then link_args+=" --dotfiles-dir \"$DOTFILES_DIR\""; fi
-    if [ "$ASSUME_YES" = true ]; then link_args+=" --force"; fi
-    if [ "$QUIET" = true ]; then link_args+=" --quiet"; fi
-    if [ -n "$pkgs_to_link_str" ]; then link_args+=" --packages \"$pkgs_to_link_str\""; fi
-    if bash -c "\"$SCRIPT_DIR/link_files.sh\" $link_args"; then
-      print_message "$GREEN" "External script OK."
+    if [ -L "$target_path" ]; then
+      local current_link_target; current_link_target=$(readlink -f "$target_path" 2>/dev/null || true)
+      local expected_link_target; expected_link_target=$(readlink -f "$source_path" 2>/dev/null || true)
+      echo -e "${PURPLE}    DEBUG: Target '$target_path' is a symlink. Current: '$current_link_target', Expected: '$expected_link_target'${NC}"
+      if [[ "$current_link_target" == "$expected_link_target" ]]; then
+        if [ "$QUIET" = false ]; then print_message "$GREEN" "  Symlink '$target_path' for '$display_name' already correct."; fi
+        return 0 
+      else
+        if ask_yes_no "  Target '$target_path' for '$display_name' is a symlink pointing to '$current_link_target'. Replace it?" "y"; then
+          if [ "$QUIET" = false ]; then print_message "$BLUE" "    Removing existing symlink '$target_path'"; fi
+          if ! rm "$target_path"; then
+             print_message "$RED" "    ERROR: Failed to remove existing symlink '$target_path'."; return 1
+          fi
+        else
+          if [ "$QUIET" = false ]; then print_message "$YELLOW" "    Skipping replacement of symlink '$target_path'."; fi
+          return 1 
+        fi
+      fi
+    elif [ -e "$target_path" ]; then
+      local conflict_desc="item"; if [ -d "$target_path" ]; then conflict_desc="directory"; elif [ -f "$target_path" ]; then conflict_desc="file"; fi
+      echo -e "${PURPLE}    DEBUG: Target '$target_path' exists and is a $conflict_desc.${NC}"
+      if ask_yes_no "  Target '$target_path' for '$display_name' ($conflict_desc) exists. Backup & remove it?" "y"; then
+        backup_made_globally=true 
+        local item_backup_path="$main_backup_dir/$display_name" 
+        if [ "$QUIET" = false ]; then print_message "$BLUE" "    Backing up '$target_path' to '$item_backup_path'"; fi
+        mkdir -p "$(dirname "$item_backup_path")"
+        if cp -aL "$target_path" "$item_backup_path"; then
+          if [ "$QUIET" = false ]; then print_message "$GRAY" "      Backed up."; fi
+          if [ "$QUIET" = false ]; then print_message "$BLUE" "    Removing '$target_path'"; fi
+          if ! rm -rf "$target_path"; then
+            print_message "$RED" "    ERROR: Failed to remove '$target_path'."; return 1
+          fi
+        else
+          print_message "$RED" "    ERROR: Failed to backup '$target_path'."; return 1
+        fi
+      else
+        if [ "$QUIET" = false ]; then print_message "$YELLOW" "    Skipping removal of '$target_path'."; fi
+        return 1 
+      fi
+    fi
+    if [ "$QUIET" = false ]; then echo -n -e "${CYAN}  Linking '$source_path' to '$target_path'... ${NC}"; fi
+    if ln -sfn "$source_path" "$target_path"; then
+      if [ "$QUIET" = false ]; then echo -e "${GREEN}✓ Linked${NC}"; fi
       return 0
     else
-      print_message "$RED" "External script FAIL."
+      if [ "$QUIET" = false ]; then echo -e "${RED}✗ Link Failed${NC}"; fi
+      print_message "$RED" "  ERROR: Failed to link '$display_name'."
       return 1
     fi
-  fi
 
-  if [ "$QUIET" = false ]; then print_message "$BLUE" "Using built-in stow (pre-clear & re-stow -R)..."; fi
-  local pkgs_to_link_arr=()
-  if [ -n "$pkgs_to_link_str" ]; then IFS=',' read -ra pkgs_to_link_arr <<<"$pkgs_to_link_str"; else
-    local all_dirs_loc=()
-    while IFS= read -r -d $'\0' dir_loc; do all_dirs_loc+=("$(basename "$dir_loc")"); done < <(find "$STOW_DIR" -mindepth 1 -maxdepth 1 -type d -print0)
-    pkgs_to_link_arr=("${all_dirs_loc[@]}")
-  fi
-  if [ ${#pkgs_to_link_arr[@]} -eq 0 ]; then
-    print_message "$YELLOW" "No packages to link."
-    return 0
-  fi
-  if [ "$QUIET" = false ]; then print_message "$BLUE" "Re-stowing: ${pkgs_to_link_arr[*]}"; fi
-
-  local succ_cnt=0 fail_cnt=0 fail_pkgs_list=() backup_made_globally=false
-  local ts=$(date +%Y%m%d_%H%M%S) main_backup_basedir="$HOME/.dotfiles_backup/$ts"
-
-  for pkg_name_loop in "${pkgs_to_link_arr[@]}"; do
-    local pkg_stow_src_dir="$STOW_DIR/$pkg_name_loop"
-    if [ ! -d "$pkg_stow_src_dir" ]; then
-      print_message "$YELLOW" "Pkg dir '$pkg_stow_src_dir' not found. Skipping."
-      continue
-    fi
-    if [ "$QUIET" = false ]; then echo -e "${CYAN}Processing package '$pkg_name_loop'...${NC}"; fi
-    local pre_clear_ok=true first_conflict_header_printed=false
-    if [ "$QUIET" = false ]; then print_message "$BLUE" "  Performing pre-stow cleanup check for '$pkg_name_loop':"; fi
-    local find_results_file
-    find_results_file=$(mktemp)
-    find "$pkg_stow_src_dir" -depth -print0 >"$find_results_file"
-    while IFS= read -r -d $'\0' src_item_abs_path; do
-      if [[ "$src_item_abs_path" == "$pkg_stow_src_dir" ]]; then continue; fi
-      local rel_to_pkg_root="${src_item_abs_path#$pkg_stow_src_dir/}"
-      local target_in_home="$HOME/$rel_to_pkg_root"
-      if [ -e "$target_in_home" ] || [ -L "$target_in_home" ]; then
-        local is_correct_link=false
-        if [ -L "$target_in_home" ]; then
-          local link_points_to
-          link_points_to=$(readlink -f "$target_in_home" 2>/dev/null || true)
-          if [[ "$link_points_to" == "$src_item_abs_path" ]]; then is_correct_link=true; fi
-        fi
-        if ! $is_correct_link; then
-          if [ "$QUIET" = false ] && ! $first_conflict_header_printed; then
-            print_message "$YELLOW" "    Found items in '$HOME' conflicting with '$pkg_name_loop' contents:"
-            first_conflict_header_printed=true
-          fi
-          local conflict_desc="item"
-          if [ -L "$target_in_home" ]; then conflict_desc="symlink (to: $(readlink "$target_in_home" 2>/dev/null || echo "broken"))"; fi
-          if [ -d "$target_in_home" ] && [ ! -L "$target_in_home" ]; then conflict_desc="directory"; fi
-          if [ -f "$target_in_home" ] && [ ! -L "$target_in_home" ]; then conflict_desc="file"; fi
-          if ask_yes_no "      Target '$target_in_home' ($conflict_desc) conflicts. Backup & remove it?" "y"; then
-            backup_made_globally=true
-            local item_backup_parent="$main_backup_basedir/$pkg_name_loop/$(dirname "$rel_to_pkg_root")"
-            mkdir -p "$item_backup_parent"
-            local item_backup_target="$main_backup_basedir/$pkg_name_loop/$rel_to_pkg_root"
-            if [ "$QUIET" = false ]; then print_message "$BLUE" "        Backing up '$target_in_home' to '$item_backup_target'"; fi
-            if cp -aL "$target_in_home" "$item_backup_target"; then if [ "$QUIET" = false ]; then print_message "$GRAY" "          Backed up."; fi; else
-              print_message "$RED" "        ERROR: Failed to backup '$target_in_home'."
-              pre_clear_ok=false
-            fi
-            if $pre_clear_ok; then
-              if [ "$QUIET" = false ]; then print_message "$BLUE" "        Removing '$target_in_home'"; fi
-              if rm -rf "$target_in_home"; then if [ "$QUIET" = false ]; then print_message "$GRAY" "          Removed."; fi; else
-                print_message "$RED" "        ERROR: Failed to remove '$target_in_home'."
-                pre_clear_ok=false
-              fi
-            fi
-          else
-            if [ "$QUIET" = false ]; then print_message "$YELLOW" "      Skipping removal of '$target_in_home'. Stow will likely fail."; fi
-            pre_clear_ok=false
-          fi
-        fi
+  elif [ "$action" = "unlink" ]; then
+    if [ ! -L "$target_path" ]; then
+      if [ -e "$target_path" ] && [ "$QUIET" = false ]; then
+        print_message "$YELLOW" "  Skipping '$target_path' for '$display_name': Not a symlink."
+      elif [ "$QUIET" = false ] && [ ! -e "$target_path" ]; then
+         echo -e "${PURPLE}    DEBUG: Target '$target_path' for unlink does not exist.${NC}"
       fi
-      if ! $pre_clear_ok; then break; fi
-    done < <(cat "$find_results_file" | sort -zr)
-    rm -f "$find_results_file"
-    if ! $pre_clear_ok; then
-      if [ "$QUIET" = false ]; then print_message "$RED" "  Pre-clear for '$pkg_name_loop' failed/aborted. Skipping stow."; fi
-      ((fail_cnt++))
-      fail_pkgs_list+=("$pkg_name_loop (pre-clear failed)")
-      continue
+      return 0 
     fi
-    if [ "$QUIET" = false ] && $first_conflict_header_printed; then echo; fi
-    if [ "$QUIET" = false ]; then echo -n -e "${CYAN}  Attempting to re-stow '$pkg_name_loop'... ${NC}"; fi
-    local stow_out_val stow_ec_val
-    stow_out_val=$(stow -vR "$pkg_name_loop" --dir="$STOW_DIR" --target="$HOME" 2>&1)
-    stow_ec_val=$?
-    if [ $stow_ec_val -eq 0 ]; then
-      if [ "$QUIET" = false ]; then echo -e "${GREEN}✓ Re-stowed${NC}"; fi
-      ((succ_cnt++))
-    else
-      if [ "$QUIET" = false ]; then echo -e "${RED}✗ Re-stow Failed${NC}"; fi
-      print_message "$RED" "❌ Failed to re-stow '$pkg_name_loop' (code: $stow_ec_val)"
-      if [ -n "$stow_out_val" ]; then
-        print_message "$RED" "  Stow output:"
-        echo -e "${GRAY}$(echo "$stow_out_val" | sed 's/^    /')\n${NC}"
-      fi
-      ((fail_cnt++))
-      fail_pkgs_list+=("$pkg_name_loop")
-    fi
-  done
-  echo
-  print_message "$BLUE" "Link Summary"
-  print_message "$GREEN" "Success: $succ_cnt"
-  if [ $fail_cnt -gt 0 ]; then print_message "$RED" "Failed: $fail_cnt (${fail_pkgs_list[*]}). Check output."; fi
-  if [ "$backup_made_globally" = true ]; then if [ -d "$main_backup_basedir" ] && [ "$(ls -A "$main_backup_basedir")" ]; then
-    echo
-    print_message "$BLUE" "Backups created in $main_backup_basedir"
-  fi; fi
-  if [ $fail_cnt -eq 0 ]; then
-    if [ $succ_cnt -gt 0 ]; then print_message "$GREEN" "✨ All re-stowed!"; elif [ ${#pkgs_to_link_arr[@]} -gt 0 ]; then print_message "$YELLOW" "No packages re-stowed."; fi
-    return 0
-  else
-    print_message "$RED" "⚠️ Some packages failed. Review logs. Manually remove conflicting non-symlinked DIRS if needed."
-    return 1
-  fi
-}
 
-# Function to install dependencies for macOS (Simplified Stub)
-install_mac_dependencies() {
-  print_header "Dependency Check for macOS"
-  if ! command_exists stow; then
-    print_message "$RED" "GNU Stow not found. Please install stow (e.g., using Homebrew: 'brew install stow')."
-    return 1
-  fi
-  print_message "$GREEN" "Stow is installed."
-  print_message "$YELLOW" "Other dependency installations for macOS are not handled by this script."
-  return 0
-}
+    local current_link_target; current_link_target=$(readlink -f "$target_path" 2>/dev/null || true)
+    local expected_link_target; expected_link_target=$(readlink -f "$source_path" 2>/dev/null || true)
+    echo -e "${PURPLE}    DEBUG: Target '$target_path' is a symlink. Current: '$current_link_target', Expected: '$expected_link_target'${NC}"
 
-# Function to install dependencies for Arch Linux (Simplified Stub)
-install_arch_dependencies() {
-  print_header "Dependency Check for Arch Linux"
-  if ! command_exists stow; then
-    print_message "$RED" "GNU Stow not found. Please install stow (e.g., 'sudo pacman -S stow')."
-    return 1
-  fi
-  print_message "$GREEN" "Stow is installed."
-  print_message "$YELLOW" "Other dependency installations for Arch Linux are not handled by this script."
-  return 0
-}
-
-# Function to install dependencies for Debian/Ubuntu (Focus on Neovim PPA - UNSTABLE)
-install_debian_dependencies() {
-  print_header "Installing Dependencies for Debian/Ubuntu"
-
-  if [ "$QUIET" = false ]; then
-    print_message "$BLUE" "Updating package lists (sudo will be required)..."
-  fi
-  echo -n -e "${CYAN}Updating apt package lists... ${NC}"
-  if sudo apt-get update -y >/dev/null 2>&1; then
-    echo -e "${GREEN}✓${NC}"
-  else
-    echo -e "${RED}✗${NC}"
-    print_message "$RED" "Failed to update apt lists. Some installations may fail."
-  fi
-
-  local essential_deps_for_script=("stow" "git" "curl" "software-properties-common") # software-properties-common for add-apt-repository
-  local packages_to_install_apt=()
-
-  if [ "$QUIET" = false ]; then print_message "$BLUE" "Checking essential packages (stow, git, curl, software-properties-common)..."; fi
-  for package in "${essential_deps_for_script[@]}"; do
-    if ! dpkg-query -W -f='${Status}' "$package" 2>/dev/null | grep -q "ok installed"; then
-      if ask_yes_no "  Install $package (essential for script operation/Neovim PPA)?" "y"; then
-        packages_to_install_apt+=("$package")
+    if [[ "$current_link_target" == "$expected_link_target" ]]; then
+      if [ "$QUIET" = false ]; then echo -n -e "${CYAN}  Unlinking '$target_path' for '$display_name'... ${NC}"; fi
+      if rm "$target_path"; then
+        if [ "$QUIET" = false ]; then echo -e "${GREEN}✓ Unlinked${NC}"; fi
+        return 0
       else
-        print_message "$RED" "  $package is required. Aborting dependency installation."
-        return 1 # Critical dependency declined
+        if [ "$QUIET" = false ]; then echo -e "${RED}✗ Failed to remove${NC}"; fi
+        print_message "$RED" "  ERROR: Failed to remove symlink '$target_path'."
+        return 1
       fi
     else
-      if [ "$QUIET" = false ]; then print_message "$GREEN" "  $package is already installed."; fi
+      if [ "$QUIET" = false ]; then
+        print_message "$YELLOW" "  Skipping '$target_path' for '$display_name': Symlink points to '$current_link_target', not expected '$expected_link_target'."
+      fi
+      return 0 
     fi
-  done
+  else
+    print_message "$RED" "Unknown action '$action' in process_single_item."
+    return 1
+  fi
+}
 
-  # Install any accumulated essential packages first
-  if [ ${#packages_to_install_apt[@]} -gt 0 ]; then
-    if [ "$QUIET" = false ]; then print_message "$BLUE" "  Installing with apt: ${packages_to_install_apt[*]}"; fi
-    echo -n -e "${CYAN}  Installing selected apt packages... ${NC}"
-    if sudo apt-get install -y "${packages_to_install_apt[@]}" >/dev/null 2>&1; then
-      echo -e "${GREEN}✓${NC}"
-    else
-      echo -e "${RED}✗${NC}"
-      print_message "$RED" "  Failed to install some essential apt packages. Neovim PPA addition might fail."
+manage_dotfiles() {
+  local action="$1" 
+  local header_msg=""
+  if [ "$action" = "link" ]; then header_msg="Linking Dotfiles (Manual Symlinks)"; else header_msg="Unlinking Dotfiles (Manual Symlinks)"; fi
+  print_header "$header_msg"
+
+  # Enable more verbose debugging
+  set -E  # Inherit error trap
+  trap 'echo -e "\033[0;31mERROR: Command failed at line $LINENO: $BASH_COMMAND\033[0m"' ERR
+
+  local packages_to_act_on_arr=()
+  if [ -n "$PACKAGES_TO_PROCESS" ]; then 
+    IFS=',' read -ra packages_to_act_on_arr <<<"$PACKAGES_TO_PROCESS"
+  else
+    mapfile -t packages_to_act_on_arr < <(get_available_packages) 
+  fi
+
+  if [ ${#packages_to_act_on_arr[@]} -eq 0 ]; then
+    print_message "$YELLOW" "No packages specified or found to $action."
+    return 0
+  fi
+
+  if [ "$QUIET" = false ]; then print_message "$BLUE" "Packages to $action: ${packages_to_act_on_arr[*]}"; fi
+  local overall_succ_cnt=0 overall_fail_cnt=0 overall_fail_list=()
+  local ts; ts=$(date +%Y%m%d_%H%M%S) 
+  local main_backup_dir="$HOME/.dotfiles_backup/$ts"
+  backup_made_globally=false 
+
+  echo -e "${PURPLE}DEBUG: Starting package processing loop with ${#packages_to_act_on_arr[@]} packages${NC}"
+  
+  for package_name in "${packages_to_act_on_arr[@]}"; do
+    echo -e "${PURPLE}DEBUG: Starting to process package '$package_name'${NC}"
+    local package_source_dir="$LINK_SRC_BASE_DIR/$package_name"
+    if [ ! -d "$package_source_dir" ]; then
+      print_message "$YELLOW" "Package source directory '$package_source_dir' not found. Skipping '$package_name'."
+      ((overall_fail_cnt++)); overall_fail_list+=("$package_name (src dir missing)")
+      continue
+    fi
+    if [ "$QUIET" = false ]; then print_message "$CYAN" "Processing package '$package_name':"; fi
+    echo -e "${PURPLE}DEBUG: Processing package '$package_name' from '$package_source_dir'${NC}"
+
+
+    local items_processed_in_package=0
+    local items_succeeded_in_package=0
+    local items_failed_in_package=0
+
+    # Rule 1: Top-level non-dot-prefixed directories (like nvim, starship) link to ~/.config/
+    if [[ "$package_name" != .* ]]; then # e.g. "nvim", "starship"
+      echo -e "${PURPLE}  DEBUG: Applying Rule 1 for '$package_name'${NC}"
+      items_processed_in_package=$((items_processed_in_package + 1))
+      if process_single_item "$action" "$package_source_dir" "$HOME/.config/$package_name" "$package_name" "$main_backup_dir"; then
+        items_succeeded_in_package=$((items_succeeded_in_package + 1))
+      else
+        items_failed_in_package=$((items_failed_in_package + 1))
+      fi
+    fi
+
+    # Rule 2: For specific packages, look *inside* them for specific dotfiles to link to home
+    echo -e "${PURPLE}  DEBUG: Applying Rule 2 for '$package_name'${NC}"
+    local found_items_in_package=()
+    
+    # Use a safer approach to find dot files
+    echo -e "${PURPLE}  DEBUG: Searching for dot items in '$package_source_dir'${NC}"
+    while IFS= read -r -d '' item; do
+        local item_basename=$(basename "$item")
+        echo -e "${PURPLE}    DEBUG: Found item: $item_basename${NC}"
+        
+        # Only link specific dotfiles (.zshrc, .tmux, .tmux.conf) to home directory
+        if [[ "$item_basename" == ".zshrc" || "$item_basename" == ".tmux" || "$item_basename" == ".tmux.conf" ]]; then
+          found_items_in_package+=("$item")
+          echo -e "${PURPLE}    DEBUG: Added to processing list: $item${NC}"
+        else
+          echo -e "${PURPLE}    DEBUG: Skipping item (not in allowed home dotfiles): $item_basename${NC}"
+        fi
+    done < <(find "$package_source_dir" -mindepth 1 -maxdepth 1 -name ".*" -print0 2>/dev/null || echo -e "${RED}Find command failed!${NC}")
+
+    echo -e "${PURPLE}  DEBUG: Found ${#found_items_in_package[@]} dot-items in '$package_name'${NC}"
+    
+    if [ ${#found_items_in_package[@]} -gt 0 ]; then
+      echo -e "${PURPLE}    DEBUG: Found dot-items in '$package_name': ${found_items_in_package[*]}${NC}"
+      for source_item_abs_path in "${found_items_in_package[@]}"; do
+        local item_basename; item_basename=$(basename "$source_item_abs_path")
+        echo -e "${PURPLE}      DEBUG: Processing inner item '$item_basename' from '$package_name'${NC}"
+        items_processed_in_package=$((items_processed_in_package + 1))
+        if process_single_item "$action" "$source_item_abs_path" "$HOME/$item_basename" "$item_basename" "$main_backup_dir"; then
+          items_succeeded_in_package=$((items_succeeded_in_package + 1))
+        else
+          items_failed_in_package=$((items_failed_in_package + 1))
+        fi
+      done
+    fi
+    
+    if [ "$QUIET" = false ] && [ $items_processed_in_package -gt 0 ]; then
+      if [ $items_failed_in_package -eq 0 ]; then
+        print_message "$GREEN" "  Package '$package_name' processed successfully ($items_succeeded_in_package item(s))."
+      else
+        print_message "$YELLOW" "  Package '$package_name': $items_succeeded_in_package/$items_processed_in_package item(s) succeeded."
+      fi
+    fi
+
+    if [ $items_processed_in_package -gt 0 ]; then # Only count package if items were attempted
+        if [ $items_failed_in_package -eq 0 ]; then
+            overall_succ_cnt=$((overall_succ_cnt + 1))
+        else
+            overall_fail_cnt=$((overall_fail_cnt + 1))
+            overall_fail_list+=("$package_name (partial/full failure)")
+        fi
+    fi
+    
+    echo -e "${PURPLE}DEBUG: Completed processing package '$package_name'${NC}"
+  done 
+  
+  # Disable the error trap
+  trap - ERR
+  set +E
+
+  echo; print_message "$BLUE" "$action Summary"
+  print_message "$GREEN" "Packages fully successful: $overall_succ_cnt" # Changed wording
+  if [ $overall_fail_cnt -gt 0 ]; then
+    print_message "$RED" "Packages with failures or not processed as expected: $overall_fail_cnt (${overall_fail_list[*]}). Check output."
+  fi
+  if [ "$action" = "link" ] && [ "$backup_made_globally" = true ]; then
+    if [ -d "$main_backup_dir" ] && [ "$(ls -A "$main_backup_dir")" ]; then
+      echo; print_message "$BLUE" "Backups created in $main_backup_dir"
     fi
   fi
-  packages_to_install_apt=() # Reset for Neovim
+  
+  if [ $overall_fail_cnt -eq 0 ]; then
+    # Success if no failures, even if succ_cnt is 0 (e.g. unlinking already unlinked items)
+    print_message "$GREEN" "✨ All specified packages processed successfully for $action!"
+    return 0
+  else
+    print_message "$RED" "⚠️ Some packages had issues during $action. Review logs."
+    return 1
+  fi
+}
 
-  # --- Install Neovim using PPA (UNSTABLE) ---
-  local nvim_installed_path
-  nvim_installed_path=$(command -v nvim 2>/dev/null || true)
+
+# --- Helper Install Functions & OS Specific Dependencies ---
+# (Omitted for brevity - assume they are the same as your last full script)
+_install_starship_via_curl_script() { 
+  if command_exists starship; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  Starship is already installed."; fi
+    return 0
+  fi
+  if ask_yes_no "  Install Starship (prompt) via official script?" "y"; then
+    if ! command_exists curl; then print_message "$RED" "    curl is required for Starship script. Please install curl."; return 1; fi
+    echo -n -e "${CYAN}    Installing Starship (curl ... | sh)... ${NC}"
+    local starship_cmd="curl -sS https://starship.rs/install.sh | sh -s --"
+    if [ "$ASSUME_YES" = true ]; then starship_cmd+=" -y"; fi
+
+    local s_out s_ec
+    if [ "$QUIET" = true ] && [ "$ASSUME_YES" = true ]; then
+        s_out=$(eval "$starship_cmd" 2>&1); s_ec=$?
+    else
+        echo; s_out=$(eval "$starship_cmd"); s_ec=$?
+    fi
+    if [ $s_ec -eq 0 ] && command_exists starship; then echo -e "${GREEN}✓${NC}"; else
+      echo -e "${RED}✗${NC}"; print_message "$RED" "    Starship script install failed (code: $s_ec)."
+      if [ -n "$s_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $s_out"; fi
+    fi
+  else print_message "$YELLOW" "  Starship script installation skipped."; fi
+}
+_install_ohmyzsh_script() { 
+  if [ -d "$HOME/.oh-my-zsh" ]; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  Oh My Zsh is already installed."; fi
+    return 0
+  fi
+  if ! command_exists zsh || ! command_exists git || ! command_exists curl; then
+    print_message "$YELLOW" "  Zsh, Git, & Curl are required for Oh My Zsh. Install them first."
+    return 1
+  fi
+  if ask_yes_no "  Install Oh My Zsh?" "y"; then
+    local omz_url="https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+    local cmd_prefix="" script_args=""
+    if [ "$ASSUME_YES" = true ]; then cmd_prefix="CHSH=no RUNZSH=no "; script_args="--unattended"; fi
+    echo -n -e "${CYAN}    Installing Oh My Zsh (curl ... | sh)... ${NC}"
+    local omz_out omz_ec
+    if [ "$QUIET" = true ] || [ "$ASSUME_YES" = true ]; then
+      omz_out=$(eval "${cmd_prefix} curl -fsSL ${omz_url} | sh -s -- ${script_args}" 2>&1); omz_ec=$?
+    else echo; omz_out=$(eval "${cmd_prefix} curl -fsSL ${omz_url} | sh -s -- ${script_args}"); omz_ec=$?; fi
+
+    if [ -d "$HOME/.oh-my-zsh" ]; then echo -e "${GREEN}✓${NC}"; print_message "$GREEN" "    Oh My Zsh installed. May need 'chsh -s \$(which zsh)' & restart."; else
+      echo -e "${RED}✗${NC}"; print_message "$RED" "    Oh My Zsh install failed (dir not found)."
+      if [ -n "$omz_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $omz_out"; fi
+    fi
+  else print_message "$YELLOW" "  Oh My Zsh installation skipped."; fi
+}
+
+install_mac_dependencies() { 
+  print_header "Dependency Check for macOS"
+  local all_ok=true
+  if ! command_exists gcc; then
+    if ask_yes_no "  Install Xcode Command Line Tools (provides GCC, Git, etc.)?" "y"; then
+      if [ "$ASSUME_YES" = true ]; then print_message "$YELLOW" "    Xcode Tools install needs GUI. Run 'xcode-select --install' manually."; else
+        print_message "$BLUE" "  Triggering Xcode Tools install. Follow GUI prompts."; xcode-select --install;
+      fi
+    fi
+  elif [ "$QUIET" = false ]; then print_message "$GREEN" "  GCC (from Xcode Tools) is installed."; fi
+  
+  if ! command_exists starship; then
+    if command_exists brew && ask_yes_no "  Install Starship (prompt) using Homebrew?" "y"; then
+      echo -n -e "${CYAN}    brew install starship... ${NC}"; if brew install starship >/dev/null 2>&1; then echo -e "${GREEN}✓${NC}"; else echo -e "${RED}✗${NC}"; fi
+    elif [ "$QUIET" = false ] && ! command_exists brew; then print_message "$YELLOW" "  Homebrew not found, cannot install Starship via brew."; fi
+  elif [ "$QUIET" = false ]; then print_message "$GREEN" "  Starship is already installed."; fi
+
+  _install_ohmyzsh_script 
+
+  if ! $all_ok; then return 1; fi 
+  return 0
+}
+install_arch_dependencies() { 
+  print_header "Dependency Check for Arch Linux"
+  local all_ok=true
+  local arch_needed_pkgs=("gcc" "zsh" "curl" "git") pkgs_to_install_pacman=()
+  for pkg in "${arch_needed_pkgs[@]}"; do
+    if ! command_exists "$pkg"; then
+      if ask_yes_no "  Package '$pkg' not found. Install with pacman?" "y"; then pkgs_to_install_pacman+=("$pkg"); fi
+    elif [ "$QUIET" = false ]; then print_message "$GREEN" "  $pkg is available."; fi
+  done
+  if [ ${#pkgs_to_install_pacman[@]} -gt 0 ]; then
+    local pacman_cmd="sudo pacman -S --needed --noconfirm ${pkgs_to_install_pacman[*]}"
+    if [ "$ASSUME_YES" = false ]; then pacman_cmd="sudo pacman -S --needed ${pkgs_to_install_pacman[*]}"; fi
+    echo -n -e "${CYAN}    pacman -S ${pkgs_to_install_pacman[*]}... ${NC}"; if eval "$pacman_cmd" >/dev/null 2>&1; then echo -e "${GREEN}✓${NC}"; else echo -e "${RED}✗${NC}"; all_ok=false; fi
+  fi
+  
+  _install_starship_via_curl_script
+  _install_ohmyzsh_script
+
+  if ! $all_ok; then return 1; fi
+  return 0
+}
+install_debian_dependencies() { 
+  print_header "Installing Dependencies for Debian/Ubuntu"
+  local all_ok=true
+
+  if [ "$QUIET" = false ]; then print_message "$BLUE" "Updating package lists (sudo)..."; fi
+  echo -n -e "${CYAN}Updating apt package lists... ${NC}"
+  if sudo apt-get update -y >/dev/null 2>&1; then echo -e "${GREEN}✓${NC}"; else
+    echo -e "${RED}✗${NC}"; print_message "$RED" "Failed to update apt lists."; all_ok=false
+  fi
+
+  local essential_deps_script=("git" "curl" "software-properties-common" "build-essential" "zsh") 
+  local packages_to_install_apt=()
+  if [ "$QUIET" = false ]; then print_message "$BLUE" "Checking core packages (git, curl, build-essential/gcc, zsh)..."; fi
+  for package in "${essential_deps_script[@]}"; do
+    local check_cmd="$package"; if [ "$package" = "build-essential" ]; then check_cmd="gcc"; fi
+    if ! dpkg-query -W -f='${Status}' "$package" 2>/dev/null | grep -q "ok installed" && ! command_exists "$check_cmd"; then
+      if ask_yes_no "  Install $package (provides $check_cmd)?" "y"; then packages_to_install_apt+=("$package"); fi
+    elif [ "$QUIET" = false ]; then print_message "$GREEN" "  $package is already installed."; fi
+  done
+  if [ ${#packages_to_install_apt[@]} -gt 0 ]; then
+    echo -n -e "${CYAN}  Installing with apt: ${packages_to_install_apt[*]}... ${NC}"
+    if sudo apt-get install -y "${packages_to_install_apt[@]}" >/dev/null 2>&1; then echo -e "${GREEN}✓${NC}"; else
+      echo -e "${RED}✗${NC}"; print_message "$RED" "  Failed to install some apt packages."; all_ok=false
+    fi
+  fi
+
+  local nvim_installed_path; nvim_installed_path=$(command -v nvim 2>/dev/null || true)
   local install_neovim_via_ppa=false
-
   if [ -n "$nvim_installed_path" ]; then
     local current_nvim_version=$($nvim_installed_path --version 2>/dev/null | head -n 1 || echo "Unknown version")
     print_message "$GREEN" "  Neovim is already installed: $current_nvim_version (at $nvim_installed_path)"
     if ask_yes_no "  Update/reinstall Neovim using the UNSTABLE PPA (ppa:neovim-ppa/unstable)?" "y"; then
-      install_neovim_via_ppa=true
-    else
-      print_message "$YELLOW" "  Keeping existing Neovim version."
+      install_neovim_via_ppa=true; 
     fi
   else
     print_message "$YELLOW" "  Neovim not found."
-    if ask_yes_no "  Install Neovim using the UNSTABLE PPA (ppa:neovim-ppa/unstable)?" "y"; then
-      install_neovim_via_ppa=true
-    else
-      print_message "$YELLOW" "  Neovim installation skipped."
-    fi
+    if ask_yes_no "  Install Neovim using the UNSTABLE PPA (ppa:neovim-ppa/unstable)?" "y"; then install_neovim_via_ppa=true; fi
   fi
-
   if [ "$install_neovim_via_ppa" = true ]; then
     print_message "$BLUE" "  Attempting to install/update Neovim using UNSTABLE PPA..."
-    echo -n -e "${CYAN}    Adding Neovim UNSTABLE PPA (ppa:neovim-ppa/unstable)... ${NC}"
-    if sudo add-apt-repository -y ppa:neovim-ppa/unstable >/dev/null 2>&1; then # CHANGED HERE
-      echo -e "${GREEN}✓${NC}"
-      echo -n -e "${CYAN}    Updating package lists after adding PPA... ${NC}"
-      if sudo apt-get update -y >/dev/null 2>&1; then
-        echo -e "${GREEN}✓${NC}"
-        echo -n -e "${CYAN}    Installing neovim from PPA... ${NC}"
-        if sudo apt-get install -y neovim >/dev/null 2>&1; then
-          echo -e "${GREEN}✓${NC}"
-          print_message "$GREEN" "    Neovim installed/updated successfully from UNSTABLE PPA."
-        else
-          echo -e "${RED}✗${NC}"
-          print_message "$RED" "    ERROR: Failed to install neovim from PPA after update."
-        fi
-      else
-        echo -e "${RED}✗${NC}"
-        print_message "$RED" "    ERROR: Failed to update package lists after adding Neovim PPA."
-      fi
-    else
-      echo -e "${RED}✗${NC}"
-      print_message "$RED" "    ERROR: Failed to add Neovim UNSTABLE PPA. Make sure 'software-properties-common' is installed."
+    if ! command_exists add-apt-repository; then print_message "$RED" "    'add-apt-repository' (software-properties-common) not found."; else
+      echo -n -e "${CYAN}    Adding Neovim UNSTABLE PPA... ${NC}"
+      if sudo add-apt-repository -y ppa:neovim-ppa/unstable >/dev/null 2>&1; then echo -e "${GREEN}✓${NC}";
+        echo -n -e "${CYAN}    Updating package lists after PPA... ${NC}"; if sudo apt-get update -y >/dev/null 2>&1; then echo -e "${GREEN}✓${NC}";
+          echo -n -e "${CYAN}    Installing neovim from PPA... ${NC}"; if sudo apt-get install -y neovim >/dev/null 2>&1; then echo -e "${GREEN}✓${NC}"; else echo -e "${RED}✗${NC}"; all_ok=false; fi
+        else echo -e "${RED}✗${NC}"; all_ok=false; fi
+      else echo -e "${RED}✗${NC}"; all_ok=false; fi
     fi
   fi
-  # --- End of Neovim PPA Install ---
 
+  _install_starship_via_curl_script
+  _install_ohmyzsh_script
+
+  if ! $all_ok; then return 1; fi
   print_message "$GREEN" "Debian/Ubuntu dependency check complete."
   return 0
 }
-
-# Function to install dependencies based on OS
-install_dependencies() {
+install_dependencies() { 
   local os_name_detected=""
   local os_id_like=""
   local os_id=""
@@ -484,38 +541,24 @@ install_dependencies() {
   os_uname_s=$(uname -s)
 
   case "$os_uname_s" in
-  Darwin)
-    os_name_detected="macOS"
-    install_mac_dependencies
-    ;;
+  Darwin) os_name_detected="macOS"; install_mac_dependencies ;;
   Linux)
     if [ -f /etc/os-release ]; then
-      os_id=$(. /etc/os-release && echo "$ID")
-      os_id_like=$(. /etc/os-release && echo "$ID_LIKE")
-      local os_pretty_name
-      os_pretty_name=$(. /etc/os-release && echo "$PRETTY_NAME")
-
-      if [[ "$os_id" == "debian" ]] || [[ "$os_id_like" == *"debian"* ]] || [[ "$os_id" == "ubuntu" ]]; then
-        os_name_detected="Debian/Ubuntu ($os_pretty_name)"
-        install_debian_dependencies
-      elif [[ "$os_id" == "arch" ]] || [[ "$os_id_like" == *"arch"* ]]; then
-        os_name_detected="Arch Linux ($os_pretty_name)"
-        install_arch_dependencies
+      os_id=$(. /etc/os-release && echo "$ID"); os_id_like=$(. /etc/os-release && echo "$ID_LIKE")
+      local os_pretty_name; os_pretty_name=$(. /etc/os-release && echo "$PRETTY_NAME")
+      if [[ "$os_id" == "debian" || "$os_id_like" == *"debian"* || "$os_id" == "ubuntu" ]]; then
+        os_name_detected="Debian/Ubuntu ($os_pretty_name)"; install_debian_dependencies
+      elif [[ "$os_id" == "arch" || "$os_id_like" == *"arch"* ]]; then
+        os_name_detected="Arch Linux ($os_pretty_name)"; install_arch_dependencies
       else
         print_message "$RED" "Unsupported Linux distribution: $os_pretty_name (ID: $os_id)"
-        print_message "$YELLOW" "Dependency installation will be skipped. Please install 'stow' manually if needed."
-        return 1
+        print_message "$YELLOW" "Manual dependency installation may be needed."
       fi
     else
       print_message "$RED" "Unsupported Linux distribution (no /etc/os-release file found)."
-      print_message "$YELLOW" "Dependency installation will be skipped. Please install 'stow' manually if needed."
-      return 1
-    fi
-    ;;
+    fi ;;
   *)
     print_message "$RED" "Unsupported operating system: $os_uname_s"
-    print_message "$YELLOW" "Dependency installation will be skipped. Please install 'stow' manually if needed."
-    return 1
     ;;
   esac
   if [ "$QUIET" = false ] && [ -n "$os_name_detected" ]; then
@@ -525,14 +568,18 @@ install_dependencies() {
 
 # --- Main Script Logic ---
 
+# Set error trapping for the main script too
+set -E
+trap 'echo -e "\033[0;31mERROR at line $LINENO: $BASH_COMMAND\033[0m"' ERR
+
 if [ "$UNLINK" = true ]; then
-  unlink_dotfiles
-  exit $?
+  manage_dotfiles "unlink" 
+  exit $? 
 fi
 
 if [ "$QUIET" = false ]; then
-  print_header "Dotfiles Setup"
-  print_message "$CYAN" "This script will link your dotfiles using GNU stow."
+  print_header "Dotfiles Setup (Manual Symlinking)"
+  print_message "$CYAN" "This script will link your dotfiles using manual symlinks."
   echo
   if [ "$INTERACTIVE" = true ] && [ "$ASSUME_YES" = false ]; then
     if ! ask_yes_no "Continue with setup (linking and/or dependency installation)?" "y"; then
@@ -546,121 +593,95 @@ if [ "$LINK_ONLY" = false ]; then
   if [ "$QUIET" = false ]; then
     print_header "Dependency Installation"
     if [ "$INTERACTIVE" = true ] && [ "$ASSUME_YES" = false ]; then
-      if ! ask_yes_no "Attempt to install/check system dependencies (e.g., stow, Neovim via PPA on Debian/Ubuntu)?" "y"; then
+      if ! ask_yes_no "Attempt to install/check system dependencies?" "y"; then
         print_message "$YELLOW" "Dependency installation skipped by user."
-      else
-        install_dependencies
-      fi
-    else
+      else install_dependencies; fi
+    else 
       if [ "$QUIET" = false ]; then print_message "$BLUE" "Checking/installing dependencies (non-interactive)..."; fi
       install_dependencies
     fi
-  else
-    install_dependencies
-  fi
+  else install_dependencies; fi
 else
-  if [ "$QUIET" = false ]; then
-    print_message "$YELLOW" "Skipping dependency installation due to --link-only flag."
-  fi
+  if [ "$QUIET" = false ]; then print_message "$YELLOW" "Skipping dependency installation due to --link-only flag."; fi
 fi
 
-AVAILABLE_PACKAGES_ARR=($(get_available_packages))
+AVAILABLE_PACKAGES_ARR=($(get_available_packages)) 
 if [ ${#AVAILABLE_PACKAGES_ARR[@]} -eq 0 ]; then
-  print_message "$RED" "No packages (subdirectories) found in your stow directory: $STOW_DIR"
-  if [ "$LINK_ONLY" = true ] || { [ "$LINK_ONLY" = false ] && [ ${#SELECTED_PACKAGES_ARR[@]} -eq 0 ]; }; then
-    exit 1
-  fi
+  print_message "$RED" "No packages (directories like nvim, tmux, etc.) found in your dotfiles source directory: $LINK_SRC_BASE_DIR"
+  print_message "$YELLOW" "Ensure this script is in the root of your dotfiles repo, and packages are top-level directories."
+  exit 1
 fi
 
-SELECTED_PACKAGES_ARR=()
-if [ ${#AVAILABLE_PACKAGES_ARR[@]} -gt 0 ]; then
-  if [ -n "$PACKAGES" ]; then
-    IFS=',' read -ra SELECTED_PACKAGES_ARR <<<"$PACKAGES"
-    temp_valid=()
-    for pkg_s in "${SELECTED_PACKAGES_ARR[@]}"; do
-      is_v=false
-      for pkg_a in "${AVAILABLE_PACKAGES_ARR[@]}"; do if [[ "$pkg_s" == "$pkg_a" ]]; then
-        temp_valid+=("$pkg_s")
-        is_v=true
-        break
-      fi; done
-      if ! $is_v; then print_message "$YELLOW" "Warn: Pkg '$pkg_s' not in $STOW_DIR. Ignoring."; fi
-    done
-    SELECTED_PACKAGES_ARR=("${temp_valid[@]}")
-    if [ ${#SELECTED_PACKAGES_ARR[@]} -eq 0 ] && [ -n "$PACKAGES" ]; then
-      print_message "$RED" "None of specified packages ($PACKAGES) found."
-      print_message "$BLUE" "Available: ${AVAILABLE_PACKAGES_ARR[*]}"
-      exit 1
-    fi
-    if [ "$QUIET" = false ] && [ ${#SELECTED_PACKAGES_ARR[@]} -gt 0 ]; then print_message "$BLUE" "Selected from cmd: ${SELECTED_PACKAGES_ARR[*]}"; fi
-  else
+echo -e "${PURPLE}DEBUG: Found packages: ${AVAILABLE_PACKAGES_ARR[*]}${NC}"
+
+# PACKAGES_TO_PROCESS is set by -p or interactively below
+if [ -z "$PACKAGES_TO_PROCESS" ]; then 
     if [ "$ASSUME_YES" = true ]; then
-      SELECTED_PACKAGES_ARR=("${AVAILABLE_PACKAGES_ARR[@]}")
-      if [ "$QUIET" = false ]; then print_message "$BLUE" "Assume-yes: Selecting all available packages for linking."; fi
+      PACKAGES_TO_PROCESS=$(IFS=,; echo "${AVAILABLE_PACKAGES_ARR[*]}")
+      if [ "$QUIET" = false ]; then print_message "$BLUE" "Assume-yes: Selecting all available packages: $PACKAGES_TO_PROCESS"; fi
     elif [ "$INTERACTIVE" = true ]; then
-      print_header "Package Selection for Linking"
-      print_message "$BLUE" "Available in '$STOW_DIR':"
+      print_header "Package Selection for Linking/Unlinking"
+      print_message "$BLUE" "Available packages in '$LINK_SRC_BASE_DIR':"
       for i in "${!AVAILABLE_PACKAGES_ARR[@]}"; do echo -e "  ${GREEN}$((i + 1))${NC}. ${YELLOW}${AVAILABLE_PACKAGES_ARR[$i]}${NC}"; done
       echo
-      read -r -p "$(echo -e "${CYAN}Enter numbers (e.g., 1,3), 'all', or Enter for all to link: ${NC}")" choices_str
+      read -r -p "$(echo -e "${CYAN}Enter numbers (e.g., 1,3), 'all', or Enter for all: ${NC}")" choices_str
       if [[ -z "$choices_str" || "$choices_str" == "all" ]]; then
-        SELECTED_PACKAGES_ARR=("${AVAILABLE_PACKAGES_ARR[@]}")
-        print_message "$GREEN" "Selected all packages for linking."
+        PACKAGES_TO_PROCESS=$(IFS=,; echo "${AVAILABLE_PACKAGES_ARR[*]}")
+        print_message "$GREEN" "Selected all packages: $PACKAGES_TO_PROCESS"
       else
+        local selected_temp_arr=()
         IFS=',' read -ra choice_indices <<<"$choices_str"
         for idx_str_loop in "${choice_indices[@]}"; do
           curr_idx_str=$(echo "$idx_str_loop" | tr -d '[:space:]')
           if [[ "$curr_idx_str" =~ ^[1-9][0-9]*$ ]]; then
             item_idx_val=$((curr_idx_str - 1))
-            if [[ $item_idx_val -ge 0 && $item_idx_val -lt ${#AVAILABLE_PACKAGES_ARR[@]} ]]; then SELECTED_PACKAGES_ARR+=("${AVAILABLE_PACKAGES_ARR[$item_idx_val]}"); else print_message "$YELLOW" "Warn: Invalid selection '$curr_idx_str'."; fi
+            if [[ $item_idx_val -ge 0 && $item_idx_val -lt ${#AVAILABLE_PACKAGES_ARR[@]} ]]; then selected_temp_arr+=("${AVAILABLE_PACKAGES_ARR[$item_idx_val]}"); else print_message "$YELLOW" "Warn: Invalid selection '$curr_idx_str'."; fi
           elif [ -n "$curr_idx_str" ]; then print_message "$YELLOW" "Warn: Invalid input '$curr_idx_str'."; fi
         done
-        SELECTED_PACKAGES_ARR=($(echo "${SELECTED_PACKAGES_ARR[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+        if [ ${#selected_temp_arr[@]} -gt 0 ]; then
+            PACKAGES_TO_PROCESS=$(IFS=,; echo "${selected_temp_arr[*]}")
+            print_message "$GREEN" "Selected packages: $PACKAGES_TO_PROCESS"
+        else
+            print_message "$YELLOW" "No valid packages selected."
+            PACKAGES_TO_PROCESS="" 
+        fi
       fi
-    else
-      SELECTED_PACKAGES_ARR=("${AVAILABLE_PACKAGES_ARR[@]}")
-      if [ "$QUIET" = false ]; then print_message "$BLUE" "Non-interactive: Selecting all available packages for linking."; fi
+    else 
+      PACKAGES_TO_PROCESS=$(IFS=,; echo "${AVAILABLE_PACKAGES_ARR[*]}") 
+      if [ "$QUIET" = false ]; then print_message "$BLUE" "Non-interactive: Selecting all available packages: $PACKAGES_TO_PROCESS"; fi
     fi
-  fi
 fi
 
-link_ec=0
-if [ ${#SELECTED_PACKAGES_ARR[@]} -gt 0 ]; then
-  if [ "$QUIET" = false ]; then print_message "$GREEN" "Packages to link: ${SELECTED_PACKAGES_ARR[*]}"; fi
-  PACKAGES_TO_PROCESS_STR=$(
-    IFS=,
-    echo "${SELECTED_PACKAGES_ARR[*]}"
-  )
-  link_dotfiles "$PACKAGES_TO_PROCESS_STR"
-  link_ec=$?
-elif [ ${#AVAILABLE_PACKAGES_ARR[@]} -gt 0 ] && [ -z "$PACKAGES" ] && [ "$INTERACTIVE" = true ] && [ ${#SELECTED_PACKAGES_ARR[@]} -eq 0 ]; then
-  if [ "$QUIET" = false ]; then print_message "$YELLOW" "No packages selected for linking."; fi
-elif [ ${#AVAILABLE_PACKAGES_ARR[@]} -eq 0 ]; then
-  :
+echo -e "${PURPLE}DEBUG: Final packages to process: $PACKAGES_TO_PROCESS${NC}"
+
+manage_ec=0
+# Check if PACKAGES_TO_PROCESS ended up empty after interactive selection with no valid choices
+if [ -z "$PACKAGES_TO_PROCESS" ] && [ "$INTERACTIVE" = true ] && [ -n "$choices_str" ] && [[ "$choices_str" != "all" ]]; then
+    if [ "$QUIET" = false ]; then print_message "$YELLOW" "No packages to process based on selection."; fi
+elif [ -n "$PACKAGES_TO_PROCESS" ] || ([ ${#AVAILABLE_PACKAGES_ARR[@]} -gt 0 ] && ([ "$ASSUME_YES" = true ] || [ "$INTERACTIVE" = false ])); then
+    # Proceed if PACKAGES_TO_PROCESS is set, or if it's empty but we default to all available
+    echo -e "${PURPLE}DEBUG: Calling manage_dotfiles with 'link'${NC}"
+    manage_dotfiles "link"
+    manage_ec=$?
+    echo -e "${PURPLE}DEBUG: manage_dotfiles returned with status $manage_ec${NC}"
 else
-  if [ "$QUIET" = false ]; then print_message "$YELLOW" "No packages to link."; fi
+    if [ "$QUIET" = false ]; then print_message "$YELLOW" "No packages selected or available to process."; fi
 fi
 
 if [ "$QUIET" = false ]; then
   print_header "Setup Complete"
-  if [ $link_ec -eq 0 ]; then
-    if [ ${#SELECTED_PACKAGES_ARR[@]} -gt 0 ] || ([ ${#AVAILABLE_PACKAGES_ARR[@]} -gt 0 ] && [ -z "$PACKAGES" ] && [ "$ASSUME_YES" = true ]); then
-      print_message "$GREEN" "Dotfiles linking process finished successfully!"
-    elif [ ${#AVAILABLE_PACKAGES_ARR[@]} -eq 0 ]; then
-      print_message "$YELLOW" "No dotfiles packages found to link."
-    else
-      print_message "$YELLOW" "No dotfiles selected for linking."
-    fi
+  if [ $manage_ec -eq 0 ]; then
+      print_message "$GREEN" "Dotfiles processing finished successfully!"
   else
-    print_message "$RED" "Dotfiles linking process finished with errors."
+    print_message "$RED" "Dotfiles processing finished with errors."
   fi
-  echo
-  print_message "$CYAN" "Next steps:"
+  echo; print_message "$CYAN" "Next steps:"
   print_message "$CYAN" "  1. Review any output above for errors or warnings."
-  print_message "$CYAN" "  2. If stow failed on DIRS, manually back them up (e.g., 'mv ~/.config/nvim ~/.config/nvim.bak') & re-run."
-  print_message "$CYAN" "  3. Restart your terminal or source relevant shell configuration files if needed."
-  echo
-  print_message "$YELLOW" "Enjoy your environment! 🎉"
+  print_message "$CYAN" "  2. Restart your terminal or source relevant shell configuration files if needed."
+  echo; print_message "$YELLOW" "Enjoy your environment! 🎉"
 fi
 
-exit $link_ec
+# Disable error trap before exiting
+trap - ERR
+
+exit $manage_ec
