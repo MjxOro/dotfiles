@@ -1,131 +1,123 @@
 # Dotfiles
 
-A minimalist, cross-platform dotfiles manager with a single script to handle everything.
+A simple and customizable dotfiles management system with automatic dependency detection for different operating systems.
 
 ## Features
 
-- **Single Script** - One file to handle installation, linking, and uninstallation
-- **Cross-Platform** - Works on macOS, Debian/Ubuntu, and Arch Linux
-- **Interactive UI** - Select which dotfiles to install with a friendly menu
-- **Smart Backups** - Automatically backs up existing configurations
-- **Package Handling** - Installs all necessary dependencies for your setup
-- **Idempotent** - Run it multiple times without breaking anything
+- Automatic symlinking of configuration files
+- Cross-platform support (macOS, Debian/Ubuntu, Arch Linux)
+- Selective package installation/linking
+- Automatic dependency management
+- Interactive and non-interactive modes
+- Backup of existing configurations
 
-## Structure
+## Directory Structure
+
+The repository follows a simple structure:
 
 ```
 dotfiles/
-├── install.sh            # The all-in-one installation script
-└── stow/                 # Dotfiles organized by application
-    ├── nvim/             # Neovim configuration
-    │   └── .config/nvim/ # Files will be linked to ~/.config/nvim/
-    ├── tmux/             # Tmux configuration
-    ├── zsh/              # Zsh configuration
-    └── starship/         # Starship prompt configuration
+├── nvim/              # NeoVim configuration (links to ~/.config/nvim/)
+├── starship/          # Starship prompt config (links to ~/.config/starship/)
+├── tmux/              # Tmux configuration
+│   └── .tmux.conf     # Links to ~/.tmux.conf
+├── zsh/               # Zsh configuration
+│   └── .zshrc         # Links to ~/.zshrc
+└── install.sh         # Installation script
 ```
 
-## Quick Install
+## Installation
+
+### Quick Start
 
 ```bash
-# Clone the repository
-git clone https://github.com/YourUsername/dotfiles.git
-
-# Navigate to the dotfiles directory
+git clone https://github.com/yourusername/dotfiles.git
 cd dotfiles
-
-# Make the script executable
-chmod +x install.sh
-
-# Run the installer
 ./install.sh
 ```
 
-## Usage
+### Options
 
-The script has several options for flexible usage:
-
-```bash
+```
 Usage: ./install.sh [OPTIONS]
 
 Options:
   -h, --help           Show this help message
   -d, --dotfiles-dir   Specify dotfiles directory (default: script location)
   -l, --link-only      Only link dotfiles, don't install dependencies
-  -u, --unlink         Unlink dotfiles
-  -y, --yes            Assume yes for all prompts
-  -i, --interactive    Force interactive mode (default in TTY)
+  -u, --unlink         Unlink dotfiles for specified packages (or all)
+  -y, --yes            Assume yes for all prompts (use with caution)
+  -i, --interactive    Force interactive mode for prompts (default if TTY)
   -q, --quiet          Minimize output
-  -p, --packages       Comma-separated list of packages to link (default: all)
+  -p, --packages       Comma-separated list of packages to link/unlink (default: all)
+                       (e.g., nvim,tmux,zsh)
 ```
 
 ### Examples
 
-**Full Installation (Interactive)**
+Link only specific packages:
 ```bash
-./install.sh
+./install.sh -p nvim,zsh
 ```
 
-**Link Only Without Installing Dependencies**
+Unlink all managed dotfiles:
 ```bash
-./install.sh --link-only
+./install.sh -u
 ```
 
-**Install Specific Packages Only**
+Only link dotfiles without installing dependencies:
 ```bash
-./install.sh --packages nvim,tmux
+./install.sh -l
 ```
 
-**Unlink All Dotfiles**
+Non-interactive installation (assumes yes to all prompts):
 ```bash
-./install.sh --unlink
+./install.sh -y
 ```
 
-**Non-Interactive Installation**
-```bash
-./install.sh --yes
-```
+## Linking Rules
 
-**Specify Dotfiles Location**
-```bash
-./install.sh --dotfiles-dir /path/to/dotfiles
-```
+The script follows these rules for linking:
 
-## What Gets Installed
+1. Top-level non-dot-prefixed directories (like nvim, starship) link to ~/.config/
+2. Specific dotfiles (.zshrc, .tmux, .tmux.conf) inside package directories link to $HOME
 
-The script will install the following based on your operating system:
+## Dependencies
 
-### macOS
-- Homebrew (if missing)
-- Neovim
-- Tmux and Tmux Plugin Manager
+The script can automatically install these dependencies based on your OS:
+
+- **All platforms**: git, curl, zsh
+- **macOS**: Xcode Command Line Tools, Homebrew (optional)
+- **Debian/Ubuntu**: build-essential, software-properties-common
+- **Arch Linux**: base-devel packages
+
+Optional tools:
 - Starship prompt
-- Node Version Manager (NVM)
-- Lazygit
-- Utilities: ripgrep, fd, fzf, bat, exa, jq, gh
-- Nerd Fonts (optional)
-
-### Debian/Ubuntu and Arch Linux
-- Zsh
 - Oh My Zsh
-- Neovim
-- Tmux and Tmux Plugin Manager
-- Starship prompt
-- Node Version Manager (NVM)
-- Lazygit
+- Neovim (with unstable PPA option for Debian/Ubuntu)
 
 ## Customization
 
-Each folder in the `stow` directory represents a package of configuration files that will be symlinked to your home directory.
+To add a new package:
 
-To add your own configurations:
+1. Create a new directory in the dotfiles repo, e.g., `foo/`
+2. Put configuration files in it
+3. Run `./install.sh -p foo` to link only this package or `./install.sh` to link all
 
-1. Create a new folder in the `stow` directory (e.g., `stow/mytool/`)
-2. Place your configuration files inside, maintaining the structure relative to your home directory
-3. Run `./install.sh -l -p mytool` to link only your new package
+## OS Support
+
+- **macOS**: Fully supported, uses Homebrew when available
+- **Debian/Ubuntu**: Fully supported with apt
+- **Arch Linux**: Fully supported with pacman
+- **Other Linux**: Basic support, dependencies may need manual installation
 
 ## Troubleshooting
 
-- If you encounter permission issues, ensure the script is executable: `chmod +x install.sh`
-- Check the backup directory (`~/.dotfiles_backup/`) for any files that were replaced during installation
-- If you're having issues with a specific package, try running with just that package: `./install.sh -p specific_package`
-- For verbose output, use the `-i` flag to force interactive mode
+- Run with `-i` for interactive mode to see what's happening
+- Check the script output for error messages
+- Run with verbose debug by using: `VERBOSE=1 ./install.sh`
+- Look for backups in `~/.dotfiles_backup/` if you need to restore configuration
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
