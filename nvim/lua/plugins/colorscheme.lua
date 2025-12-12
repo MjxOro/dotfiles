@@ -1,0 +1,11 @@
+return {
+	-- Configure LazyVim to load gruvbox
+	{
+		"LazyVim/LazyVim",
+		opts = {
+			colorscheme = "rose-pine",
+			-- colorscheme = "poimandres",
+			-- colorscheme = "myColors",
+		},
+	},
+}
