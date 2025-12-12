@@ -131,3 +131,11 @@ export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 export STARSHIP_CONFIG=~/.config/starship/starship.toml
 export PATH=$HOME/latexrun:$PATH
 eval "$(starship init zsh)"
+export PATH="/Library/TeX/texbin:$PATH"
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init - zsh)"
+export PATH="$HOME/.local/bin:$PATH"
+
+# opencode
+export PATH=/Users/mjxoro/.opencode/bin:$PATH

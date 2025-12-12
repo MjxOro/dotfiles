@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 
-echo -e "\033[0;36mDEBUG: install.sh script interpreter has started.\033[0m"
+# Bash version check
+if [[ "${BASH_VERSION}" < "4.0" ]]; then
+  echo "Error: Bash 4.0+ required. Current: ${BASH_VERSION}"
+  exit 1
+fi
+
+# Enable debug mode if VERBOSE=1
+if [[ "${VERBOSE:-0}" == "1" ]]; then
+  echo -e "\033[0;36mDEBUG: install.sh script interpreter has started.\033[0m"
+fi
 
 # --- Robust SCRIPT_DIR Initialization ---
 set +e
@@ -17,7 +26,9 @@ if [ $SCRIPT_DIR_EXIT_CODE -ne 0 ] || [ -z "$SCRIPT_DIR_TEMP" ] || [ ! -d "$SCRI
   exit 1
 fi
 SCRIPT_DIR="$SCRIPT_DIR_TEMP"
-echo -e "\033[0;36mDEBUG: Script directory determined as: $SCRIPT_DIR\033[0m"
+if [[ "${VERBOSE:-0}" == "1" ]]; then
+  echo -e "\033[0;36mDEBUG: Script directory determined as: $SCRIPT_DIR\033[0m"
+fi
 # --- End of SCRIPT_DIR Initialization ---
 
 # ANSI color codes
@@ -69,9 +80,13 @@ show_help() {
   echo "  -p, --packages       Comma-separated list of packages to link/unlink (default: all)"
   echo "                       (e.g., nvim,tmux,zsh)"
   echo
+  echo "Environment Variables:"
+  echo "  VERBOSE=1            Enable verbose debug output"
+  echo
   echo "Example:"
   echo "  ./install.sh -d ~/my-dotfiles -p nvim,zsh"
   echo "  ./install.sh -u       # Unlink all managed dotfiles"
+  echo "  VERBOSE=1 ./install.sh # Run with debug output"
 }
 
 # Parse arguments
@@ -407,7 +422,7 @@ _install_starship_via_curl_script() {
     fi
   else print_message "$YELLOW" "  Starship script installation skipped."; fi
 }
-_install_ohmyzsh_script() { 
+_install_ohmyzsh_script() {
   if [ -d "$HOME/.oh-my-zsh" ]; then
     if [ "$QUIET" = false ]; then print_message "$GREEN" "  Oh My Zsh is already installed."; fi
     return 0
@@ -433,7 +448,59 @@ _install_ohmyzsh_script() {
   else print_message "$YELLOW" "  Oh My Zsh installation skipped."; fi
 }
 
-install_mac_dependencies() { 
+_install_opencode_script() {
+  if command_exists opencode && opencode --version >/dev/null 2>&1; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  OpenCode is already installed."; fi
+    return 0
+  fi
+  if ask_yes_no "  Install OpenCode (AI coding assistant)?" "y"; then
+    if ! command_exists curl; then print_message "$RED" "    curl is required for OpenCode installation. Please install curl."; return 1; fi
+    echo -n -e "${CYAN}    Installing OpenCode (curl ... | bash)... ${NC}"
+    local opencode_out opencode_ec
+    # Add timeout and retry logic for network operations
+    if [ "$QUIET" = true ] && [ "$ASSUME_YES" = true ]; then
+      opencode_out=$(curl -fsSL --max-time 300 --retry 2 https://opencode.ai/install 2>/dev/null | bash 2>&1); opencode_ec=$?
+    else
+      echo; opencode_out=$(curl -fsSL --max-time 300 --retry 2 https://opencode.ai/install 2>/dev/null | bash); opencode_ec=$?
+    fi
+    # Verify installation actually works
+    if [ $opencode_ec -eq 0 ] && command_exists opencode && opencode --version >/dev/null 2>&1; then
+      echo -e "${GREEN}✓${NC}"
+      if [ "$QUIET" = false ]; then print_message "$GREEN" "    OpenCode installed successfully."; fi
+    else
+      echo -e "${RED}✗${NC}"; print_message "$RED" "    OpenCode installation failed (code: $opencode_ec)."
+      if [ -n "$opencode_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $opencode_out"; fi
+    fi
+  else print_message "$YELLOW" "  OpenCode installation skipped."; fi
+}
+
+_install_claude_code_script() {
+  if command_exists claude && claude --version >/dev/null 2>&1; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  Claude Code is already installed."; fi
+    return 0
+  fi
+  if ask_yes_no "  Install Claude Code (Anthropic's CLI)?" "y"; then
+    if ! command_exists curl; then print_message "$RED" "    curl is required for Claude Code installation. Please install curl."; return 1; fi
+    echo -n -e "${CYAN}    Installing Claude Code (curl ... | bash)... ${NC}"
+    local claude_out claude_ec
+    # Add timeout and retry logic for network operations
+    if [ "$QUIET" = true ] && [ "$ASSUME_YES" = true ]; then
+      claude_out=$(curl -fsSL --max-time 300 --retry 2 https://claude.ai/install.sh 2>/dev/null | bash 2>&1); claude_ec=$?
+    else
+      echo; claude_out=$(curl -fsSL --max-time 300 --retry 2 https://claude.ai/install.sh 2>/dev/null | bash); claude_ec=$?
+    fi
+    # Verify installation actually works
+    if [ $claude_ec -eq 0 ] && command_exists claude && claude --version >/dev/null 2>&1; then
+      echo -e "${GREEN}✓${NC}"
+      if [ "$QUIET" = false ]; then print_message "$GREEN" "    Claude Code installed successfully."; fi
+    else
+      echo -e "${RED}✗${NC}"; print_message "$RED" "    Claude Code installation failed (code: $claude_ec)."
+      if [ -n "$claude_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $claude_out"; fi
+    fi
+  else print_message "$YELLOW" "  Claude Code installation skipped."; fi
+}
+
+install_mac_dependencies() {
   print_header "Dependency Check for macOS"
   local all_ok=true
   if ! command_exists gcc; then
@@ -443,19 +510,21 @@ install_mac_dependencies() {
       fi
     fi
   elif [ "$QUIET" = false ]; then print_message "$GREEN" "  GCC (from Xcode Tools) is installed."; fi
-  
+
   if ! command_exists starship; then
     if command_exists brew && ask_yes_no "  Install Starship (prompt) using Homebrew?" "y"; then
       echo -n -e "${CYAN}    brew install starship... ${NC}"; if brew install starship >/dev/null 2>&1; then echo -e "${GREEN}✓${NC}"; else echo -e "${RED}✗${NC}"; fi
     elif [ "$QUIET" = false ] && ! command_exists brew; then print_message "$YELLOW" "  Homebrew not found, cannot install Starship via brew."; fi
   elif [ "$QUIET" = false ]; then print_message "$GREEN" "  Starship is already installed."; fi
 
-  _install_ohmyzsh_script 
+  _install_ohmyzsh_script
+  _install_opencode_script
+  _install_claude_code_script
 
-  if ! $all_ok; then return 1; fi 
+  if ! $all_ok; then return 1; fi
   return 0
 }
-install_arch_dependencies() { 
+install_arch_dependencies() {
   print_header "Dependency Check for Arch Linux"
   local all_ok=true
   local arch_needed_pkgs=("gcc" "zsh" "curl" "git") pkgs_to_install_pacman=()
@@ -469,9 +538,11 @@ install_arch_dependencies() {
     if [ "$ASSUME_YES" = false ]; then pacman_cmd="sudo pacman -S --needed ${pkgs_to_install_pacman[*]}"; fi
     echo -n -e "${CYAN}    pacman -S ${pkgs_to_install_pacman[*]}... ${NC}"; if eval "$pacman_cmd" >/dev/null 2>&1; then echo -e "${GREEN}✓${NC}"; else echo -e "${RED}✗${NC}"; all_ok=false; fi
   fi
-  
+
   _install_starship_via_curl_script
   _install_ohmyzsh_script
+  _install_opencode_script
+  _install_claude_code_script
 
   if ! $all_ok; then return 1; fi
   return 0
@@ -528,6 +599,8 @@ install_debian_dependencies() {
 
   _install_starship_via_curl_script
   _install_ohmyzsh_script
+  _install_opencode_script
+  _install_claude_code_script
 
   if ! $all_ok; then return 1; fi
   print_message "$GREEN" "Debian/Ubuntu dependency check complete."
@@ -563,6 +636,48 @@ install_dependencies() {
   esac
   if [ "$QUIET" = false ] && [ -n "$os_name_detected" ]; then
     print_message "$GREEN" "Dependency check for $os_name_detected complete."
+  fi
+}
+
+# --- Installation Summary ---
+print_installation_summary() {
+  if [ "$QUIET" = false ]; then
+    print_header "Installation Summary"
+
+    # Check installed tools
+    local installed_tools=()
+    local failed_tools=()
+
+    command_exists starship && installed_tools+=("Starship") || failed_tools+=("Starship")
+    command_exists opencode && installed_tools+=("OpenCode") || failed_tools+=("OpenCode")
+    command_exists claude && installed_tools+=("Claude Code") || failed_tools+=("Claude Code")
+    [ -d "$HOME/.oh-my-zsh" ] && installed_tools+=("Oh My Zsh") || failed_tools+=("Oh My Zsh")
+
+    # Check linked configs
+    local linked_configs=()
+    [ -L "$HOME/.config/nvim" ] && linked_configs+=("Neovim")
+    [ -L "$HOME/.config/starship" ] && linked_configs+=("Starship")
+    [ -L "$HOME/.tmux.conf" ] && linked_configs+=("Tmux")
+    [ -L "$HOME/.zshrc" ] && linked_configs+=("Zsh")
+    [ -L "$HOME/.config/opencode" ] && linked_configs+=("OpenCode")
+
+    if [ ${#installed_tools[@]} -gt 0 ]; then
+      print_message "$GREEN" "✅ Successfully installed: ${installed_tools[*]}"
+    fi
+
+    if [ ${#failed_tools[@]} -gt 0 ]; then
+      print_message "$YELLOW" "⚠️  Failed to install: ${failed_tools[*]}"
+    fi
+
+    if [ ${#linked_configs[@]} -gt 0 ]; then
+      print_message "$GREEN" "🔗 Linked configurations: ${linked_configs[*]}"
+    fi
+
+    echo
+    print_message "$CYAN" "Next steps:"
+    print_message "$CYAN" "  1. Review any errors above"
+    print_message "$CYAN" "  2. Restart terminal or source configs"
+    print_message "$CYAN" "  3. Set up your API keys in secrets.zsh"
   fi
 }
 
@@ -675,9 +790,10 @@ if [ "$QUIET" = false ]; then
   else
     print_message "$RED" "Dotfiles processing finished with errors."
   fi
-  echo; print_message "$CYAN" "Next steps:"
-  print_message "$CYAN" "  1. Review any output above for errors or warnings."
-  print_message "$CYAN" "  2. Restart your terminal or source relevant shell configuration files if needed."
+
+  # Print installation summary
+  print_installation_summary
+
   echo; print_message "$YELLOW" "Enjoy your environment! 🎉"
 fi
 
