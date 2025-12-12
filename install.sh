@@ -407,7 +407,7 @@ _install_starship_via_curl_script() {
     fi
   else print_message "$YELLOW" "  Starship script installation skipped."; fi
 }
-_install_ohmyzsh_script() { 
+_install_ohmyzsh_script() {
   if [ -d "$HOME/.oh-my-zsh" ]; then
     if [ "$QUIET" = false ]; then print_message "$GREEN" "  Oh My Zsh is already installed."; fi
     return 0
@@ -433,7 +433,49 @@ _install_ohmyzsh_script() {
   else print_message "$YELLOW" "  Oh My Zsh installation skipped."; fi
 }
 
-install_mac_dependencies() { 
+_install_opencode_script() {
+  if command_exists opencode; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  OpenCode is already installed."; fi
+    return 0
+  fi
+  if ask_yes_no "  Install OpenCode (AI coding assistant)?" "y"; then
+    if ! command_exists curl; then print_message "$RED" "    curl is required for OpenCode installation. Please install curl."; return 1; fi
+    echo -n -e "${CYAN}    Installing OpenCode (curl ... | bash)... ${NC}"
+    local opencode_out opencode_ec
+    if [ "$QUIET" = true ] && [ "$ASSUME_YES" = true ]; then
+      opencode_out=$(curl -fsSL https://opencode.ai/install | bash 2>&1); opencode_ec=$?
+    else
+      echo; opencode_out=$(curl -fsSL https://opencode.ai/install | bash); opencode_ec=$?
+    fi
+    if [ $opencode_ec -eq 0 ] && command_exists opencode; then echo -e "${GREEN}✓${NC}"; else
+      echo -e "${RED}✗${NC}"; print_message "$RED" "    OpenCode installation failed (code: $opencode_ec)."
+      if [ -n "$opencode_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $opencode_out"; fi
+    fi
+  else print_message "$YELLOW" "  OpenCode installation skipped."; fi
+}
+
+_install_claude_code_script() {
+  if command_exists claude; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  Claude Code is already installed."; fi
+    return 0
+  fi
+  if ask_yes_no "  Install Claude Code (Anthropic's CLI)?" "y"; then
+    if ! command_exists curl; then print_message "$RED" "    curl is required for Claude Code installation. Please install curl."; return 1; fi
+    echo -n -e "${CYAN}    Installing Claude Code (curl ... | bash)... ${NC}"
+    local claude_out claude_ec
+    if [ "$QUIET" = true ] && [ "$ASSUME_YES" = true ]; then
+      claude_out=$(curl -fsSL https://claude.ai/install.sh | bash 2>&1); claude_ec=$?
+    else
+      echo; claude_out=$(curl -fsSL https://claude.ai/install.sh | bash); claude_ec=$?
+    fi
+    if [ $claude_ec -eq 0 ] && command_exists claude; then echo -e "${GREEN}✓${NC}"; else
+      echo -e "${RED}✗${NC}"; print_message "$RED" "    Claude Code installation failed (code: $claude_ec)."
+      if [ -n "$claude_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $claude_out"; fi
+    fi
+  else print_message "$YELLOW" "  Claude Code installation skipped."; fi
+}
+
+install_mac_dependencies() {
   print_header "Dependency Check for macOS"
   local all_ok=true
   if ! command_exists gcc; then
@@ -443,19 +485,21 @@ install_mac_dependencies() {
       fi
     fi
   elif [ "$QUIET" = false ]; then print_message "$GREEN" "  GCC (from Xcode Tools) is installed."; fi
-  
+
   if ! command_exists starship; then
     if command_exists brew && ask_yes_no "  Install Starship (prompt) using Homebrew?" "y"; then
       echo -n -e "${CYAN}    brew install starship... ${NC}"; if brew install starship >/dev/null 2>&1; then echo -e "${GREEN}✓${NC}"; else echo -e "${RED}✗${NC}"; fi
     elif [ "$QUIET" = false ] && ! command_exists brew; then print_message "$YELLOW" "  Homebrew not found, cannot install Starship via brew."; fi
   elif [ "$QUIET" = false ]; then print_message "$GREEN" "  Starship is already installed."; fi
 
-  _install_ohmyzsh_script 
+  _install_ohmyzsh_script
+  _install_opencode_script
+  _install_claude_code_script
 
-  if ! $all_ok; then return 1; fi 
+  if ! $all_ok; then return 1; fi
   return 0
 }
-install_arch_dependencies() { 
+install_arch_dependencies() {
   print_header "Dependency Check for Arch Linux"
   local all_ok=true
   local arch_needed_pkgs=("gcc" "zsh" "curl" "git") pkgs_to_install_pacman=()
@@ -469,9 +513,11 @@ install_arch_dependencies() {
     if [ "$ASSUME_YES" = false ]; then pacman_cmd="sudo pacman -S --needed ${pkgs_to_install_pacman[*]}"; fi
     echo -n -e "${CYAN}    pacman -S ${pkgs_to_install_pacman[*]}... ${NC}"; if eval "$pacman_cmd" >/dev/null 2>&1; then echo -e "${GREEN}✓${NC}"; else echo -e "${RED}✗${NC}"; all_ok=false; fi
   fi
-  
+
   _install_starship_via_curl_script
   _install_ohmyzsh_script
+  _install_opencode_script
+  _install_claude_code_script
 
   if ! $all_ok; then return 1; fi
   return 0
@@ -528,6 +574,8 @@ install_debian_dependencies() {
 
   _install_starship_via_curl_script
   _install_ohmyzsh_script
+  _install_opencode_script
+  _install_claude_code_script
 
   if ! $all_ok; then return 1; fi
   print_message "$GREEN" "Debian/Ubuntu dependency check complete."
