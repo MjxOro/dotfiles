@@ -1,0 +1,39 @@
+# Custom theme matching starship colorscheme
+# Transparency will be set via background-opacity in config
+
+# ANSI Colors (0-7 normal, 8-15 bright)
+palette = 0=#0f172a
+palette = 1=#a54242
+palette = 2=#3EB489
+palette = 3=#f4a331
+palette = 4=#3fa344
+palette = 5=#e955a3
+palette = 6=#89b83e
+palette = 7=#e2e8f0
+palette = 8=#475569
+palette = 9=#e84242
+palette = 10=#3EB489
+palette = 11=#f4a331
+palette = 12=#a34444
+palette = 13=#a35555
+palette = 14=#94A3B8
+palette = 15=#e0e8f0
+
+# Foreground color
+foreground = #e2e8f0
+
+# Background color (actual transparency set via background-opacity)
+background = #0f172a
+
+# Cursor color - use a bright green to match starship accent
+cursor-color = #3EB489
+
+# Cursor text color (text under cursor)
+cursor-text = #0f172a
+
+# Selection colors
+selection-background = #334155
+selection-foreground = #e2e8f0
+
+# Bold color
+bold-color = #e2e8f0

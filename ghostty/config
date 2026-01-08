@@ -1,0 +1,19 @@
+# Pastel theme - soft, easy on the eyes
+theme = pastel
+
+maximize = true
+
+# Background transparency and blur - soft and easy on the eyes
+background-opacity = 0.85
+background-blur = true
+
+# Block cursor with mint color
+cursor-style = block
+cursor-color = #7dd3c0
+cursor-style-blink = true
+shell-integration-features = no-cursor
+
+# Source shared colors for Neovim
+on-shell-startup = "source ~/.config/pastel-theme.sh 2>/dev/null || true"
+
+keybind = global:cmd+grave_accent=toggle_quick_terminal

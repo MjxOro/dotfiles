@@ -314,6 +314,21 @@ manage_dotfiles() {
       else
         items_failed_in_package=$((items_failed_in_package + 1))
       fi
+
+      # Special handling for ghostty on macOS - link config file directly
+      if [[ "$package_name" == "ghostty" && "$(uname -s)" == "Darwin" ]]; then
+        local ghostty_config_source="$package_source_dir/config"
+        local ghostty_config_target="$HOME/Library/Application Support/com.mitchellh.ghostty/config"
+        if [ -f "$ghostty_config_source" ]; then
+          items_processed_in_package=$((items_processed_in_package + 1))
+          echo -e "${PURPLE}  DEBUG: Applying Ghostty macOS-specific config linking${NC}"
+          if process_single_item "$action" "$ghostty_config_source" "$ghostty_config_target" "ghostty/macOS-config" "$main_backup_dir"; then
+            items_succeeded_in_package=$((items_succeeded_in_package + 1))
+          else
+            items_failed_in_package=$((items_failed_in_package + 1))
+          fi
+        fi
+      fi
     fi
 
     # Rule 2: For specific packages, look *inside* them for specific dotfiles to link to home
@@ -500,6 +515,65 @@ _install_claude_code_script() {
   else print_message "$YELLOW" "  Claude Code installation skipped."; fi
 }
 
+_install_ghostty_brew() {
+  # Ghostty installation via Homebrew (macOS)
+  if command_exists ghostty; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  Ghostty is already installed."; fi
+    return 0
+  fi
+  if ! command_exists brew; then
+    if [ "$QUIET" = false ]; then print_message "$YELLOW" "  Homebrew not found, cannot install Ghostty via brew."; fi
+    return 1
+  fi
+  if ask_yes_no "  Install Ghostty (terminal emulator) using Homebrew?" "y"; then
+    echo -n -e "${CYAN}    brew install --cask ghostty... ${NC}"
+    if brew install --cask ghostty >/dev/null 2>&1; then
+      echo -e "${GREEN}✓${NC}"
+      if [ "$QUIET" = false ]; then print_message "$GREEN" "    Ghostty installed successfully."; fi
+    else
+      echo -e "${RED}✗${NC}"
+      print_message "$RED" "    Ghostty installation failed."
+    fi
+  else print_message "$YELLOW" "  Ghostty installation skipped."; fi
+}
+
+_install_ghostty_arch() {
+  # Ghostty installation via pacman (Arch Linux)
+  if command_exists ghostty; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  Ghostty is already installed."; fi
+    return 0
+  fi
+  if ask_yes_no "  Install Ghostty (terminal emulator) using pacman?" "y"; then
+    local pacman_cmd="sudo pacman -S --needed --noconfirm ghostty"
+    if [ "$ASSUME_YES" = false ]; then pacman_cmd="sudo pacman -S --needed ghostty"; fi
+    echo -n -e "${CYAN}    pacman -S ghostty... ${NC}"
+    if eval "$pacman_cmd" >/dev/null 2>&1; then
+      echo -e "${GREEN}✓${NC}"
+      if [ "$QUIET" = false ]; then print_message "$GREEN" "    Ghostty installed successfully."; fi
+    else
+      echo -e "${RED}✗${NC}"
+      print_message "$RED" "    Ghostty installation failed. It may not be in the official repos yet."
+      print_message "$YELLOW" "    Try: yay -S ghostty-git (AUR) or build from source: https://ghostty.org/docs/install/build"
+    fi
+  else print_message "$YELLOW" "  Ghostty installation skipped."; fi
+}
+
+_install_ghostty_debian() {
+  # Ghostty installation guidance for Debian/Ubuntu
+  # Ghostty is not in official Debian/Ubuntu repos, must be built from source or use unofficial methods
+  if command_exists ghostty; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  Ghostty is already installed."; fi
+    return 0
+  fi
+  if [ "$QUIET" = false ]; then
+    print_message "$YELLOW" "  Ghostty is not available in Debian/Ubuntu official repositories."
+    print_message "$BLUE" "  To install Ghostty on Debian/Ubuntu:"
+    print_message "$CYAN" "    Option 1: Build from source - https://ghostty.org/docs/install/build"
+    print_message "$CYAN" "    Option 2: Download AppImage/binary from releases (if available)"
+    print_message "$CYAN" "    Option 3: Use Nix package manager - nix-shell -p ghostty"
+  fi
+}
+
 install_mac_dependencies() {
   print_header "Dependency Check for macOS"
   local all_ok=true
@@ -520,6 +594,7 @@ install_mac_dependencies() {
   _install_ohmyzsh_script
   _install_opencode_script
   _install_claude_code_script
+  _install_ghostty_brew
 
   if ! $all_ok; then return 1; fi
   return 0
@@ -543,6 +618,7 @@ install_arch_dependencies() {
   _install_ohmyzsh_script
   _install_opencode_script
   _install_claude_code_script
+  _install_ghostty_arch
 
   if ! $all_ok; then return 1; fi
   return 0
@@ -601,6 +677,7 @@ install_debian_dependencies() {
   _install_ohmyzsh_script
   _install_opencode_script
   _install_claude_code_script
+  _install_ghostty_debian
 
   if ! $all_ok; then return 1; fi
   print_message "$GREEN" "Debian/Ubuntu dependency check complete."
@@ -652,6 +729,7 @@ print_installation_summary() {
     command_exists opencode && installed_tools+=("OpenCode") || failed_tools+=("OpenCode")
     command_exists claude && installed_tools+=("Claude Code") || failed_tools+=("Claude Code")
     [ -d "$HOME/.oh-my-zsh" ] && installed_tools+=("Oh My Zsh") || failed_tools+=("Oh My Zsh")
+    command_exists ghostty && installed_tools+=("Ghostty") || failed_tools+=("Ghostty")
 
     # Check linked configs
     local linked_configs=()
@@ -660,6 +738,7 @@ print_installation_summary() {
     [ -L "$HOME/.tmux.conf" ] && linked_configs+=("Tmux")
     [ -L "$HOME/.zshrc" ] && linked_configs+=("Zsh")
     [ -L "$HOME/.config/opencode" ] && linked_configs+=("OpenCode")
+    [ -L "$HOME/.config/ghostty" ] && linked_configs+=("Ghostty")
 
     if [ ${#installed_tools[@]} -gt 0 ]; then
       print_message "$GREEN" "✅ Successfully installed: ${installed_tools[*]}"

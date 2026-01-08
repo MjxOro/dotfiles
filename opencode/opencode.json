@@ -1,0 +1,44 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "theme": "system",
+  "plugin": ["oh-my-opencode"],
+  "small_model": "minimax/MiniMax-M2.1",
+  "keybinds": {
+    "leader": "ctrl+x",
+
+    "session_child_cycle": "<leader>]",
+    "session_child_cycle_reverse": "<leader>[",
+
+    "input_move_left": "ctrl+h,left,ctrl+b",
+    "input_move_right": "ctrl+l,right,ctrl+f",
+    "input_move_up": "ctrl+k,up",
+    "input_move_down": "ctrl+j,down",
+
+    "input_select_left": "ctrl+shift+h,shift+left",
+    "input_select_right": "ctrl+shift+l,shift+right",
+    "input_select_up": "ctrl+shift+k,shift+up",
+    "input_select_down": "ctrl+shift+j,shift+down",
+
+    "history_previous": "ctrl+k,up",
+    "history_next": "ctrl+j,down"
+  },
+  "provider": {
+    "minimax": {
+      "npm": "@ai-sdk/anthropic",
+      "options": {
+        "baseURL": "https://api.minimax.io/anthropic/v1",
+        "apiKey": "{env:MINIMAX_API_KEY}"
+      },
+      "models": {
+        "MiniMax-M2": {
+          "name": "MiniMax-M2",
+          "maxOutputTokens": 131072
+        },
+        "MiniMax-M2.1": {
+          "name": "MiniMax-M2.1",
+          "maxOutputTokens": 131072
+        }
+      }
+    }
+  }
+}
