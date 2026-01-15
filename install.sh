@@ -537,7 +537,10 @@ _install_opencode_script() {
       echo
       curl -fsSL https://opencode.ai/install | bash; opencode_ec=$?
     fi
-    if [ $opencode_ec -eq 0 ] && command_exists opencode && opencode --version >/dev/null 2>&1; then
+    if [ -f "$HOME/.opencode/bin/opencode" ]; then
+      export PATH="$HOME/.opencode/bin:$PATH"
+    fi
+    if [ $opencode_ec -eq 0 ] && (command_exists opencode || [ -f "$HOME/.opencode/bin/opencode" ]); then
       echo -e "${GREEN}✓${NC}"
       if [ "$QUIET" = false ]; then print_message "$GREEN" "    OpenCode installed successfully."; fi
     else
@@ -562,7 +565,10 @@ _install_claude_code_script() {
       echo
       curl -fsSL https://claude.ai/install.sh | bash; claude_ec=$?
     fi
-    if [ $claude_ec -eq 0 ] && command_exists claude && claude --version >/dev/null 2>&1; then
+    if [ -f "$HOME/.claude/local/claude" ]; then
+      export PATH="$HOME/.claude/local:$PATH"
+    fi
+    if [ $claude_ec -eq 0 ] && (command_exists claude || [ -f "$HOME/.claude/local/claude" ]); then
       echo -e "${GREEN}✓${NC}"
       if [ "$QUIET" = false ]; then print_message "$GREEN" "    Claude Code installed successfully."; fi
     else
