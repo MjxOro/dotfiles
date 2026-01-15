@@ -2,23 +2,23 @@
 secrets.zsh
 antigravity-accounts.json
 
-# Claude Code sensitive data (keep CLAUDE.md only)
+# Claude Code sensitive data (keep md files, settings, downloads, plugin configs)
 claude/.claude/cache/
 claude/.claude/debug/
-claude/.claude/downloads/
 claude/.claude/file-history/
 claude/.claude/history.jsonl
 claude/.claude/paste-cache/
-claude/.claude/plugins/
 claude/.claude/projects/
 claude/.claude/session-env/
-claude/.claude/settings.json
 claude/.claude/shell-snapshots/
 claude/.claude/stats-cache.json
 claude/.claude/statsig/
 claude/.claude/telemetry/
 claude/.claude/todos/
 claude/.claude/transcripts/
+claude/.claude/plugins/cache/
+claude/.claude/plugins/marketplaces/
+claude/.claude/plugins/install-counts-cache.json
 
 # System files
 .DS_Store

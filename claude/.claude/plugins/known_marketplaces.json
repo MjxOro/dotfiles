@@ -1,0 +1,18 @@
+{
+  "oh-my-claude": {
+    "source": {
+      "source": "github",
+      "repo": "TechDufus/oh-my-claude"
+    },
+    "installLocation": "/Users/mjxoro/.claude/plugins/marketplaces/oh-my-claude",
+    "lastUpdated": "2026-01-11T06:41:47.564Z"
+  },
+  "claude-plugins-official": {
+    "source": {
+      "source": "github",
+      "repo": "anthropics/claude-plugins-official"
+    },
+    "installLocation": "/Users/mjxoro/.claude/plugins/marketplaces/claude-plugins-official",
+    "lastUpdated": "2026-01-15T01:09:56.471Z"
+  }
+}
