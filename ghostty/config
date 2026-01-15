@@ -12,8 +12,12 @@ cursor-style = block
 cursor-color = #7dd3c0
 cursor-style-blink = true
 shell-integration-features = no-cursor
+quick-terminal-position = center
+quick-terminal-size = 80%, 80%
 
-# Source shared colors for Neovim
-on-shell-startup = "source ~/.config/pastel-theme.sh 2>/dev/null || true"
 
-keybind = global:cmd+grave_accent=toggle_quick_terminal
+
+keybind = super+t=unbind
+keybind = global:cmd+backslash=toggle_quick_terminal
+keybind = super+shift+t=new_tab
+macos-option-as-alt = true

@@ -1,5 +1,24 @@
 # Secrets and sensitive files
 secrets.zsh
+antigravity-accounts.json
+
+# Claude Code sensitive data (keep CLAUDE.md only)
+claude/.claude/cache/
+claude/.claude/debug/
+claude/.claude/downloads/
+claude/.claude/file-history/
+claude/.claude/history.jsonl
+claude/.claude/paste-cache/
+claude/.claude/plugins/
+claude/.claude/projects/
+claude/.claude/session-env/
+claude/.claude/settings.json
+claude/.claude/shell-snapshots/
+claude/.claude/stats-cache.json
+claude/.claude/statsig/
+claude/.claude/telemetry/
+claude/.claude/todos/
+claude/.claude/transcripts/
 
 # System files
 .DS_Store
@@ -14,5 +33,6 @@ tt.*
 
 # Backup files
 *.bak
+*.bak.*
 *~
 .#*

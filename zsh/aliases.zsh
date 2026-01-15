@@ -9,6 +9,7 @@ alias gs="git status"
 # misc
 alias updateZsh="source ~/.zshrc"
 
+alias cc="claude --dangerously-skip-permissions"
 claudedev() {
      if [ "$1" = "zai" ]; then
         export ANTHROPIC_BASE_URL="https://api.z.ai/api/anthropic"
