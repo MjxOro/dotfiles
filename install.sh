@@ -341,8 +341,8 @@ manage_dotfiles() {
         local item_basename=$(basename "$item")
         echo -e "${PURPLE}    DEBUG: Found item: $item_basename${NC}"
         
-        # Only link specific dotfiles (.zshrc, .tmux, .tmux.conf) to home directory
-        if [[ "$item_basename" == ".zshrc" || "$item_basename" == ".tmux" || "$item_basename" == ".tmux.conf" ]]; then
+        # Only link specific dotfiles (.zshrc, .tmux, .tmux.conf, .claude) to home directory
+        if [[ "$item_basename" == ".zshrc" || "$item_basename" == ".tmux" || "$item_basename" == ".tmux.conf" || "$item_basename" == ".claude" ]]; then
           found_items_in_package+=("$item")
           echo -e "${PURPLE}    DEBUG: Added to processing list: $item${NC}"
         else
@@ -461,6 +461,40 @@ _install_ohmyzsh_script() {
       if [ -n "$omz_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $omz_out"; fi
     fi
   else print_message "$YELLOW" "  Oh My Zsh installation skipped."; fi
+}
+
+_install_bun_script() {
+  if command_exists bun; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  Bun is already installed."; fi
+    return 0
+  fi
+  if ask_yes_no "  Install Bun (JavaScript runtime)?" "y"; then
+    if ! command_exists curl; then print_message "$RED" "    curl is required for Bun installation. Please install curl."; return 1; fi
+    # Check for unzip on Linux (required by bun installer)
+    if [[ "$(uname -s)" == "Linux" ]] && ! command_exists unzip; then
+      print_message "$RED" "    unzip is required for Bun installation on Linux. Please install unzip first."
+      return 1
+    fi
+    echo -n -e "${CYAN}    Installing Bun (curl ... | bash)... ${NC}"
+    local bun_out bun_ec
+    if [ "$QUIET" = true ] && [ "$ASSUME_YES" = true ]; then
+      bun_out=$(curl -fsSL --max-time 300 --retry 2 https://bun.sh/install 2>/dev/null | bash 2>&1); bun_ec=$?
+    else
+      echo; bun_out=$(curl -fsSL --max-time 300 --retry 2 https://bun.sh/install 2>/dev/null | bash); bun_ec=$?
+    fi
+    # Source bun path if it was just installed
+    if [ -f "$HOME/.bun/bin/bun" ]; then
+      export BUN_INSTALL="$HOME/.bun"
+      export PATH="$BUN_INSTALL/bin:$PATH"
+    fi
+    if [ $bun_ec -eq 0 ] && (command_exists bun || [ -f "$HOME/.bun/bin/bun" ]); then
+      echo -e "${GREEN}✓${NC}"
+      if [ "$QUIET" = false ]; then print_message "$GREEN" "    Bun installed successfully."; fi
+    else
+      echo -e "${RED}✗${NC}"; print_message "$RED" "    Bun installation failed (code: $bun_ec)."
+      if [ -n "$bun_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $bun_out"; fi
+    fi
+  else print_message "$YELLOW" "  Bun installation skipped."; fi
 }
 
 _install_opencode_script() {
@@ -592,6 +626,7 @@ install_mac_dependencies() {
   elif [ "$QUIET" = false ]; then print_message "$GREEN" "  Starship is already installed."; fi
 
   _install_ohmyzsh_script
+  _install_bun_script
   _install_opencode_script
   _install_claude_code_script
   _install_ghostty_brew
@@ -602,7 +637,7 @@ install_mac_dependencies() {
 install_arch_dependencies() {
   print_header "Dependency Check for Arch Linux"
   local all_ok=true
-  local arch_needed_pkgs=("gcc" "zsh" "curl" "git") pkgs_to_install_pacman=()
+  local arch_needed_pkgs=("gcc" "zsh" "curl" "git" "unzip") pkgs_to_install_pacman=()
   for pkg in "${arch_needed_pkgs[@]}"; do
     if ! command_exists "$pkg"; then
       if ask_yes_no "  Package '$pkg' not found. Install with pacman?" "y"; then pkgs_to_install_pacman+=("$pkg"); fi
@@ -616,6 +651,7 @@ install_arch_dependencies() {
 
   _install_starship_via_curl_script
   _install_ohmyzsh_script
+  _install_bun_script
   _install_opencode_script
   _install_claude_code_script
   _install_ghostty_arch
@@ -633,7 +669,7 @@ install_debian_dependencies() {
     echo -e "${RED}✗${NC}"; print_message "$RED" "Failed to update apt lists."; all_ok=false
   fi
 
-  local essential_deps_script=("git" "curl" "software-properties-common" "build-essential" "zsh") 
+  local essential_deps_script=("git" "curl" "software-properties-common" "build-essential" "zsh" "unzip") 
   local packages_to_install_apt=()
   if [ "$QUIET" = false ]; then print_message "$BLUE" "Checking core packages (git, curl, build-essential/gcc, zsh)..."; fi
   for package in "${essential_deps_script[@]}"; do
@@ -675,6 +711,7 @@ install_debian_dependencies() {
 
   _install_starship_via_curl_script
   _install_ohmyzsh_script
+  _install_bun_script
   _install_opencode_script
   _install_claude_code_script
   _install_ghostty_debian
@@ -726,6 +763,7 @@ print_installation_summary() {
     local failed_tools=()
 
     command_exists starship && installed_tools+=("Starship") || failed_tools+=("Starship")
+    (command_exists bun || [ -f "$HOME/.bun/bin/bun" ]) && installed_tools+=("Bun") || failed_tools+=("Bun")
     command_exists opencode && installed_tools+=("OpenCode") || failed_tools+=("OpenCode")
     command_exists claude && installed_tools+=("Claude Code") || failed_tools+=("Claude Code")
     [ -d "$HOME/.oh-my-zsh" ] && installed_tools+=("Oh My Zsh") || failed_tools+=("Oh My Zsh")
@@ -739,6 +777,7 @@ print_installation_summary() {
     [ -L "$HOME/.zshrc" ] && linked_configs+=("Zsh")
     [ -L "$HOME/.config/opencode" ] && linked_configs+=("OpenCode")
     [ -L "$HOME/.config/ghostty" ] && linked_configs+=("Ghostty")
+    [ -L "$HOME/.claude" ] && linked_configs+=("Claude")
 
     if [ ${#installed_tools[@]} -gt 0 ]; then
       print_message "$GREEN" "✅ Successfully installed: ${installed_tools[*]}"
