@@ -458,12 +458,35 @@ _install_ohmyzsh_script() {
     fi
     if [ -d "$HOME/.oh-my-zsh" ]; then
       echo -e "${GREEN}✓${NC}"
-      print_message "$GREEN" "    Oh My Zsh installed. Run 'chsh -s \$(which zsh)' to set as default shell."
+      print_message "$GREEN" "    Oh My Zsh installed."
     else
       echo -e "${RED}✗${NC}"; print_message "$RED" "    Oh My Zsh install failed (dir not found)."
       if [ -n "$omz_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $omz_out"; fi
     fi
   else print_message "$YELLOW" "  Oh My Zsh installation skipped."; fi
+}
+
+_set_zsh_default_shell() {
+  if ! command_exists zsh; then
+    if [ "$QUIET" = false ]; then print_message "$YELLOW" "  Zsh not installed, skipping shell change."; fi
+    return 0
+  fi
+  local current_shell; current_shell=$(basename "$SHELL")
+  if [ "$current_shell" = "zsh" ]; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  Zsh is already the default shell."; fi
+    return 0
+  fi
+  if ask_yes_no "  Set Zsh as default shell? (requires password)" "y"; then
+    local zsh_path; zsh_path=$(which zsh)
+    echo -n -e "${CYAN}    Changing default shell to Zsh... ${NC}"
+    if chsh -s "$zsh_path"; then
+      echo -e "${GREEN}✓${NC}"
+      print_message "$GREEN" "    Default shell changed to Zsh. Restart terminal to apply."
+    else
+      echo -e "${RED}✗${NC}"
+      print_message "$RED" "    Failed to change shell. Try manually: chsh -s $zsh_path"
+    fi
+  else print_message "$YELLOW" "  Shell change skipped."; fi
 }
 
 _install_bun_script() {
@@ -626,6 +649,7 @@ install_mac_dependencies() {
   elif [ "$QUIET" = false ]; then print_message "$GREEN" "  Starship is already installed."; fi
 
   _install_ohmyzsh_script
+  _set_zsh_default_shell
   _install_bun_script
   _install_opencode_script
   _install_claude_code_script
@@ -651,6 +675,7 @@ install_arch_dependencies() {
 
   _install_starship_via_curl_script
   _install_ohmyzsh_script
+  _set_zsh_default_shell
   _install_bun_script
   _install_opencode_script
   _install_claude_code_script
@@ -711,6 +736,7 @@ install_debian_dependencies() {
 
   _install_starship_via_curl_script
   _install_ohmyzsh_script
+  _set_zsh_default_shell
   _install_bun_script
   _install_opencode_script
   _install_claude_code_script
