@@ -1,16 +1,45 @@
 {
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
+  "google_auth": false,
+  "git_master": {
+    "commit_footer": false,
+    "include_co_authored_by": false
+  },
   "agents": {
-    "oracle": {
+    "Sisyphus": {
       "model": "anthropic/claude-opus-4-5"
     },
-    "frontend-ui-ux-engineer": {
+    "librarian": {
       "model": "minimax/MiniMax-M2.1"
+    },
+    "explore": {
+      "model": "anthropic/claude-haiku-4-5"
+    },
+    "oracle": {
+      "category": "ultrabrain",
+      "model": "openai/gpt-5.2-codex",
+      "reasoningEffort": "xhigh"
+    },
+    "frontend-ui-ux-engineer": {
+      "model": "anthropic/claude-opus-4-5"
     },
     "document-writer": {
       "model": "anthropic/claude-opus-4-5"
     },
     "multimodal-looker": {
+      "model": "minimax/MiniMax-M2.1"
+    },
+    "Prometheus (Planner)": {
+      "model": "anthropic/claude-opus-4-5"
+    },
+    "Metis (Plan Consultant)": {
+      "model": "openai/gpt-5.2-codex",
+      "reasoningEffort": "xhigh"
+    },
+    "Momus (Plan Reviewer)": {
+      "model": "anthropic/claude-opus-4-5"
+    },
+    "orchestrator-sisyphus": {
       "model": "anthropic/claude-opus-4-5"
     }
   }
