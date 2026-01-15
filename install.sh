@@ -131,7 +131,9 @@ get_available_packages() {
     -not -path "$LINK_SRC_BASE_DIR/.git*" \
     -not -name ".DS_Store" \
     -not -name "README.md" \
+    -not -name "AGENTS.md" \
     -not -name "install.sh" \
+    -not -name "*.itermcolors" \
     -exec basename {} \; | sort
 }
 
