@@ -424,14 +424,12 @@ _install_starship_via_curl_script() {
   if ask_yes_no "  Install Starship (prompt) via official script?" "y"; then
     if ! command_exists curl; then print_message "$RED" "    curl is required for Starship script. Please install curl."; return 1; fi
     echo -n -e "${CYAN}    Installing Starship (curl ... | sh)... ${NC}"
-    local starship_cmd="curl -sS https://starship.rs/install.sh | sh -s --"
-    if [ "$ASSUME_YES" = true ]; then starship_cmd+=" -y"; fi
-
     local s_out s_ec
-    if [ "$QUIET" = true ] && [ "$ASSUME_YES" = true ]; then
-        s_out=$(eval "$starship_cmd" 2>&1); s_ec=$?
+    if [ "$QUIET" = true ]; then
+      s_out=$(curl -fsSL https://starship.rs/install.sh | sh -s -- -y 2>&1); s_ec=$?
     else
-        echo; s_out=$(eval "$starship_cmd"); s_ec=$?
+      echo
+      curl -fsSL https://starship.rs/install.sh | sh -s -- -y; s_ec=$?
     fi
     if [ $s_ec -eq 0 ] && command_exists starship; then echo -e "${GREEN}✓${NC}"; else
       echo -e "${RED}✗${NC}"; print_message "$RED" "    Starship script install failed (code: $s_ec)."
@@ -450,15 +448,18 @@ _install_ohmyzsh_script() {
   fi
   if ask_yes_no "  Install Oh My Zsh?" "y"; then
     local omz_url="https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
-    local cmd_prefix="" script_args=""
-    if [ "$ASSUME_YES" = true ]; then cmd_prefix="CHSH=no RUNZSH=no "; script_args="--unattended"; fi
     echo -n -e "${CYAN}    Installing Oh My Zsh (curl ... | sh)... ${NC}"
     local omz_out omz_ec
-    if [ "$QUIET" = true ] || [ "$ASSUME_YES" = true ]; then
-      omz_out=$(eval "${cmd_prefix} curl -fsSL ${omz_url} | sh -s -- ${script_args}" 2>&1); omz_ec=$?
-    else echo; omz_out=$(eval "${cmd_prefix} curl -fsSL ${omz_url} | sh -s -- ${script_args}"); omz_ec=$?; fi
-
-    if [ -d "$HOME/.oh-my-zsh" ]; then echo -e "${GREEN}✓${NC}"; print_message "$GREEN" "    Oh My Zsh installed. May need 'chsh -s \$(which zsh)' & restart."; else
+    if [ "$QUIET" = true ]; then
+      omz_out=$(CHSH=no RUNZSH=no curl -fsSL "$omz_url" | sh -s -- --unattended 2>&1); omz_ec=$?
+    else
+      echo
+      CHSH=no RUNZSH=no curl -fsSL "$omz_url" | sh -s -- --unattended; omz_ec=$?
+    fi
+    if [ -d "$HOME/.oh-my-zsh" ]; then
+      echo -e "${GREEN}✓${NC}"
+      print_message "$GREEN" "    Oh My Zsh installed. Run 'chsh -s \$(which zsh)' to set as default shell."
+    else
       echo -e "${RED}✗${NC}"; print_message "$RED" "    Oh My Zsh install failed (dir not found)."
       if [ -n "$omz_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $omz_out"; fi
     fi
@@ -472,19 +473,18 @@ _install_bun_script() {
   fi
   if ask_yes_no "  Install Bun (JavaScript runtime)?" "y"; then
     if ! command_exists curl; then print_message "$RED" "    curl is required for Bun installation. Please install curl."; return 1; fi
-    # Check for unzip on Linux (required by bun installer)
     if [[ "$(uname -s)" == "Linux" ]] && ! command_exists unzip; then
       print_message "$RED" "    unzip is required for Bun installation on Linux. Please install unzip first."
       return 1
     fi
     echo -n -e "${CYAN}    Installing Bun (curl ... | bash)... ${NC}"
     local bun_out bun_ec
-    if [ "$QUIET" = true ] && [ "$ASSUME_YES" = true ]; then
-      bun_out=$(curl -fsSL --max-time 300 --retry 2 https://bun.sh/install 2>/dev/null | bash 2>&1); bun_ec=$?
+    if [ "$QUIET" = true ]; then
+      bun_out=$(curl -fsSL https://bun.sh/install 2>/dev/null | bash 2>&1); bun_ec=$?
     else
-      echo; bun_out=$(curl -fsSL --max-time 300 --retry 2 https://bun.sh/install 2>/dev/null | bash); bun_ec=$?
+      echo
+      curl -fsSL https://bun.sh/install | bash; bun_ec=$?
     fi
-    # Source bun path if it was just installed
     if [ -f "$HOME/.bun/bin/bun" ]; then
       export BUN_INSTALL="$HOME/.bun"
       export PATH="$BUN_INSTALL/bin:$PATH"
@@ -508,13 +508,12 @@ _install_opencode_script() {
     if ! command_exists curl; then print_message "$RED" "    curl is required for OpenCode installation. Please install curl."; return 1; fi
     echo -n -e "${CYAN}    Installing OpenCode (curl ... | bash)... ${NC}"
     local opencode_out opencode_ec
-    # Add timeout and retry logic for network operations
-    if [ "$QUIET" = true ] && [ "$ASSUME_YES" = true ]; then
-      opencode_out=$(curl -fsSL --max-time 300 --retry 2 https://opencode.ai/install 2>/dev/null | bash 2>&1); opencode_ec=$?
+    if [ "$QUIET" = true ]; then
+      opencode_out=$(curl -fsSL https://opencode.ai/install 2>/dev/null | bash 2>&1); opencode_ec=$?
     else
-      echo; opencode_out=$(curl -fsSL --max-time 300 --retry 2 https://opencode.ai/install 2>/dev/null | bash); opencode_ec=$?
+      echo
+      curl -fsSL https://opencode.ai/install | bash; opencode_ec=$?
     fi
-    # Verify installation actually works
     if [ $opencode_ec -eq 0 ] && command_exists opencode && opencode --version >/dev/null 2>&1; then
       echo -e "${GREEN}✓${NC}"
       if [ "$QUIET" = false ]; then print_message "$GREEN" "    OpenCode installed successfully."; fi
@@ -534,13 +533,12 @@ _install_claude_code_script() {
     if ! command_exists curl; then print_message "$RED" "    curl is required for Claude Code installation. Please install curl."; return 1; fi
     echo -n -e "${CYAN}    Installing Claude Code (curl ... | bash)... ${NC}"
     local claude_out claude_ec
-    # Add timeout and retry logic for network operations
-    if [ "$QUIET" = true ] && [ "$ASSUME_YES" = true ]; then
-      claude_out=$(curl -fsSL --max-time 300 --retry 2 https://claude.ai/install.sh 2>/dev/null | bash 2>&1); claude_ec=$?
+    if [ "$QUIET" = true ]; then
+      claude_out=$(curl -fsSL https://claude.ai/install.sh 2>/dev/null | bash 2>&1); claude_ec=$?
     else
-      echo; claude_out=$(curl -fsSL --max-time 300 --retry 2 https://claude.ai/install.sh 2>/dev/null | bash); claude_ec=$?
+      echo
+      curl -fsSL https://claude.ai/install.sh | bash; claude_ec=$?
     fi
-    # Verify installation actually works
     if [ $claude_ec -eq 0 ] && command_exists claude && claude --version >/dev/null 2>&1; then
       echo -e "${GREEN}✓${NC}"
       if [ "$QUIET" = false ]; then print_message "$GREEN" "    Claude Code installed successfully."; fi
