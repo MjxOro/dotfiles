@@ -1,0 +1,87 @@
+{
+  "version": 2,
+  "plugins": {
+    "oh-my-claude@oh-my-claude": [
+      {
+        "scope": "user",
+        "installPath": "/Users/mjxoro/.claude/plugins/cache/oh-my-claude/oh-my-claude/0.1.0",
+        "version": "0.1.0",
+        "installedAt": "2026-01-11T06:40:41.203Z",
+        "lastUpdated": "2026-01-11T06:40:41.203Z",
+        "gitCommitSha": "b85043646d889d099fa3ef9866c523b3393549c8"
+      }
+    ],
+    "frontend-design@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/mjxoro/.claude/plugins/cache/claude-plugins-official/frontend-design/f70b65538da0",
+        "version": "f70b65538da0",
+        "installedAt": "2026-01-11T06:42:20.043Z",
+        "lastUpdated": "2026-01-13T04:51:40.116Z"
+      }
+    ],
+    "context7@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/mjxoro/.claude/plugins/cache/claude-plugins-official/context7/f70b65538da0",
+        "version": "f70b65538da0",
+        "installedAt": "2026-01-11T06:42:48.687Z",
+        "lastUpdated": "2026-01-13T04:51:40.118Z"
+      }
+    ],
+    "feature-dev@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/mjxoro/.claude/plugins/cache/claude-plugins-official/feature-dev/f70b65538da0",
+        "version": "f70b65538da0",
+        "installedAt": "2026-01-11T06:43:07.422Z",
+        "lastUpdated": "2026-01-13T04:51:40.119Z"
+      }
+    ],
+    "code-review@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/mjxoro/.claude/plugins/cache/claude-plugins-official/code-review/f70b65538da0",
+        "version": "f70b65538da0",
+        "installedAt": "2026-01-11T06:43:12.140Z",
+        "lastUpdated": "2026-01-13T04:51:40.121Z"
+      }
+    ],
+    "serena@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/mjxoro/.claude/plugins/cache/claude-plugins-official/serena/f70b65538da0",
+        "version": "f70b65538da0",
+        "installedAt": "2026-01-11T06:43:15.719Z",
+        "lastUpdated": "2026-01-13T04:51:40.122Z"
+      }
+    ],
+    "github@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/mjxoro/.claude/plugins/cache/claude-plugins-official/github/f70b65538da0",
+        "version": "f70b65538da0",
+        "installedAt": "2026-01-11T06:43:17.912Z",
+        "lastUpdated": "2026-01-13T04:51:40.123Z"
+      }
+    ],
+    "commit-commands@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/mjxoro/.claude/plugins/cache/claude-plugins-official/commit-commands/f70b65538da0",
+        "version": "f70b65538da0",
+        "installedAt": "2026-01-11T06:43:19.854Z",
+        "lastUpdated": "2026-01-13T04:51:40.124Z"
+      }
+    ],
+    "typescript-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/mjxoro/.claude/plugins/cache/claude-plugins-official/typescript-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-01-11T06:43:21.902Z",
+        "lastUpdated": "2026-01-11T06:43:21.902Z"
+      }
+    ]
+  }
+}
