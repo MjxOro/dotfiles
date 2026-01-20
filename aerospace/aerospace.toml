@@ -76,12 +76,12 @@ on-mode-changed = []
 #                 See:
 #                 https://nikitabobko.github.io/AeroSpace/guide#assign-workspaces-to-monitors
 [gaps]
-    inner.horizontal = 40
-    inner.vertical =   40
-    outer.left =       40
-    outer.bottom =     40
-    outer.top =        40
-    outer.right =      40
+    inner.horizontal = 10
+    inner.vertical =   10
+    outer.left =       10
+    outer.bottom =     10
+    outer.top =        10
+    outer.right =      10
 
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
@@ -119,6 +119,12 @@ on-mode-changed = []
     # See: https://nikitabobko.github.io/AeroSpace/commands#layout
     alt-slash = 'layout tiles horizontal vertical'
     alt-comma = 'layout accordion horizontal vertical'
+
+    # App Launchers
+    alt-enter = 'exec-and-forget open -a Ghostty'
+    alt-b = 'exec-and-forget open -a "Google Chrome"'
+    alt-d = 'exec-and-forget open -a Discord'
+    alt-t = 'exec-and-forget open -a Telegram'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#focus
     alt-h = 'focus left'
