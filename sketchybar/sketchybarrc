@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+
+# Color Palette
+ACCENT=0xff7dd3c0
+BAR_COLOR=0xcc1a1a2e
+ITEM_BG_COLOR=0xff2d2d3d
+TEXT_COLOR=0xffffffff
+INACTIVE_COLOR=0xff494d64
+
+# Plugin Directory (CONFIG_DIR is set by sketchybar to the config directory)
+PLUGIN_DIR="$CONFIG_DIR/plugins"
+
+# Bar Appearance
+sketchybar --bar height=36 \
+                 position=top \
+                 color=$BAR_COLOR \
+                 blur_radius=30 \
+                 padding_left=10 \
+                 padding_right=10
+
+# Default Item Settings
+sketchybar --default updates=when_shown \
+                     icon.font="SF Pro:Semibold:14.0" \
+                     icon.color=$TEXT_COLOR \
+                     label.font="SF Pro:Semibold:13.0" \
+                     label.color=$TEXT_COLOR \
+                     padding_left=8 \
+                     padding_right=8 \
+                     background.color=$ITEM_BG_COLOR \
+                     background.corner_radius=6 \
+                     background.height=24
+
+# Left Side - Workspace Indicators
+sketchybar --add event aerospace_workspace_change
+
+for i in {1..5}; do
+  sketchybar --add item space.$i left \
+             --set space.$i \
+                   icon="$i" \
+                   icon.padding_left=10 \
+                   icon.padding_right=10 \
+                   label.drawing=off \
+                   background.color=$ITEM_BG_COLOR \
+                   background.corner_radius=6 \
+                   background.height=24 \
+                   script="$PLUGIN_DIR/aerospace.sh" \
+                   click_script="aerospace workspace $i" \
+             --subscribe space.$i aerospace_workspace_change
+done
+
+# Right Side - Status Items
+
+# Media
+sketchybar --add item media right \
+           --set media \
+                 icon="♫" \
+                 icon.padding_left=10 \
+                 icon.padding_right=5 \
+                 label.padding_right=10 \
+                 script="$PLUGIN_DIR/media.sh" \
+                 update_freq=5
+
+# CPU
+sketchybar --add item cpu right \
+           --set cpu \
+                 icon="CPU" \
+                 icon.padding_left=10 \
+                 icon.padding_right=5 \
+                 label.padding_right=10 \
+                 script="$PLUGIN_DIR/cpu.sh" \
+                 update_freq=5
+
+# Battery
+sketchybar --add item battery right \
+           --set battery \
+                 icon.padding_left=10 \
+                 icon.padding_right=5 \
+                 label.padding_right=10 \
+                 script="$PLUGIN_DIR/battery.sh" \
+                 update_freq=30
+
+# Clock
+sketchybar --add item clock right \
+           --set clock \
+                 icon.drawing=off \
+                 label.padding_left=10 \
+                 label.padding_right=10 \
+                 script="$PLUGIN_DIR/clock.sh" \
+                 update_freq=30
+
+# Finalize
+sketchybar --update
