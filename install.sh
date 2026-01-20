@@ -307,14 +307,19 @@ manage_dotfiles() {
     local items_succeeded_in_package=0
     local items_failed_in_package=0
 
-    # Rule 1: Top-level non-dot-prefixed directories (like nvim, starship) link to ~/.config/
-    if [[ "$package_name" != .* ]]; then # e.g. "nvim", "starship"
-      echo -e "${PURPLE}  DEBUG: Applying Rule 1 for '$package_name'${NC}"
-      items_processed_in_package=$((items_processed_in_package + 1))
-      if process_single_item "$action" "$package_source_dir" "$HOME/.config/$package_name" "$package_name" "$main_backup_dir"; then
-        items_succeeded_in_package=$((items_succeeded_in_package + 1))
-      else
-        items_failed_in_package=$((items_failed_in_package + 1))
+     # Rule 1: Top-level non-dot-prefixed directories (like nvim, starship) link to ~/.config/
+     if [[ "$package_name" != .* ]]; then # e.g. "nvim", "starship"
+       # Skip macOS-only packages on non-macOS systems
+       if [[ ("$package_name" == "aerospace" || "$package_name" == "sketchybar" || "$package_name" == "borders") && "$(uname -s)" != "Darwin" ]]; then
+         if [ "$QUIET" = false ]; then print_message "$YELLOW" "  Skipping '$package_name': macOS-only package (current OS: $(uname -s))"; fi
+       else
+        echo -e "${PURPLE}  DEBUG: Applying Rule 1 for '$package_name'${NC}"
+        items_processed_in_package=$((items_processed_in_package + 1))
+        if process_single_item "$action" "$package_source_dir" "$HOME/.config/$package_name" "$package_name" "$main_backup_dir"; then
+          items_succeeded_in_package=$((items_succeeded_in_package + 1))
+        else
+          items_failed_in_package=$((items_failed_in_package + 1))
+        fi
       fi
 
       # Special handling for ghostty on macOS - link config file directly
@@ -801,15 +806,18 @@ print_installation_summary() {
     [ -d "$HOME/.oh-my-zsh" ] && installed_tools+=("Oh My Zsh") || failed_tools+=("Oh My Zsh")
     command_exists ghostty && installed_tools+=("Ghostty") || failed_tools+=("Ghostty")
 
-    # Check linked configs
-    local linked_configs=()
-    [ -L "$HOME/.config/nvim" ] && linked_configs+=("Neovim")
-    [ -L "$HOME/.config/starship" ] && linked_configs+=("Starship")
-    [ -L "$HOME/.tmux.conf" ] && linked_configs+=("Tmux")
-    [ -L "$HOME/.zshrc" ] && linked_configs+=("Zsh")
-    [ -L "$HOME/.config/opencode" ] && linked_configs+=("OpenCode")
-    [ -L "$HOME/.config/ghostty" ] && linked_configs+=("Ghostty")
-    [ -L "$HOME/.claude" ] && linked_configs+=("Claude")
+     # Check linked configs
+     local linked_configs=()
+     [ -L "$HOME/.config/nvim" ] && linked_configs+=("Neovim")
+     [ -L "$HOME/.config/starship" ] && linked_configs+=("Starship")
+     [ -L "$HOME/.tmux.conf" ] && linked_configs+=("Tmux")
+     [ -L "$HOME/.zshrc" ] && linked_configs+=("Zsh")
+     [ -L "$HOME/.config/opencode" ] && linked_configs+=("OpenCode")
+     [ -L "$HOME/.config/ghostty" ] && linked_configs+=("Ghostty")
+     [ -L "$HOME/.claude" ] && linked_configs+=("Claude")
+     [[ "$(uname -s)" == "Darwin" ]] && [ -L "$HOME/.config/aerospace" ] && linked_configs+=("Aerospace")
+     [[ "$(uname -s)" == "Darwin" ]] && [ -L "$HOME/.config/sketchybar" ] && linked_configs+=("SketchyBar")
+     [[ "$(uname -s)" == "Darwin" ]] && [ -L "$HOME/.config/borders" ] && linked_configs+=("Borders")
 
     if [ ${#installed_tools[@]} -gt 0 ]; then
       print_message "$GREEN" "✅ Successfully installed: ${installed_tools[*]}"
