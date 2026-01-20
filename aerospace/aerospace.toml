@@ -126,6 +126,9 @@ on-mode-changed = []
     alt-d = 'exec-and-forget open -a Discord'
     alt-t = 'exec-and-forget open -a Telegram'
 
+    # Window Management
+    alt-q = 'close'
+
     # See: https://nikitabobko.github.io/AeroSpace/commands#focus
     alt-h = 'focus left'
     alt-j = 'focus down'
