@@ -122,7 +122,7 @@ on-mode-changed = []
 
     # App Launchers
     alt-enter = 'exec-and-forget open -na Ghostty'
-    alt-b = 'exec-and-forget open -na "Google Chrome" --args --new-window'
+        alt-b = 'exec-and-forget osascript -e "tell application \"Google Chrome\" to make new window"'
     alt-d = 'exec-and-forget open -a Discord'
     alt-t = 'exec-and-forget open -a Telegram'
 
