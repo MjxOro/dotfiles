@@ -49,7 +49,7 @@ on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 # You can effectively turn off macOS "Hide application" (cmd-h) feature by toggling this flag
 # Useful if you don't use this macOS feature, but accidentally hit cmd-h or cmd-alt-h key
 # Also see: https://nikitabobko.github.io/AeroSpace/goodies#disable-hide-app
-automatically-unhide-macos-hidden-apps = true
+automatically-unhide-macos-hidden-apps = false
 
 # List of workspaces that should stay alive even when they contain no windows,
 # even when they are invisible.
@@ -80,7 +80,7 @@ on-mode-changed = []
     inner.vertical =   10
     outer.left =       10
     outer.bottom =     10
-    outer.top =        10
+    outer.top =        46
     outer.right =      10
 
 # 'main' binding mode declaration
@@ -122,10 +122,9 @@ on-mode-changed = []
 
     # App Launchers
     alt-enter = 'exec-and-forget open -na Ghostty'
-    alt-b = 'exec-and-forget open -na "Google Chrome"'
+        alt-b = 'exec-and-forget osascript -e "tell application \"Google Chrome\" to make new window"'
     alt-d = 'exec-and-forget open -a Discord'
     alt-t = 'exec-and-forget open -a Telegram'
-    alt-m = 'exec-and-forget open -a Messages'
 
     # Window Management
     alt-q = 'close'
@@ -183,7 +182,3 @@ on-mode-changed = []
     alt-shift-j = ['join-with down', 'mode main']
     alt-shift-k = ['join-with up', 'mode main']
     alt-shift-l = ['join-with right', 'mode main']
-
-[[on-window-detected]]
-if.app-id = 'ru.keepcoder.Telegram'
-run = 'layout floating'
