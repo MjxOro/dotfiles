@@ -1,92 +1,132 @@
 #!/usr/bin/env bash
 
-# Color Palette
-ACCENT=0xff7dd3c0
-BAR_COLOR=0xcc1a1a2e
-ITEM_BG_COLOR=0xff2d2d3d
-TEXT_COLOR=0xffffffff
-INACTIVE_COLOR=0xff494d64
+# ╔════════════════════════════════════════════════════════════════════════════╗
+# ║  SKETCHYBAR CONFIG - Edit freely!                                          ║
+# ║                                                                            ║
+# ║  Reload after changes: sketchybar --reload                                 ║
+# ║  Auto-refresh: Yes, items refresh based on update_freq (in seconds)        ║
+# ║                                                                            ║
+# ║  Positions: left | center | right                                          ║
+# ║  Colors: 0xAARRGGBB (AA=alpha, 00=transparent, ff=opaque)                  ║
+# ╚════════════════════════════════════════════════════════════════════════════╝
 
-# Plugin Directory (CONFIG_DIR is set by sketchybar to the config directory)
 PLUGIN_DIR="$CONFIG_DIR/plugins"
 
-# Bar Appearance
-sketchybar --bar height=36 \
-                 position=top \
-                 color=$BAR_COLOR \
-                 blur_radius=30 \
-                 padding_left=10 \
-                 padding_right=10
+# === COLORS (Ghostty Pastel Theme + Mint Accent) ===
+BAR_COLOR=0xdd000000   # Bar background (dd = mostly opaque)
+SURFACE=0xff1a1a1a     # Item backgrounds
+TEXT=0xffbbbbbb        # Normal text
+TEXT_BRIGHT=0xffeeeeee # Bright text
+DIM=0xff6c6c6c         # Dimmed text
+ACCENT=0xff7dd3c0      # Mint accent
+RED=0xffff6c60         # Red (YouTube)
+GREEN=0xffa8ff60       # Green (Spotify)
+YELLOW=0xffffffb6      # Yellow
+BLUE=0xff96cbfe        # Blue
+MAGENTA=0xffff73fd     # Magenta (Apple Music)
+TRANSPARENT=0x00000000
 
-# Default Item Settings
-sketchybar --default updates=when_shown \
-                     icon.font="SF Pro:Semibold:14.0" \
-                     icon.color=$TEXT_COLOR \
-                     label.font="SF Pro:Semibold:13.0" \
-                     label.color=$TEXT_COLOR \
-                     padding_left=8 \
-                     padding_right=8 \
-                     background.color=$ITEM_BG_COLOR \
-                     background.corner_radius=6 \
-                     background.height=24
+# === BAR ===
+sketchybar --bar \
+  height=38 \
+  position=top \
+  color=$BAR_COLOR \
+  blur_radius=30 \
+  sticky=on \
+  padding_left=12 \
+  padding_right=12 \
+  notch_width=200
 
-# Left Side - Workspace Indicators
+# === DEFAULTS ===
+sketchybar --default \
+  icon.font="Maple Mono NF:Bold:16.0" \
+  icon.color=$TEXT_BRIGHT \
+  icon.padding_left=8 \
+  icon.padding_right=6 \
+  label.font="Maple Mono NF:Bold:15.0" \
+  label.color=$TEXT_BRIGHT \
+  label.padding_left=6 \
+  label.padding_right=10 \
+  background.color=$SURFACE \
+  background.corner_radius=8 \
+  background.height=28 \
+  background.padding_left=4 \
+  background.padding_right=4
+
+# ══════════════════════════════════════════════════════════════════════════════
+# LEFT SIDE: Workspaces
+# ══════════════════════════════════════════════════════════════════════════════
+
 sketchybar --add event aerospace_workspace_change
 
-for i in {1..5}; do
+for i in 1 2 3 4 5; do
   sketchybar --add item space.$i left \
-             --set space.$i \
-                   icon="$i" \
-                   icon.padding_left=10 \
-                   icon.padding_right=10 \
-                   label.drawing=off \
-                   background.color=$ITEM_BG_COLOR \
-                   background.corner_radius=6 \
-                   background.height=24 \
-                   script="$PLUGIN_DIR/aerospace.sh" \
-                   click_script="aerospace workspace $i" \
-             --subscribe space.$i aerospace_workspace_change
+    --set space.$i \
+    icon="$i" \
+    icon.color=$DIM \
+    icon.highlight_color=$ACCENT \
+    icon.padding_left=12 \
+    icon.padding_right=12 \
+    label.drawing=off \
+    background.color=$TRANSPARENT \
+    background.corner_radius=6 \
+    script="$PLUGIN_DIR/aerospace.sh" \
+    click_script="aerospace workspace $i" \
+    --subscribe space.$i aerospace_workspace_change
 done
 
-# Right Side - Status Items
+# ══════════════════════════════════════════════════════════════════════════════
+# CENTER: Now Playing
+# ══════════════════════════════════════════════════════════════════════════════
 
-# Media
-sketchybar --add item media right \
-           --set media \
-                 icon="♫" \
-                 icon.padding_left=10 \
-                 icon.padding_right=5 \
-                 label.padding_right=10 \
-                 script="$PLUGIN_DIR/media.sh" \
-                 update_freq=5
+sketchybar --add item media center \
+  --set media \
+  icon="" \
+  icon.font="Maple Mono NF:Bold:18.0" \
+  icon.padding_left=14 \
+  label.font="Maple Mono NF:Bold:14.0" \
+  label.max_chars=90 \
+  label.scroll_duration=150 \
+  label.padding_right=14 \
+  scroll_texts=on \
+  background.color=$SURFACE \
+  script="$PLUGIN_DIR/media.sh" \
+  update_freq=5
 
-# CPU
-sketchybar --add item cpu right \
-           --set cpu \
-                 icon="CPU" \
-                 icon.padding_left=10 \
-                 icon.padding_right=5 \
-                 label.padding_right=10 \
-                 script="$PLUGIN_DIR/cpu.sh" \
-                 update_freq=5
+# ══════════════════════════════════════════════════════════════════════════════
+# RIGHT SIDE: Status Items
+# ══════════════════════════════════════════════════════════════════════════════
 
-# Battery
-sketchybar --add item battery right \
-           --set battery \
-                 icon.padding_left=10 \
-                 icon.padding_right=5 \
-                 label.padding_right=10 \
-                 script="$PLUGIN_DIR/battery.sh" \
-                 update_freq=30
-
-# Clock
 sketchybar --add item clock right \
-           --set clock \
-                 icon.drawing=off \
-                 label.padding_left=10 \
-                 label.padding_right=10 \
-                 script="$PLUGIN_DIR/clock.sh" \
-                 update_freq=30
+  --set clock \
+  icon="" \
+  icon.color=$ACCENT \
+  background.color=$SURFACE \
+  script="$PLUGIN_DIR/clock.sh" \
+  update_freq=30
 
-# Finalize
+sketchybar --add item date right \
+  --set date \
+  icon="" \
+  icon.color=$BLUE \
+  background.color=$SURFACE \
+  script="$PLUGIN_DIR/calendar.sh" \
+  update_freq=3600
+
+sketchybar --add item battery right \
+  --set battery \
+  icon.font="Maple Mono NF:Bold:17.0" \
+  background.color=$SURFACE \
+  script="$PLUGIN_DIR/battery.sh" \
+  update_freq=30
+
+sketchybar --add item cpu right \
+  --set cpu \
+  icon="" \
+  icon.color=$YELLOW \
+  background.color=$SURFACE \
+  script="$PLUGIN_DIR/cpu.sh" \
+  update_freq=5
+
+# ══════════════════════════════════════════════════════════════════════════════
 sketchybar --update
