@@ -146,3 +146,12 @@ export PATH=/Users/mjxoro/.opencode/bin:$PATH
 export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense'
 zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
 source <(carapace _carapace zsh)
+
+# eza - modern ls replacement
+if command -v eza &> /dev/null; then
+  alias ls='eza --icons --group-directories-first'
+  alias ll='eza -l --icons --group-directories-first'
+  alias la='eza -la --icons --group-directories-first'
+  alias lt='eza --tree --level=2 --icons --group-directories-first'
+  alias lta='eza --tree --level=2 -a --icons --group-directories-first'
+fi
