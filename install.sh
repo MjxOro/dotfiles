@@ -642,6 +642,92 @@ _install_ghostty_debian() {
   fi
 }
 
+_install_eza_brew() {
+  # eza installation via Homebrew (macOS)
+  if command_exists eza; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  eza is already installed."; fi
+    return 0
+  fi
+  if ! command_exists brew; then
+    if [ "$QUIET" = false ]; then print_message "$YELLOW" "  Homebrew not found, cannot install eza via brew."; fi
+    return 1
+  fi
+  if ask_yes_no "  Install eza (modern ls replacement) using Homebrew?" "y"; then
+    echo -n -e "${CYAN}    brew install eza... ${NC}"
+    if brew install eza >/dev/null 2>&1; then
+      echo -e "${GREEN}✓${NC}"
+      if [ "$QUIET" = false ]; then print_message "$GREEN" "    eza installed successfully."; fi
+    else
+      echo -e "${RED}✗${NC}"
+      print_message "$RED" "    eza installation failed."
+    fi
+  else print_message "$YELLOW" "  eza installation skipped."; fi
+}
+
+_install_eza_arch() {
+  # eza installation via pacman (Arch Linux)
+  if command_exists eza; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  eza is already installed."; fi
+    return 0
+  fi
+  if ask_yes_no "  Install eza (modern ls replacement) using pacman?" "y"; then
+    local pacman_cmd="sudo pacman -S --needed --noconfirm eza"
+    if [ "$ASSUME_YES" = false ]; then pacman_cmd="sudo pacman -S --needed eza"; fi
+    echo -n -e "${CYAN}    pacman -S eza... ${NC}"
+    if eval "$pacman_cmd" >/dev/null 2>&1; then
+      echo -e "${GREEN}✓${NC}"
+      if [ "$QUIET" = false ]; then print_message "$GREEN" "    eza installed successfully."; fi
+    else
+      echo -e "${RED}✗${NC}"
+      print_message "$RED" "    eza installation failed."
+    fi
+  else print_message "$YELLOW" "  eza installation skipped."; fi
+}
+
+_install_eza_debian() {
+  # eza installation via apt with GPG key (Debian/Ubuntu)
+  if command_exists eza; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  eza is already installed."; fi
+    return 0
+  fi
+  if ask_yes_no "  Install eza (modern ls replacement) from gierens.de repository?" "y"; then
+    echo -n -e "${CYAN}    Setting up eza repository... ${NC}"
+    local eza_install_ok=true
+    
+    # Ensure gpg is installed
+    if ! command_exists gpg; then
+      if ! sudo apt-get install -y gpg >/dev/null 2>&1; then
+        echo -e "${RED}✗${NC}"
+        print_message "$RED" "    Failed to install gpg."
+        return 1
+      fi
+    fi
+    
+    # Add GPG key and repository
+    if sudo mkdir -p /etc/apt/keyrings && \
+       wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg 2>/dev/null && \
+       echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list >/dev/null && \
+       sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list; then
+      echo -e "${GREEN}✓${NC}"
+    else
+      echo -e "${RED}✗${NC}"
+      print_message "$RED" "    Failed to set up eza repository."
+      eza_install_ok=false
+    fi
+    
+    if [ "$eza_install_ok" = true ]; then
+      echo -n -e "${CYAN}    apt update && apt install eza... ${NC}"
+      if sudo apt-get update >/dev/null 2>&1 && sudo apt-get install -y eza >/dev/null 2>&1; then
+        echo -e "${GREEN}✓${NC}"
+        if [ "$QUIET" = false ]; then print_message "$GREEN" "    eza installed successfully."; fi
+      else
+        echo -e "${RED}✗${NC}"
+        print_message "$RED" "    eza installation failed."
+      fi
+    fi
+  else print_message "$YELLOW" "  eza installation skipped."; fi
+}
+
 install_mac_dependencies() {
   print_header "Dependency Check for macOS"
   local all_ok=true
@@ -665,6 +751,7 @@ install_mac_dependencies() {
   _install_opencode_script
   _install_claude_code_script
   _install_ghostty_brew
+  _install_eza_brew
 
   if ! $all_ok; then return 1; fi
   return 0
@@ -691,6 +778,7 @@ install_arch_dependencies() {
   _install_opencode_script
   _install_claude_code_script
   _install_ghostty_arch
+  _install_eza_arch
 
   if ! $all_ok; then return 1; fi
   return 0
@@ -752,6 +840,7 @@ install_debian_dependencies() {
   _install_opencode_script
   _install_claude_code_script
   _install_ghostty_debian
+  _install_eza_debian
 
   if ! $all_ok; then return 1; fi
   print_message "$GREEN" "Debian/Ubuntu dependency check complete."
@@ -805,6 +894,7 @@ print_installation_summary() {
     command_exists claude && installed_tools+=("Claude Code") || failed_tools+=("Claude Code")
     [ -d "$HOME/.oh-my-zsh" ] && installed_tools+=("Oh My Zsh") || failed_tools+=("Oh My Zsh")
     command_exists ghostty && installed_tools+=("Ghostty") || failed_tools+=("Ghostty")
+    command_exists eza && installed_tools+=("eza") || failed_tools+=("eza")
 
      # Check linked configs
      local linked_configs=()
