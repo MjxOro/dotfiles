@@ -1,24 +1,34 @@
 #!/usr/bin/env bash
 
-# Colors
 ACCENT=0xff7dd3c0
-ITEM_BG_COLOR=0xff2d2d3d
-INACTIVE_COLOR=0xff494d64
+TEXT_BRIGHT=0xffeeeeee
+DIM=0xff6c6c6c
+SURFACE=0xcc1a1a1a
+TRANSPARENT=0x00000000
 
-# Get the focused workspace from aerospace
-FOCUSED_WORKSPACE="$FOCUSED_WORKSPACE"
-
-# Extract space number from item name (space.1 -> 1)
-SPACE_ID="${NAME##*.}"
-
-if [ "$FOCUSED_WORKSPACE" = "$SPACE_ID" ]; then
-  # Focused workspace - mint background
-  sketchybar --set "$NAME" \
-                   background.color=$ACCENT \
-                   icon.color=0xff000000
-else
-  # Inactive workspace - default background
-  sketchybar --set "$NAME" \
-                   background.color=$ITEM_BG_COLOR \
-                   icon.color=$INACTIVE_COLOR
+if [ "$SENDER" = "aerospace_workspace_change" ]; then
+    FOCUSED=$(aerospace list-workspaces --focused)
+    
+    for sid in 1 2 3 4 5; do
+        if [ "$sid" = "$FOCUSED" ]; then
+            sketchybar --set space.$sid \
+                icon.color=$ACCENT \
+                background.color=$SURFACE \
+                background.border_color=$ACCENT \
+                background.border_width=2
+        else
+            WINDOWS=$(aerospace list-windows --workspace $sid 2>/dev/null | wc -l | tr -d ' ')
+            if [ "$WINDOWS" -gt 0 ]; then
+                sketchybar --set space.$sid \
+                    icon.color=$TEXT_BRIGHT \
+                    background.color=$TRANSPARENT \
+                    background.border_width=0
+            else
+                sketchybar --set space.$sid \
+                    icon.color=$DIM \
+                    background.color=$TRANSPARENT \
+                    background.border_width=0
+            fi
+        fi
+    done
 fi
