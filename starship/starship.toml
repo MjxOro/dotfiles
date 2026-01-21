@@ -1,137 +1,200 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
 format = """
-[](#3EB489)\
+[](red)\
 $os\
 $username\
-[](bg:#94A3B8 fg:#3EB489)\
+[](bg:peach fg:red)\
 $directory\
-[](fg:#94A3B8 bg:#475569)\
+[](bg:yellow fg:peach)\
 $git_branch\
 $git_status\
-[](fg:#475569 bg:#334155)\
+[](fg:yellow bg:green)\
 $c\
-$elixir\
-$elm\
-$golang\
-$gradle\
-$haskell\
-$java\
-$julia\
-$nodejs\
-$nim\
 $rust\
-$scala\
-[](fg:#334155 bg:#1E293B)\
+$golang\
+$nodejs\
+$php\
+$java\
+$kotlin\
+$haskell\
+$python\
+[](fg:green bg:sapphire)\
+$conda\
 $docker_context\
-[](fg:#1E293B bg:#0F172A)\
+[](fg:sapphire bg:lavender)\
 $time\
-[ ](fg:#0F172A)\
-"""
-# Disable the blank line at the start of the prompt
-add_newline = false
-# You can also replace your username with a neat symbol like   or disable this
-# and use the os module below
+[ ](fg:lavender)\
+$cmd_duration\
+$line_break\
+$character"""
+
+palette = 'ghostty_pastel'
+
+[os]
+disabled = false
+style = "bg:red fg:crust"
+
+[os.symbols]
+Windows = ""
+Ubuntu = "󰕈"
+SUSE = ""
+Raspbian = "󰐿"
+Mint = "󰣭"
+Macos = "󰀵"
+Manjaro = ""
+Linux = "󰌽"
+Gentoo = "󰣨"
+Fedora = "󰣛"
+Alpine = ""
+Amazon = ""
+Android = ""
+AOSC = ""
+Arch = "󰣇"
+Artix = "󰣇"
+CentOS = ""
+Debian = "󰣚"
+Redhat = "󱄛"
+RedHatEnterprise = "󱄛"
+
 [username]
 show_always = true
-style_user = "bg:#3EB489 fg:#000000"
-style_root = "bg:#3EB489 fg:#000000"
-format = '[$user ]($style)'
-disabled = false
-
-# An alternative to the username module which displays a symbol that
-# represents the current operating system
-[os]
-style = "bg:#3EB489 fg:#000000"
-disabled = true # Disabled by default
+style_user = "bg:red fg:crust"
+style_root = "bg:red fg:crust"
+format = '[ $user]($style)'
 
 [directory]
-style = "bg:#94A3B8 fg:#000000"
+style = "bg:peach fg:crust"
 format = "[ $path ]($style)"
 truncation_length = 3
 truncation_symbol = "…/"
 
-# Here is how you can shorten some long paths by text replacement
-# similar to mapped_locations in Oh My Posh:
 [directory.substitutions]
 "Documents" = "󰈙 "
-"Downloads" = " "
-"Music" = " "
-"Pictures" = " "
-
-[c]
-symbol = " "
-style = "bg:#334155 fg:#E2E8F0"
-format = '[ $symbol ($version) ]($style)'
-
-[docker_context]
-symbol = " "
-style = "bg:#1E293B fg:#E2E8F0"
-format = '[ $symbol $context ]($style)'
-
-[elixir]
-symbol = " "
-style = "bg:#334155 fg:#E2E8F0"
-format = '[ $symbol ($version) ]($style)'
-
-[elm]
-symbol = " "
-style = "bg:#334155 fg:#E2E8F0"
-format = '[ $symbol ($version) ]($style)'
+"Downloads" = " "
+"Music" = "󰝚 "
+"Pictures" = " "
+"Developer" = "󰲋 "
 
 [git_branch]
-symbol = ""
-style = "bg:#475569 fg:#E2E8F0"
-format = '[ $symbol $branch ]($style)'
+symbol = ""
+style = "bg:yellow"
+format = '[[ $symbol $branch ](fg:crust bg:yellow)]($style)'
 
 [git_status]
-style = "bg:#475569 fg:#E2E8F0"
-format = '[$all_status$ahead_behind ]($style)'
-
-[golang]
-symbol = " "
-style = "bg:#334155 fg:#E2E8F0"
-format = '[ $symbol ($version) ]($style)'
-
-[gradle]
-style = "bg:#334155 fg:#E2E8F0"
-format = '[ $symbol ($version) ]($style)'
-
-[haskell]
-symbol = " "
-style = "bg:#334155 fg:#E2E8F0"
-format = '[ $symbol ($version) ]($style)'
-
-[java]
-symbol = " "
-style = "bg:#334155 fg:#E2E8F0"
-format = '[ $symbol ($version) ]($style)'
-
-[julia]
-symbol = " "
-style = "bg:#334155 fg:#E2E8F0"
-format = '[ $symbol ($version) ]($style)'
+style = "bg:yellow"
+format = '[[($all_status$ahead_behind )](fg:crust bg:yellow)]($style)'
 
 [nodejs]
-symbol = ""
-style = "bg:#334155 fg:#E2E8F0"
-format = '[ $symbol ($version) ]($style)'
+symbol = ""
+style = "bg:green"
+format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
 
-[nim]
-symbol = "󰆥 "
-style = "bg:#334155 fg:#E2E8F0"
-format = '[ $symbol ($version) ]($style)'
+[c]
+symbol = " "
+style = "bg:green"
+format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
 
 [rust]
-symbol = ""
-style = "bg:#334155 fg:#E2E8F0"
-format = '[ $symbol ($version) ]($style)'
+symbol = ""
+style = "bg:green"
+format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
 
-[scala]
-symbol = " "
-style = "bg:#334155 fg:#E2E8F0"
-format = '[ $symbol ($version) ]($style)'
+[golang]
+symbol = ""
+style = "bg:green"
+format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+
+[php]
+symbol = ""
+style = "bg:green"
+format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+
+[java]
+symbol = " "
+style = "bg:green"
+format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+
+[kotlin]
+symbol = ""
+style = "bg:green"
+format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+
+[haskell]
+symbol = ""
+style = "bg:green"
+format = '[[ $symbol( $version) ](fg:crust bg:green)]($style)'
+
+[python]
+symbol = ""
+style = "bg:green"
+format = '[[ $symbol( $version)(\(#$virtualenv\)) ](fg:crust bg:green)]($style)'
+
+[docker_context]
+symbol = ""
+style = "bg:sapphire"
+format = '[[ $symbol( $context) ](fg:crust bg:sapphire)]($style)'
+
+[conda]
+symbol = "  "
+style = "fg:crust bg:sapphire"
+format = '[$symbol$environment ]($style)'
+ignore_base = false
 
 [time]
 disabled = false
-time_format = "%R" # Hour:Minute Format
-style = "bg:#0F172A fg:#E2E8F0"
-format = '[ ♥ $time ]($style)'
+time_format = "%R"
+style = "bg:lavender"
+format = '[[  $time ](fg:crust bg:lavender)]($style)'
+
+[line_break]
+disabled = true
+
+[character]
+disabled = false
+success_symbol = '[❯](bold fg:green)'
+error_symbol = '[❯](bold fg:red)'
+vimcmd_symbol = '[❮](bold fg:green)'
+vimcmd_replace_one_symbol = '[❮](bold fg:lavender)'
+vimcmd_replace_symbol = '[❮](bold fg:lavender)'
+vimcmd_visual_symbol = '[❮](bold fg:yellow)'
+
+[cmd_duration]
+show_milliseconds = true
+format = " in $duration "
+style = "bg:lavender"
+disabled = false
+show_notifications = true
+min_time_to_notify = 45000
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  GHOSTTY PASTEL PALETTE
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[palettes.ghostty_pastel]
+rosewater = "#ffb6b6"
+flamingo = "#ff9999"
+pink = "#ff73fd"
+mauve = "#d4a5ff"
+red = "#ff6c60"
+maroon = "#ff8a80"
+peach = "#ffb07c"
+yellow = "#ffffb6"
+green = "#a8ff60"
+teal = "#7dd3c0"
+sky = "#a0e8ff"
+sapphire = "#96cbfe"
+blue = "#96cbfe"
+lavender = "#b8b8ff"
+text = "#eeeeee"
+subtext1 = "#dddddd"
+subtext0 = "#bbbbbb"
+overlay2 = "#888888"
+overlay1 = "#6c6c6c"
+overlay0 = "#555555"
+surface2 = "#3a3a3a"
+surface1 = "#2a2a2a"
+surface0 = "#1f1f1f"
+base = "#1a1a1a"
+mantle = "#141414"
+crust = "#0f0f0f"

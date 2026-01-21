@@ -141,3 +141,8 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # opencode
 export PATH=/Users/mjxoro/.opencode/bin:$PATH
+
+# carapace - multi-shell completion
+export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense'
+zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
+source <(carapace _carapace zsh)
