@@ -139,6 +139,9 @@ export PYENV_ROOT="$HOME/.pyenv"
 eval "$(pyenv init - zsh)"
 export PATH="$HOME/.local/bin:$PATH"
 
+# Java (Homebrew OpenJDK)
+export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
+
 # opencode
 export PATH=/Users/mjxoro/.opencode/bin:$PATH
 

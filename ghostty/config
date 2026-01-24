@@ -1,6 +1,8 @@
 # Pastel theme - soft, easy on the eyes
 theme = pastel
 
+copy-on-select = clipboard
+
 # Use xterm-256color for SSH compatibility
 term = xterm-256color
 

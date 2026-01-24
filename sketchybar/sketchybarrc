@@ -12,18 +12,19 @@
 
 PLUGIN_DIR="$CONFIG_DIR/plugins"
 
-# === COLORS (Ghostty Pastel Theme + Mint Accent) ===
-BAR_COLOR=0xdd000000   # Bar background (dd = mostly opaque)
-SURFACE=0xff1a1a1a     # Item backgrounds
-TEXT=0xffbbbbbb        # Normal text
-TEXT_BRIGHT=0xffeeeeee # Bright text
-DIM=0xff6c6c6c         # Dimmed text
-ACCENT=0xff7dd3c0      # Mint accent
-RED=0xffff6c60         # Red (YouTube)
-GREEN=0xffa8ff60       # Green (Spotify)
-YELLOW=0xffffffb6      # Yellow
-BLUE=0xff96cbfe        # Blue
-MAGENTA=0xffff73fd     # Magenta (Apple Music)
+# === COLORS (Catppuccin Pastel - matching ghostty) ===
+BAR_COLOR=0xee1a1d23   # Bar background (mantle)
+SURFACE=0xff2a2e3a     # Item backgrounds (surface_0)
+TEXT=0xffb0b8c8        # Normal text (foreground)
+TEXT_BRIGHT=0xffcdd6f4 # Bright text (subtext)
+DIM=0xff4a5060         # Dimmed text (overlay)
+ACCENT=0xff7dd3c0      # Mint accent (green)
+RED=0xfff38ba8         # Red/Pink
+GREEN=0xff7dd3c0       # Mint green
+YELLOW=0xfff9e2af      # Yellow
+BLUE=0xff89b4fa        # Blue
+MAGENTA=0xffcba6f7     # Lavender
+TEAL=0xff94e2d5        # Teal
 TRANSPARENT=0x00000000
 
 # === BAR ===
@@ -79,18 +80,19 @@ done
 # CENTER: Now Playing
 # ══════════════════════════════════════════════════════════════════════════════
 
-sketchybar --add item media center \
+sketchybar --add item media left \
   --set media \
   icon="" \
   icon.font="Maple Mono NF:Bold:18.0" \
   icon.padding_left=14 \
   label.font="Maple Mono NF:Bold:14.0" \
-  label.max_chars=90 \
+  label.max_chars=30 \
   label.scroll_duration=150 \
   label.padding_right=14 \
   scroll_texts=on \
   background.color=$SURFACE \
   script="$PLUGIN_DIR/media.sh" \
+  click_script="$PLUGIN_DIR/media.sh click" \
   update_freq=5
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -99,18 +101,20 @@ sketchybar --add item media center \
 
 sketchybar --add item clock right \
   --set clock \
-  icon="" \
+  icon="󰥔" \
   icon.color=$ACCENT \
   background.color=$SURFACE \
   script="$PLUGIN_DIR/clock.sh" \
+  click_script="open -a Calendar" \
   update_freq=30
 
 sketchybar --add item date right \
   --set date \
-  icon="" \
+  icon="󰃭" \
   icon.color=$BLUE \
   background.color=$SURFACE \
   script="$PLUGIN_DIR/calendar.sh" \
+  click_script="open -a Calendar" \
   update_freq=3600
 
 sketchybar --add item battery right \
@@ -118,14 +122,34 @@ sketchybar --add item battery right \
   icon.font="Maple Mono NF:Bold:17.0" \
   background.color=$SURFACE \
   script="$PLUGIN_DIR/battery.sh" \
+  click_script="open x-apple.systempreferences:com.apple.Battery-Settings.extension" \
   update_freq=30
+
+sketchybar --add item volume right \
+  --set volume \
+  icon="󰕾" \
+  icon.color=$ACCENT \
+  background.color=$SURFACE \
+  script="$PLUGIN_DIR/volume.sh" \
+  click_script="osascript -e 'set volume output muted not (output muted of (get volume settings))' && $PLUGIN_DIR/volume.sh" \
+  update_freq=5
+
+sketchybar --add item wifi right \
+  --set wifi \
+  icon="󰤨" \
+  icon.color=$TEAL \
+  background.color=$SURFACE \
+  script="$PLUGIN_DIR/wifi.sh" \
+  click_script="open x-apple.systempreferences:com.apple.Network-Settings.extension" \
+  update_freq=10
 
 sketchybar --add item cpu right \
   --set cpu \
-  icon="" \
+  icon="󰻠" \
   icon.color=$YELLOW \
   background.color=$SURFACE \
   script="$PLUGIN_DIR/cpu.sh" \
+  click_script="open -a 'Activity Monitor'" \
   update_freq=5
 
 # ══════════════════════════════════════════════════════════════════════════════

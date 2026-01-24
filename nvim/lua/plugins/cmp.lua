@@ -116,7 +116,10 @@ return {
       -- C-k: Toggle signature help
       --
       -- See the full "keymap" documentation for information on defining your own keymap.
-      keymap = { preset = "default" },
+      keymap = {
+        preset = "default", -- keeps C-n/C-p for navigation, C-y to accept
+        ["<Tab>"] = { "select_and_accept", "fallback" },
+      },
 
       appearance = {
         -- Sets the fallback highlight groups to nvim-cmp's highlight groups
