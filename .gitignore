@@ -36,3 +36,7 @@ tt.*
 *.bak.*
 *~
 .#*
+
+# Sisyphus work directories
+.sisyphus/
+**/.sisyphus/
