@@ -1,8 +1,22 @@
 #!/usr/bin/env bash
 
-GREEN=0xffa8ff60
-RED=0xffff6c60
-MAGENTA=0xffff73fd
+GREEN=0xff7dd3c0
+RED=0xfff38ba8
+MAGENTA=0xffcba6f7
+
+if [ "$1" = "click" ]; then
+    SPOTIFY=$(osascript -e 'tell application "System Events" to (name of processes) contains "Spotify"' 2>/dev/null)
+    MUSIC=$(osascript -e 'tell application "System Events" to (name of processes) contains "Music"' 2>/dev/null)
+    
+    if [ "$SPOTIFY" = "true" ]; then
+        osascript -e 'tell application "Spotify" to playpause'
+    elif [ "$MUSIC" = "true" ]; then
+        osascript -e 'tell application "Music" to playpause'
+    else
+        osascript -e 'tell application "System Events" to keystroke space using {command down, shift down}'
+    fi
+    exit 0
+fi
 
 YOUTUBE=$(osascript -e '
 tell application "Google Chrome"

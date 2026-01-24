@@ -3,9 +3,9 @@
 PERCENTAGE=$(pmset -g batt | grep -Eo "\d+%" | head -1 | tr -d '%')
 CHARGING=$(pmset -g batt | grep -c "AC Power")
 
-GREEN=0xffa8ff60
-YELLOW=0xffffffb6
-RED=0xffff6c60
+GREEN=0xff7dd3c0
+YELLOW=0xfff9e2af
+RED=0xfff38ba8
 ACCENT=0xff7dd3c0
 
 if [ -z "$PERCENTAGE" ]; then

@@ -80,7 +80,7 @@ on-mode-changed = []
     inner.vertical =   10
     outer.left =       10
     outer.bottom =     10
-    outer.top =        10
+    outer.top =        [{ monitor."built-in" = 10 }, 45]
     outer.right =      10
 
 # 'main' binding mode declaration
@@ -128,7 +128,7 @@ on-mode-changed = []
     alt-m = 'exec-and-forget open -a Messages'
 
     # Window Management
-    alt-q = 'close'
+    alt-q = 'close --quit-if-last-window'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#focus
     alt-h = 'focus left'
