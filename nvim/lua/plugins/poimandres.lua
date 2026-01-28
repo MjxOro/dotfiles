@@ -16,7 +16,7 @@ return {
 
     -- Apply colorscheme first
 
-    -- Set highlight groups to be 80% transparent specifically for this theme
+    -- Keep word highlights readable and theme-agnostic
     local groups = {
       "CursorWord",
       "MiniCursorword",
@@ -29,13 +29,14 @@ return {
       "LspReferenceWrite",
     }
 
+    local highlight_opts = {
+      underline = true,
+      fg = "NONE",
+      bg = "NONE",
+    }
+
     for _, group in ipairs(groups) do
-      vim.api.nvim_set_hl(0, group, {
-        -- bg = "#383F52", -- Slightly more visible than #2E3440
-        -- fg = "#D8DEE9", -- Light color for better contrast
-        bg = "#5C6A94", -- Very prominent highlight
-        fg = "#FFFFFF", -- Pure white text
-      })
+      vim.api.nvim_set_hl(0, group, highlight_opts)
     end
 
     -- Create an autocommand to ensure these settings persist when colorscheme changes
@@ -44,12 +45,7 @@ return {
       callback = function()
         -- Re-apply the same highlighting settings when colorscheme is reapplied
         for _, group in ipairs(groups) do
-          vim.api.nvim_set_hl(0, group, {
-            -- bg = "#383F52",
-            -- fg = "#D8DEE9",
-            bg = "#5C6A94", -- Very prominent highlight
-            fg = "#FFFFFF", -- Pure white text
-          })
+          vim.api.nvim_set_hl(0, group, highlight_opts)
         end
       end,
     })
