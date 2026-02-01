@@ -583,6 +583,32 @@ _install_claude_code_script() {
   else print_message "$YELLOW" "  Claude Code installation skipped."; fi
 }
 
+_install_catppuccin_tmux() {
+  local plugin_dir="$HOME/.config/tmux/plugins/catppuccin/tmux"
+  if [ -d "$plugin_dir" ]; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  Catppuccin tmux plugin is already installed."; fi
+    return 0
+  fi
+  if ! command_exists git; then
+    if [ "$QUIET" = false ]; then print_message "$YELLOW" "  Git not found, skipping Catppuccin tmux plugin install."; fi
+    return 1
+  fi
+  if ask_yes_no "  Install Catppuccin tmux theme plugin?" "y"; then
+    echo -n -e "${CYAN}    Installing Catppuccin tmux plugin... ${NC}"
+    if mkdir -p "$HOME/.config/tmux/plugins/catppuccin" && \
+       git clone -b v2.1.3 https://github.com/catppuccin/tmux.git "$plugin_dir" >/dev/null 2>&1; then
+      echo -e "${GREEN}✓${NC}"
+      if [ "$QUIET" = false ]; then print_message "$GREEN" "    Catppuccin tmux plugin installed successfully."; fi
+    else
+      echo -e "${RED}✗${NC}"
+      print_message "$RED" "    Catppuccin tmux plugin installation failed."
+      return 1
+    fi
+  else
+    print_message "$YELLOW" "  Catppuccin tmux plugin installation skipped."
+  fi
+ }
+
 _install_ghostty_brew() {
   # Ghostty installation via Homebrew (macOS)
   if command_exists ghostty; then
@@ -750,6 +776,7 @@ install_mac_dependencies() {
   _install_bun_script
   _install_opencode_script
   _install_claude_code_script
+  _install_catppuccin_tmux
   _install_ghostty_brew
   _install_eza_brew
 
@@ -777,6 +804,7 @@ install_arch_dependencies() {
   _install_bun_script
   _install_opencode_script
   _install_claude_code_script
+  _install_catppuccin_tmux
   _install_ghostty_arch
   _install_eza_arch
 
@@ -839,6 +867,7 @@ install_debian_dependencies() {
   _install_bun_script
   _install_opencode_script
   _install_claude_code_script
+  _install_catppuccin_tmux
   _install_ghostty_debian
   _install_eza_debian
 
