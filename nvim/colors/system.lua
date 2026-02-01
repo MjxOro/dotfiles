@@ -30,7 +30,9 @@ local groups = {
 	{ "NormalNC", { ctermfg = c.white, ctermbg = c.bg } },
 	{ "NormalFloat", { ctermfg = c.white, ctermbg = c.black } },
 	{ "FloatBorder", { ctermfg = c.bright_black, ctermbg = c.black } },
-	{ "CursorLine", { ctermbg = c.bright_black } },
+	-- Avoid palette collisions (e.g. Comment fg uses bright_black). Use a subtle
+	-- background for CursorLine that stays distinct from comment-gray.
+	{ "CursorLine", { ctermbg = c.black } },
 	{ "CursorLineNr", { ctermfg = c.cyan, cterm = { bold = true } } },
 	{ "LineNr", { ctermfg = c.bright_black } },
 	{ "SignColumn", { ctermfg = c.bright_black, ctermbg = c.bg } },
@@ -38,7 +40,8 @@ local groups = {
 	{ "WinSeparator", { ctermfg = c.bright_black } },
 	{ "StatusLine", { ctermfg = c.white, ctermbg = c.black } },
 	{ "StatusLineNC", { ctermfg = c.bright_black, ctermbg = c.black } },
-	{ "Visual", { ctermbg = c.bright_black } },
+	{ "Visual", { cterm = { reverse = true } } },
+	{ "VisualNOS", { cterm = { reverse = true } } },
 	{ "Search", { ctermfg = c.black, ctermbg = c.yellow } },
 	{ "IncSearch", { ctermfg = c.black, ctermbg = c.cyan } },
 	{ "CurSearch", { ctermfg = c.black, ctermbg = c.cyan } },
