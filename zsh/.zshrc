@@ -13,6 +13,13 @@
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
+# Homebrew (Apple Silicon/Intel)
+if [ -d /opt/homebrew/bin ]; then
+  export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+elif [ -d /usr/local/bin ]; then
+  export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
+fi
+
 export PATH=/usr/local/cuda-12.3/bin${PATH:+:${PATH}}
 export LD_LIBRARY_PATH=/usr/local/cuda-12.3/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 

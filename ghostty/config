@@ -1,5 +1,5 @@
-# Pastel theme - soft, easy on the eyes
-theme = pastel
+# Poimandres theme
+theme = poimandres
 
 copy-on-select = clipboard
 selection-clear-on-copy = true
