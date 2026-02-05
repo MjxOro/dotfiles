@@ -40,3 +40,6 @@ tt.*
 # Sisyphus work directories
 .sisyphus/
 **/.sisyphus/
+
+# Accidental literal HOME path
+#{HOME}/
