@@ -2,6 +2,9 @@
   "$schema": "https://opencode.ai/theme.json",
   "defs": {
     "bg": "#1b1e28",
+    "bg_tint": "#0f1626",
+    "bg_tint_panel": "#141f35",
+    "bg_tint_element": "#182642",
     "fg": "#e4f0fb",
     "cursor": "#5DE4c7",
     "selection_bg": "#303340",
