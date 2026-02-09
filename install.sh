@@ -843,9 +843,6 @@ _install_lazyvim_prereqs_debian() {
   if ! dpkg-query -W -f='${Status}' fd-find 2>/dev/null | grep -q "ok installed" && ! command_exists fdfind; then
     pkgs_to_install+=("fd-find")
   fi
-  if ! dpkg-query -W -f='${Status}' lazygit 2>/dev/null | grep -q "ok installed" && ! command_exists lazygit; then
-    pkgs_to_install+=("lazygit")
-  fi
 
   if [ ${#pkgs_to_install[@]} -gt 0 ]; then
     if ask_yes_no "  Install LazyVim prerequisites with apt (${pkgs_to_install[*]})?" "y"; then
@@ -858,6 +855,8 @@ _install_lazyvim_prereqs_debian() {
       fi
     fi
   fi
+
+  _install_lazygit_debian
 
   # tree-sitter CLI: package name varies. Try a best-effort install.
   if ! command_exists tree-sitter; then
@@ -880,6 +879,107 @@ _install_lazyvim_prereqs_debian() {
       if [ "$QUIET" = false ]; then print_message "$GREEN" "  Created symlink: $HOME/.local/bin/fd -> $(command -v fdfind)"; fi
     fi
   fi
+}
+
+_install_lazygit_debian() {
+  if command_exists lazygit; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  LazyGit is already installed."; fi
+    return 0
+  fi
+
+  if ! ask_yes_no "  Install LazyGit (required by LazyVim extras) on Debian/Ubuntu?" "y"; then
+    print_message "$YELLOW" "  LazyGit installation skipped."
+    return 0
+  fi
+
+  # First try: native repositories (works on newer Debian/Ubuntu)
+  local candidate=""
+  if command_exists apt-cache; then
+    candidate=$(apt-cache policy lazygit 2>/dev/null | awk '/Candidate:/{print $2; exit}')
+  fi
+  if [ -n "$candidate" ] && [ "$candidate" != "(none)" ]; then
+    echo -n -e "${CYAN}  Installing lazygit with apt... ${NC}"
+    if sudo apt-get install -y lazygit >/dev/null 2>&1; then
+      echo -e "${GREEN}✓${NC}"
+      return 0
+    fi
+    echo -e "${YELLOW}!${NC}"
+    print_message "$YELLOW" "  apt install lazygit failed; will try GitHub release binary."
+  fi
+
+  # Fallback: GitHub release binary (reliable on Ubuntu LTS where apt lacks lazygit)
+  if ! command_exists curl; then
+    print_message "$YELLOW" "  curl not found; cannot install LazyGit from GitHub releases."
+    return 0
+  fi
+  if ! command_exists tar; then
+    print_message "$YELLOW" "  tar not found; cannot install LazyGit from GitHub releases."
+    return 0
+  fi
+
+  local arch_suffix=""
+  case "$(uname -m)" in
+    x86_64 | amd64) arch_suffix="x86_64" ;;
+    aarch64 | arm64) arch_suffix="arm64" ;;
+    armv6l | armv7l) arch_suffix="armv6" ;;
+    *)
+      print_message "$YELLOW" "  Unsupported CPU architecture for LazyGit binary: $(uname -m)"
+      return 0
+      ;;
+  esac
+
+  local latest_url="" latest_tag="" version="" asset="" download_url="" tmp_dir=""
+  latest_url=$(curl -fsSLI -o /dev/null -w '%{url_effective}' https://github.com/jesseduffield/lazygit/releases/latest 2>/dev/null || true)
+  latest_tag=${latest_url##*/}
+  if [[ -z "$latest_tag" || "$latest_tag" != v* ]]; then
+    print_message "$YELLOW" "  Failed to determine latest LazyGit release tag from GitHub."
+    return 0
+  fi
+  version="${latest_tag#v}"
+  asset="lazygit_${version}_Linux_${arch_suffix}.tar.gz"
+  download_url="https://github.com/jesseduffield/lazygit/releases/download/${latest_tag}/${asset}"
+
+  tmp_dir=$(mktemp -d 2>/dev/null || true)
+  if [ -z "$tmp_dir" ] || [ ! -d "$tmp_dir" ]; then
+    print_message "$YELLOW" "  Failed to create temp directory for LazyGit download."
+    return 0
+  fi
+
+  echo -n -e "${CYAN}  Downloading LazyGit ${latest_tag} (${arch_suffix})... ${NC}"
+  if curl -fsSL "$download_url" -o "$tmp_dir/$asset" >/dev/null 2>&1; then
+    echo -e "${GREEN}✓${NC}"
+  else
+    echo -e "${YELLOW}!${NC}"
+    print_message "$YELLOW" "  Failed to download LazyGit from: $download_url"
+    rm -rf "$tmp_dir" >/dev/null 2>&1 || true
+    return 0
+  fi
+
+  echo -n -e "${CYAN}  Installing LazyGit to $HOME/.local/bin/lazygit... ${NC}"
+  if tar -xzf "$tmp_dir/$asset" -C "$tmp_dir" >/dev/null 2>&1 && [ -f "$tmp_dir/lazygit" ]; then
+    mkdir -p "$HOME/.local/bin"
+    if command_exists install; then
+      if install -m 0755 "$tmp_dir/lazygit" "$HOME/.local/bin/lazygit" >/dev/null 2>&1; then
+        echo -e "${GREEN}✓${NC}"
+      else
+        echo -e "${YELLOW}!${NC}"
+        print_message "$YELLOW" "  Failed to install lazygit binary to $HOME/.local/bin."
+      fi
+    else
+      if cp "$tmp_dir/lazygit" "$HOME/.local/bin/lazygit" >/dev/null 2>&1 && chmod +x "$HOME/.local/bin/lazygit" >/dev/null 2>&1; then
+        echo -e "${GREEN}✓${NC}"
+      else
+        echo -e "${YELLOW}!${NC}"
+        print_message "$YELLOW" "  Failed to copy lazygit binary to $HOME/.local/bin."
+      fi
+    fi
+  else
+    echo -e "${YELLOW}!${NC}"
+    print_message "$YELLOW" "  Failed to extract LazyGit tarball."
+  fi
+
+  rm -rf "$tmp_dir" >/dev/null 2>&1 || true
+  return 0
 }
 
 install_mac_dependencies() {
