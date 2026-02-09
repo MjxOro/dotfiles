@@ -617,7 +617,7 @@ _install_ghostty_brew() {
   fi
   if ! command_exists brew; then
     if [ "$QUIET" = false ]; then print_message "$YELLOW" "  Homebrew not found, cannot install Ghostty via brew."; fi
-    return 1
+    return 0
   fi
   if ask_yes_no "  Install Ghostty (terminal emulator) using Homebrew?" "y"; then
     echo -n -e "${CYAN}    brew install --cask ghostty... ${NC}"
@@ -754,6 +754,134 @@ _install_eza_debian() {
   else print_message "$YELLOW" "  eza installation skipped."; fi
 }
 
+_install_lazyvim_prereqs_brew() {
+  # LazyVim prereqs based on https://lazyvim.github.io/installation (docker example)
+  # - neovim, git, curl, ripgrep, fd, lazygit, tree-sitter
+  if command_exists nvim && command_exists rg && command_exists fd && command_exists lazygit && command_exists tree-sitter; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  LazyVim prerequisites are already installed."; fi
+    return 0
+  fi
+
+  if ! command_exists brew; then
+    if [ "$QUIET" = false ]; then
+      print_message "$YELLOW" "  Homebrew not found; skipping LazyVim prerequisites install (neovim, ripgrep, fd, lazygit, tree-sitter)."
+    fi
+    return 1
+  fi
+
+  local brew_pkgs=() missing_label=()
+  if ! command_exists nvim; then brew_pkgs+=("neovim"); missing_label+=("neovim"); fi
+  if ! command_exists rg; then brew_pkgs+=("ripgrep"); missing_label+=("ripgrep"); fi
+  if ! command_exists fd; then brew_pkgs+=("fd"); missing_label+=("fd"); fi
+  if ! command_exists lazygit; then brew_pkgs+=("lazygit"); missing_label+=("lazygit"); fi
+  if ! command_exists tree-sitter; then brew_pkgs+=("tree-sitter"); missing_label+=("tree-sitter"); fi
+
+  if [ ${#brew_pkgs[@]} -eq 0 ]; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  LazyVim prerequisites are already installed."; fi
+    return 0
+  fi
+
+  if ask_yes_no "  Install LazyVim prerequisites using Homebrew (${missing_label[*]})?" "y"; then
+    echo -n -e "${CYAN}    brew install ${brew_pkgs[*]}... ${NC}"
+    if brew install "${brew_pkgs[@]}" >/dev/null 2>&1; then
+      echo -e "${GREEN}✓${NC}"
+      return 0
+    else
+      echo -e "${RED}✗${NC}"
+      print_message "$YELLOW" "    Failed to install some LazyVim prerequisites via brew."
+      return 0
+    fi
+  else
+    print_message "$YELLOW" "  LazyVim prerequisites installation skipped."
+    return 0
+  fi
+}
+
+_install_lazyvim_prereqs_arch() {
+  # LazyVim prereqs based on https://lazyvim.github.io/installation (docker example)
+  # - neovim, git, curl, ripgrep, fd, lazygit, tree-sitter
+  local pacman_pkgs=("neovim" "ripgrep" "fd" "lazygit" "tree-sitter")
+  local missing_pkgs=()
+
+  for pkg in "${pacman_pkgs[@]}"; do
+    if ! pacman -Qi "$pkg" >/dev/null 2>&1; then
+      missing_pkgs+=("$pkg")
+    fi
+  done
+
+  if [ ${#missing_pkgs[@]} -eq 0 ]; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  LazyVim prerequisites are already installed."; fi
+    return 0
+  fi
+
+  if ask_yes_no "  Install LazyVim prerequisites using pacman (${missing_pkgs[*]})?" "y"; then
+    local pacman_cmd="sudo pacman -S --needed --noconfirm ${missing_pkgs[*]}"
+    if [ "$ASSUME_YES" = false ]; then pacman_cmd="sudo pacman -S --needed ${missing_pkgs[*]}"; fi
+    echo -n -e "${CYAN}    pacman -S ${missing_pkgs[*]}... ${NC}"
+    if eval "$pacman_cmd" >/dev/null 2>&1; then
+      echo -e "${GREEN}✓${NC}"
+      return 0
+    else
+      echo -e "${RED}✗${NC}"
+      print_message "$YELLOW" "    Failed to install some LazyVim prerequisites via pacman."
+      return 0
+    fi
+  else
+    print_message "$YELLOW" "  LazyVim prerequisites installation skipped."
+    return 0
+  fi
+}
+
+_install_lazyvim_prereqs_debian() {
+  # LazyVim prereqs based on https://lazyvim.github.io/installation (docker example)
+  # - neovim (handled separately in install_debian_dependencies), git, curl, ripgrep, fd-find, lazygit, tree-sitter-cli
+  local pkgs_to_install=()
+
+  if ! dpkg-query -W -f='${Status}' ripgrep 2>/dev/null | grep -q "ok installed" && ! command_exists rg; then
+    pkgs_to_install+=("ripgrep")
+  fi
+  if ! dpkg-query -W -f='${Status}' fd-find 2>/dev/null | grep -q "ok installed" && ! command_exists fdfind; then
+    pkgs_to_install+=("fd-find")
+  fi
+  if ! dpkg-query -W -f='${Status}' lazygit 2>/dev/null | grep -q "ok installed" && ! command_exists lazygit; then
+    pkgs_to_install+=("lazygit")
+  fi
+
+  if [ ${#pkgs_to_install[@]} -gt 0 ]; then
+    if ask_yes_no "  Install LazyVim prerequisites with apt (${pkgs_to_install[*]})?" "y"; then
+      echo -n -e "${CYAN}  Installing with apt: ${pkgs_to_install[*]}... ${NC}"
+      if sudo apt-get install -y "${pkgs_to_install[@]}" >/dev/null 2>&1; then
+        echo -e "${GREEN}✓${NC}"
+      else
+        echo -e "${YELLOW}!${NC}"
+        print_message "$YELLOW" "  Could not install some LazyVim prerequisites via apt: ${pkgs_to_install[*]}."
+      fi
+    fi
+  fi
+
+  # tree-sitter CLI: package name varies. Try a best-effort install.
+  if ! command_exists tree-sitter; then
+    if ask_yes_no "  Install tree-sitter CLI (LazyVim prerequisite) with apt?" "y"; then
+      echo -n -e "${CYAN}  Installing tree-sitter CLI... ${NC}"
+      if sudo apt-get install -y tree-sitter-cli >/dev/null 2>&1 || sudo apt-get install -y tree-sitter >/dev/null 2>&1; then
+        echo -e "${GREEN}✓${NC}"
+      else
+        echo -e "${YELLOW}!${NC}"
+        print_message "$YELLOW" "  Could not install tree-sitter CLI via apt (tree-sitter-cli/tree-sitter)."
+      fi
+    fi
+  fi
+
+  # Debian/Ubuntu fd package provides `fdfind`. Many tools expect `fd`.
+  if ! command_exists fd && command_exists fdfind; then
+    if ask_yes_no "  Create 'fd' symlink to 'fdfind' for LazyVim?" "y"; then
+      mkdir -p "$HOME/.local/bin"
+      ln -sfn "$(command -v fdfind)" "$HOME/.local/bin/fd"
+      if [ "$QUIET" = false ]; then print_message "$GREEN" "  Created symlink: $HOME/.local/bin/fd -> $(command -v fdfind)"; fi
+    fi
+  fi
+}
+
 install_mac_dependencies() {
   print_header "Dependency Check for macOS"
   local all_ok=true
@@ -764,6 +892,8 @@ install_mac_dependencies() {
       fi
     fi
   elif [ "$QUIET" = false ]; then print_message "$GREEN" "  GCC (from Xcode Tools) is installed."; fi
+
+  _install_lazyvim_prereqs_brew
 
   if ! command_exists starship; then
     if command_exists brew && ask_yes_no "  Install Starship (prompt) using Homebrew?" "y"; then
@@ -797,6 +927,8 @@ install_arch_dependencies() {
     if [ "$ASSUME_YES" = false ]; then pacman_cmd="sudo pacman -S --needed ${pkgs_to_install_pacman[*]}"; fi
     echo -n -e "${CYAN}    pacman -S ${pkgs_to_install_pacman[*]}... ${NC}"; if eval "$pacman_cmd" >/dev/null 2>&1; then echo -e "${GREEN}✓${NC}"; else echo -e "${RED}✗${NC}"; all_ok=false; fi
   fi
+
+  _install_lazyvim_prereqs_arch
 
   _install_starship_via_curl_script
   _install_ohmyzsh_script
@@ -861,6 +993,8 @@ install_debian_dependencies() {
     fi
   fi
 
+  _install_lazyvim_prereqs_debian
+
   _install_starship_via_curl_script
   _install_ohmyzsh_script
   _set_zsh_default_shell
@@ -924,6 +1058,7 @@ print_installation_summary() {
     [ -d "$HOME/.oh-my-zsh" ] && installed_tools+=("Oh My Zsh") || failed_tools+=("Oh My Zsh")
     command_exists ghostty && installed_tools+=("Ghostty") || failed_tools+=("Ghostty")
     command_exists eza && installed_tools+=("eza") || failed_tools+=("eza")
+    command_exists lazygit && installed_tools+=("LazyGit") || failed_tools+=("LazyGit")
 
      # Check linked configs
      local linked_configs=()
@@ -932,8 +1067,9 @@ print_installation_summary() {
      [ -L "$HOME/.tmux.conf" ] && linked_configs+=("Tmux")
      [ -L "$HOME/.zshrc" ] && linked_configs+=("Zsh")
      [ -L "$HOME/.config/opencode" ] && linked_configs+=("OpenCode")
-     [ -L "$HOME/.config/ghostty" ] && linked_configs+=("Ghostty")
-     [ -L "$HOME/.claude" ] && linked_configs+=("Claude")
+      [ -L "$HOME/.config/ghostty" ] && linked_configs+=("Ghostty")
+      [ -L "$HOME/.config/lazygit" ] && linked_configs+=("LazyGit")
+      [ -L "$HOME/.claude" ] && linked_configs+=("Claude")
      [[ "$(uname -s)" == "Darwin" ]] && [ -L "$HOME/.config/aerospace" ] && linked_configs+=("Aerospace")
      [[ "$(uname -s)" == "Darwin" ]] && [ -L "$HOME/.config/sketchybar" ] && linked_configs+=("SketchyBar")
      [[ "$(uname -s)" == "Darwin" ]] && [ -L "$HOME/.config/borders" ] && linked_configs+=("Borders")
