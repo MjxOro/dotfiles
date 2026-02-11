@@ -107,3 +107,57 @@ tkill() {
   local target="${1:-dev}"   # default to "dev" if no arg given
   tmux kill-session -t "$target" 2>/dev/null
 }
+
+tmux_opencode_layout() {
+  local pane_count="${1:-6}"
+  local session="agent${pane_count}"
+
+  if [[ "$pane_count" != "5" && "$pane_count" != "6" ]]; then
+    echo "Usage: tmux_opencode_layout [5|6]"
+    return 1
+  fi
+
+  tmux kill-session -t "$session" 2>/dev/null
+  tmux new-session -d -s "$session" -c "$PWD"
+
+  local i
+  for ((i = 1; i < pane_count; i++)); do
+    tmux split-window -t "$session":0 -c "$PWD"
+    tmux select-layout -t "$session":0 tiled
+  done
+
+  for i in 0 1 2 3; do
+    tmux send-keys -t "$session":0."$i" "opencode ." C-m
+  done
+
+  tmux select-pane -t "$session":0.4
+
+  if [ -n "$TMUX" ]; then
+    tmux switch-client -t "$session"
+  else
+    tmux attach-session -t "$session"
+  fi
+}
+
+tmux_nvim_lazygit_layout() {
+  local session="nvlg"
+
+  tmux kill-session -t "$session" 2>/dev/null
+  tmux new-session -d -s "$session" -c "$PWD"
+  tmux split-window -h -t "$session":0 -c "$PWD"
+  tmux send-keys -t "$session":0.0 "nvim ." C-m
+  tmux send-keys -t "$session":0.1 "lazygit" C-m
+  tmux select-pane -t "$session":0.0
+
+  if [ -n "$TMUX" ]; then
+    tmux switch-client -t "$session"
+  else
+    tmux attach-session -t "$session"
+  fi
+}
+
+alias o5="tmux_opencode_layout 5"
+alias o6="tmux_opencode_layout 6"
+alias agent5="tmux_opencode_layout 5"
+alias agent6="tmux_opencode_layout 6"
+alias nvlg="tmux_nvim_lazygit_layout"
