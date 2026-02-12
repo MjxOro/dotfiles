@@ -7,7 +7,7 @@
   "agents": {
     "hephaestus": {
       "model": "openai/gpt-5.3-codex",
-      "variant": "high"
+      "variant": "medium"
     },
     "oracle": {
       "model": "openai/gpt-5.2",
@@ -18,10 +18,10 @@
       "variant": "high"
     },
     "explore": {
-      "model": "opencode/gpt-5-nano"
+      "model": "opencode/gpt-5.3-codex-spark"
     },
     "multimodal-looker": {
-      "model": "openai/gpt-5.3-codex",
+      "model": "openai/gpt-5.3-codex-spark",
     },
     "prometheus": {
       "model": "openai/gpt-5.2",
@@ -36,13 +36,13 @@
       "variant": "high"
     },
     "atlas": {
-      "model": "openai/gpt-5.2"
+      "model": "openai/gpt-5.3-codex",
+      "variant": "medium"
     }
   },
   "categories": {
     "visual-engineering": {
-      "model": "openai/gpt-5.3-codex",
-      "variant": "high"
+      "model": "minimax/MiniMax-M2.5",
     },
     "ultrabrain": {
       "model": "openai/gpt-5.3-codex",
@@ -53,7 +53,7 @@
       "variant": "medium"
     },
     "quick": {
-      "model": "opencode/gpt-5-nano"
+      "model": "opencode/gpt-5.3-codex-spark"
     },
     "unspecified-low": {
       "model": "openai/gpt-5.3-codex",
