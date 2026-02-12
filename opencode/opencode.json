@@ -7,7 +7,7 @@
     "opencode-openai-codex-auth"
   ],
   "model": "openai/gpt-5.3-codex",
-  "small_model": "minimax/MiniMax-M2.1",
+  "small_model": "minimax/MiniMax-M2.5",
   "keybinds": {
     "leader": "ctrl+x",
     "session_child_cycle": "<leader>]",
