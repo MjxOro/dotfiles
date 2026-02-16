@@ -12,26 +12,39 @@ alias updateZsh="source ~/.zshrc"
 alias cc="claude --dangerously-skip-permissions"
 
 _opencode_fallback_theme() {
-  local dark_theme="${OPENCODE_DARK_THEME:-ghostty-poimandres}"
-  local light_theme="${OPENCODE_LIGHT_THEME:-opencode}"
-
-  if [[ "$(uname -s)" == "Darwin" ]]; then
-    local appearance
-    appearance="$(defaults read -g AppleInterfaceStyle 2>/dev/null || true)"
-    if [[ "$appearance" == "Dark" ]]; then
-      printf '%s\n' "$dark_theme"
-    else
-      printf '%s\n' "$light_theme"
-    fi
+  if [[ -n "${OPENCODE_THEME_FALLBACK:-}" ]]; then
+    printf '%s\n' "$OPENCODE_THEME_FALLBACK"
     return 0
   fi
 
-  printf '%s\n' "$dark_theme"
+  printf '%s\n' "system"
+}
+
+_opencode_tmux_fallback_theme() {
+  if [[ -z "${TMUX:-}" ]]; then
+    return 1
+  fi
+
+  local tmux_env
+  tmux_env="$(tmux show-environment -g OPENCODE_THEME_FALLBACK 2>/dev/null || true)"
+
+  if [[ "$tmux_env" == OPENCODE_THEME_FALLBACK=* ]]; then
+    printf '%s\n' "${tmux_env#OPENCODE_THEME_FALLBACK=}"
+    return 0
+  fi
+
+  return 1
 }
 
 opencode() {
-  if [[ -n "${TMUX:-}" && -n "${OPENCODE_THEME_FALLBACK:-}" ]]; then
-    OPENCODE_CONFIG_CONTENT="{\"theme\":\"${OPENCODE_THEME_FALLBACK}\"}" command opencode "$@"
+  local fallback_theme="${OPENCODE_THEME_FALLBACK:-}"
+
+  if [[ -n "${TMUX:-}" && -z "$fallback_theme" ]]; then
+    fallback_theme="$(_opencode_tmux_fallback_theme)"
+  fi
+
+  if [[ -n "${TMUX:-}" && -n "$fallback_theme" && "$fallback_theme" != "system" ]]; then
+    OPENCODE_CONFIG_CONTENT="{\"theme\":\"${fallback_theme}\"}" command opencode "$@"
     return
   fi
 
@@ -47,8 +60,10 @@ ocssh() {
   local ssh_target="$1"
   local fallback_theme
   fallback_theme="$(_opencode_fallback_theme)"
+  local fallback_theme_quoted
+  fallback_theme_quoted="${(q)fallback_theme}"
 
-  command ssh -t "$ssh_target" "export OPENCODE_THEME_FALLBACK=${(q)fallback_theme}; exec \$SHELL -l"
+  command ssh -t "$ssh_target" "export OPENCODE_THEME_FALLBACK=$fallback_theme_quoted; tmux set-environment -g OPENCODE_THEME_FALLBACK $fallback_theme_quoted 2>/dev/null || true; exec \$SHELL -l"
 }
 
 claudedev() {
