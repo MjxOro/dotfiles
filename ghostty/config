@@ -1,5 +1,6 @@
 # Poimandres theme
 theme = poimandres
+font-size = 14
 
 copy-on-select = clipboard
 selection-clear-on-copy = true
@@ -10,7 +11,7 @@ term = xterm-256color
 maximize = true
 
 # Background transparency and blur - soft and easy on the eyes
-background-opacity = 0.85
+background-opacity = 0.9
 background-blur = true
 
 # Block cursor with mint color
@@ -19,7 +20,7 @@ cursor-color = #7dd3c0
 cursor-style-blink = true
 shell-integration-features = no-cursor
 quick-terminal-position = center
-quick-terminal-size = 80%, 80%
+quick-terminal-size = 80%,80%
 
 
 
