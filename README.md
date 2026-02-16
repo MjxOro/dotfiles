@@ -104,6 +104,16 @@ To add a new package:
 2. Put configuration files in it
 3. Run `./install.sh -p foo` to link only this package or `./install.sh` to link all
 
+### Machine-specific overrides (avoid merge conflicts)
+
+Keep shared defaults in tracked files, and put per-machine values in `zsh/secrets.zsh`.
+
+1. Copy `zsh/secrets.example.zsh` to `zsh/secrets.zsh`
+2. Add host/user specific paths and env vars there
+3. Keep `.zshrc` generic (`$HOME`, conditional path checks) so shared config stays merge-friendly
+
+`zsh/secrets.zsh` is gitignored, so local changes do not create branch conflicts.
+
 ## OS Support
 
 - **macOS**: Fully supported, uses Homebrew when available

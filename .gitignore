@@ -1,5 +1,6 @@
 # Secrets and sensitive files
 secrets.zsh
+zsh/secrets.zsh
 antigravity-accounts.json
 
 # Claude Code sensitive data (keep md files, settings, downloads, plugin configs)
