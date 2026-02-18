@@ -218,16 +218,19 @@ tmux_opencode_layout() {
     tmux select-layout -t "$session":0 tiled
   done
 
+  if [ -n "$TMUX" ]; then
+    tmux switch-client -t "$session"
+  fi
+
   for i in 0 1 2 3; do
+    tmux select-pane -t "$session":0."$i"
     tmux send-keys -t "$session":0."$i" "TERM=$term_for_opencode_quoted OPENTUI_NO_GRAPHICS=$opentui_no_graphics_quoted OPENCODE_DISABLE_TERMINAL_TITLE=$opencode_disable_terminal_title_quoted OPENCODE_THEME_FALLBACK=$fallback_theme_quoted OPENCODE_CONFIG_CONTENT=$opencode_config_content_quoted command opencode ." C-m
-    sleep 0.8
+    sleep 1.2
   done
 
   tmux select-pane -t "$session":0.4
 
-  if [ -n "$TMUX" ]; then
-    tmux switch-client -t "$session"
-  else
+  if [ -z "$TMUX" ]; then
     tmux attach-session -t "$session"
   fi
 }
