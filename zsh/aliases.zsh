@@ -182,7 +182,35 @@ tmux_opencode_layout() {
 
   local fallback_theme
   fallback_theme="$(_opencode_fallback_theme)"
+
+  if [[ -z "$fallback_theme" ]]; then
+    fallback_theme="system"
+  fi
+
+  local fallback_theme_quoted
+  fallback_theme_quoted="${(q)fallback_theme}"
+  local opencode_config_content
+  opencode_config_content="{\"theme\":\"${fallback_theme}\"}"
+  local opencode_config_content_quoted
+  opencode_config_content_quoted="${(q)opencode_config_content}"
+  local term_for_opencode
+  term_for_opencode="tmux-256color"
+  local term_for_opencode_quoted
+  term_for_opencode_quoted="${(q)term_for_opencode}"
+  local opentui_no_graphics
+  opentui_no_graphics="1"
+  local opentui_no_graphics_quoted
+  opentui_no_graphics_quoted="${(q)opentui_no_graphics}"
+  local opencode_disable_terminal_title
+  opencode_disable_terminal_title="1"
+  local opencode_disable_terminal_title_quoted
+  opencode_disable_terminal_title_quoted="${(q)opencode_disable_terminal_title}"
+
   tmux set-environment -t "$session" OPENCODE_THEME_FALLBACK "$fallback_theme"
+  tmux set-environment -t "$session" OPENCODE_CONFIG_CONTENT "$opencode_config_content"
+  tmux set-environment -t "$session" TERM "$term_for_opencode"
+  tmux set-environment -t "$session" OPENTUI_NO_GRAPHICS "$opentui_no_graphics"
+  tmux set-environment -t "$session" OPENCODE_DISABLE_TERMINAL_TITLE "$opencode_disable_terminal_title"
 
   local i
   for ((i = 1; i < pane_count; i++)); do
@@ -191,7 +219,8 @@ tmux_opencode_layout() {
   done
 
   for i in 0 1 2 3; do
-    tmux send-keys -t "$session":0."$i" "opencode ." C-m
+    tmux send-keys -t "$session":0."$i" "TERM=$term_for_opencode_quoted OPENTUI_NO_GRAPHICS=$opentui_no_graphics_quoted OPENCODE_DISABLE_TERMINAL_TITLE=$opencode_disable_terminal_title_quoted OPENCODE_THEME_FALLBACK=$fallback_theme_quoted OPENCODE_CONFIG_CONTENT=$opencode_config_content_quoted command opencode ." C-m
+    sleep 0.8
   done
 
   tmux select-pane -t "$session":0.4
