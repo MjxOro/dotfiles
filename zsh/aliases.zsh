@@ -43,7 +43,11 @@ opencode() {
     fallback_theme="$(_opencode_tmux_fallback_theme)"
   fi
 
-  if [[ -n "${TMUX:-}" && -n "$fallback_theme" && "$fallback_theme" != "system" ]]; then
+  if [[ -n "${TMUX:-}" ]]; then
+    if [[ -z "$fallback_theme" ]]; then
+      fallback_theme="system"
+    fi
+
     OPENCODE_CONFIG_CONTENT="{\"theme\":\"${fallback_theme}\"}" command opencode "$@"
     return
   fi
@@ -175,6 +179,10 @@ tmux_opencode_layout() {
 
   tmux kill-session -t "$session" 2>/dev/null
   tmux new-session -d -s "$session" -c "$PWD"
+
+  local fallback_theme
+  fallback_theme="$(_opencode_fallback_theme)"
+  tmux set-environment -t "$session" OPENCODE_THEME_FALLBACK "$fallback_theme"
 
   local i
   for ((i = 1; i < pane_count; i++)); do
