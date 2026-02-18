@@ -205,6 +205,8 @@ tmux_opencode_layout() {
   opencode_disable_terminal_title="1"
   local opencode_disable_terminal_title_quoted
   opencode_disable_terminal_title_quoted="${(q)opencode_disable_terminal_title}"
+  local opencode_launch_cmd
+  opencode_launch_cmd="TERM=$term_for_opencode_quoted OPENTUI_NO_GRAPHICS=$opentui_no_graphics_quoted OPENCODE_DISABLE_TERMINAL_TITLE=$opencode_disable_terminal_title_quoted OPENCODE_THEME_FALLBACK=$fallback_theme_quoted OPENCODE_CONFIG_CONTENT=$opencode_config_content_quoted command opencode ."
 
   tmux set-environment -t "$session" OPENCODE_THEME_FALLBACK "$fallback_theme"
   tmux set-environment -t "$session" OPENCODE_CONFIG_CONTENT "$opencode_config_content"
@@ -223,8 +225,7 @@ tmux_opencode_layout() {
   fi
 
   for i in 0 1 2 3; do
-    tmux select-pane -t "$session":0."$i"
-    tmux send-keys -t "$session":0."$i" "TERM=$term_for_opencode_quoted OPENTUI_NO_GRAPHICS=$opentui_no_graphics_quoted OPENCODE_DISABLE_TERMINAL_TITLE=$opencode_disable_terminal_title_quoted OPENCODE_THEME_FALLBACK=$fallback_theme_quoted OPENCODE_CONFIG_CONTENT=$opencode_config_content_quoted command opencode ." C-m
+    tmux respawn-pane -k -t "$session":0."$i" "$opencode_launch_cmd"
     sleep 1.2
   done
 
