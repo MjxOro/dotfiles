@@ -197,10 +197,23 @@ tmux_opencode_layout() {
   opencode_disable_terminal_title="1"
   local opencode_force_explicit_width
   opencode_force_explicit_width="0"
+  local opencode_startup_settle_seconds
+  opencode_startup_settle_seconds="3"
+  local term_program
+  term_program="tmux"
+  local term_program_version
+  term_program_version="0"
+  local tmux_version_output
+  tmux_version_output="$(tmux -V 2>/dev/null || true)"
+  if [[ "$tmux_version_output" == tmux\ * ]]; then
+    term_program_version="${tmux_version_output#tmux }"
+  fi
 
   tmux set-environment -t "$session" OPENCODE_THEME_FALLBACK "$fallback_theme"
   tmux set-environment -t "$session" OPENCODE_CONFIG_CONTENT "$opencode_config_content"
   tmux set-environment -t "$session" TERM "$term_for_opencode"
+  tmux set-environment -t "$session" TERM_PROGRAM "$term_program"
+  tmux set-environment -t "$session" TERM_PROGRAM_VERSION "$term_program_version"
   tmux set-environment -t "$session" OPENTUI_NO_GRAPHICS "$opentui_no_graphics"
   tmux set-environment -t "$session" OPENTUI_FORCE_EXPLICIT_WIDTH "$opencode_force_explicit_width"
   tmux set-environment -t "$session" OPENCODE_DISABLE_TERMINAL_TITLE "$opencode_disable_terminal_title"
@@ -215,11 +228,12 @@ tmux_opencode_layout() {
     sleep 0.4
 
     for i in 0 1 2 3; do
+      tmux select-pane -t "$session":0."$i"
       tmux respawn-pane -k -t "$session":0."$i" "command opencode ."
-      sleep 1.2
+      sleep "$opencode_startup_settle_seconds"
     done
 
-    tmux select-pane -t "$session":0.4
+    tmux select-pane -t "$session":0.0
   ) &
 
   if [ -n "$TMUX" ]; then
