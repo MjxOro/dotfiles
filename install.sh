@@ -609,6 +609,126 @@ _install_catppuccin_tmux() {
   fi
  }
 
+_install_playwright_cli_script() {
+  # Playwright CLI for browser automation and web development tools
+  if command_exists playwright && playwright --version >/dev/null 2>&1; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  Playwright CLI is already installed."; fi
+    return 0
+  fi
+  if ask_yes_no "  Install Playwright CLI (browser automation for web development)?" "y"; then
+    # Check if npm is available
+    if ! command_exists npm; then
+      print_message "$YELLOW" "    npm not found. Installing Node.js first..."
+      # Try to install Node.js based on OS
+      if command_exists brew; then
+        echo -n -e "${CYAN}    brew install node... ${NC}"
+        if brew install node >/dev/null 2>&1; then
+          echo -e "${GREEN}✓${NC}"
+        else
+          echo -e "${RED}✗${NC}"
+          print_message "$RED" "    Failed to install Node.js via Homebrew."
+          return 1
+        fi
+      elif command_exists pacman; then
+        echo -n -e "${CYAN}    pacman -S nodejs npm... ${NC}"
+        local pacman_cmd="sudo pacman -S --needed --noconfirm nodejs npm"
+        if [ "$ASSUME_YES" = false ]; then pacman_cmd="sudo pacman -S --needed nodejs npm"; fi
+        if eval "$pacman_cmd" >/dev/null 2>&1; then
+          echo -e "${GREEN}✓${NC}"
+        else
+          echo -e "${RED}✗${NC}"
+          print_message "$RED" "    Failed to install Node.js via pacman."
+          return 1
+        fi
+      elif command_exists apt-get; then
+        echo -n -e "${CYAN}    apt install nodejs npm... ${NC}"
+        if sudo apt-get install -y nodejs npm >/dev/null 2>&1; then
+          echo -e "${GREEN}✓${NC}"
+        else
+          echo -e "${RED}✗${NC}"
+          print_message "$RED" "    Failed to install Node.js via apt."
+          return 1
+        fi
+      else
+        print_message "$RED" "    No package manager found to install Node.js. Please install Node.js manually."
+        return 1
+      fi
+    fi
+    
+    if ! command_exists npm; then
+      print_message "$RED" "    npm is still not available after installation attempt."
+      return 1
+    fi
+    
+    echo -n -e "${CYAN}    Installing Playwright CLI via npm... ${NC}"
+    local pw_out pw_ec
+    if [ "$QUIET" = true ]; then
+      pw_out=$(npm install -g playwright 2>&1); pw_ec=$?
+    else
+      echo
+      npm install -g playwright; pw_ec=$?
+    fi
+    
+    if [ $pw_ec -eq 0 ] && command_exists playwright; then
+      echo -e "${GREEN}✓${NC}"
+      print_message "$GREEN" "    Playwright CLI installed successfully."
+      print_message "$CYAN" "    Installing Playwright browsers (this may take a while)..."
+      local pw_browser_ec=1
+      # Try bunx first (with sudo for system deps on Linux)
+      if command_exists bun; then
+        if command_exists sudo && [ "$OSTYPE" != "darwin"* ]; then
+          # Linux: use sudo with PATH preservation for system dependencies
+          if sudo env "PATH=$PATH" bunx playwright install --with-deps >/dev/null 2>&1; then
+            pw_browser_ec=0
+          fi
+        else
+          # macOS or no sudo: run without sudo
+          if bunx playwright install --with-deps >/dev/null 2>&1; then
+            pw_browser_ec=0
+          fi
+        fi
+      fi
+      # Fall back to npx if bunx failed or not available
+      if [ $pw_browser_ec -ne 0 ] && command_exists npx; then
+        if command_exists sudo && [ "$OSTYPE" != "darwin"* ]; then
+          # Linux: use sudo with PATH preservation for system dependencies
+          if sudo env "PATH=$PATH" npx playwright install --with-deps >/dev/null 2>&1; then
+            pw_browser_ec=0
+          fi
+        else
+          # macOS or no sudo: run without sudo
+          if npx playwright install --with-deps >/dev/null 2>&1; then
+            pw_browser_ec=0
+          fi
+        fi
+      fi
+      # Last resort: try global playwright command
+      if [ $pw_browser_ec -ne 0 ] && command_exists playwright; then
+        if playwright install --with-deps >/dev/null 2>&1; then
+          pw_browser_ec=0
+        elif playwright install >/dev/null 2>&1; then
+          pw_browser_ec=0
+        fi
+      fi
+      if [ $pw_browser_ec -eq 0 ]; then
+        print_message "$GREEN" "    Playwright browsers installed."
+      if playwright install >/dev/null 2>&1; then
+        print_message "$GREEN" "    Playwright browsers installed."
+      else
+        print_message "$YELLOW" "    Playwright browsers installation may have failed. Run 'playwright install' manually."
+      fi
+    else
+      echo -e "${RED}✗${NC}"
+      print_message "$RED" "    Playwright CLI installation failed (code: $pw_ec)."
+      if [ -n "$pw_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $pw_out"; fi
+      return 1
+    fi
+  else
+    print_message "$YELLOW" "  Playwright CLI installation skipped."
+  fi
+}
+
+
 _install_ghostty_brew() {
   # Ghostty installation via Homebrew (macOS)
   if command_exists ghostty; then
@@ -832,6 +952,55 @@ _install_lazyvim_prereqs_arch() {
   fi
 }
 
+_tree_sitter_cli_usable() {
+  command_exists tree-sitter && tree-sitter --version >/dev/null 2>&1
+}
+
+_install_tree_sitter_cli_cargo_debian() {
+  if _tree_sitter_cli_usable; then
+    return 0
+  fi
+
+  if ! command_exists cargo; then
+    if ask_yes_no "  Install cargo/rustc to build tree-sitter CLI from source?" "y"; then
+      echo -n -e "${CYAN}  Installing cargo and rustc... ${NC}"
+      if sudo apt-get install -y cargo rustc >/dev/null 2>&1; then
+        echo -e "${GREEN}✓${NC}"
+      else
+        echo -e "${YELLOW}!${NC}"
+        print_message "$YELLOW" "  Could not install cargo/rustc via apt."
+        return 0
+      fi
+    else
+      print_message "$YELLOW" "  cargo/rustc installation skipped; cannot build tree-sitter CLI from source."
+      return 0
+    fi
+  fi
+
+  if ! command_exists cargo; then
+    print_message "$YELLOW" "  cargo is not available on PATH; skipping source build fallback."
+    return 0
+  fi
+
+  if ask_yes_no "  Build and install tree-sitter CLI with cargo (recommended fallback)?" "y"; then
+    echo -n -e "${CYAN}  Building tree-sitter CLI with cargo (this may take a while)... ${NC}"
+    if cargo install --locked tree-sitter-cli >/dev/null 2>&1 || cargo install tree-sitter-cli >/dev/null 2>&1; then
+      export PATH="$HOME/.cargo/bin:$PATH"
+      if _tree_sitter_cli_usable; then
+        echo -e "${GREEN}✓${NC}"
+      else
+        echo -e "${YELLOW}!${NC}"
+        print_message "$YELLOW" "  cargo install completed, but 'tree-sitter --version' still failed."
+      fi
+    else
+      echo -e "${YELLOW}!${NC}"
+      print_message "$YELLOW" "  cargo install tree-sitter-cli failed."
+    fi
+  else
+    print_message "$YELLOW" "  cargo fallback for tree-sitter CLI skipped."
+  fi
+}
+
 _install_lazyvim_prereqs_debian() {
   # LazyVim prereqs based on https://lazyvim.github.io/installation (docker example)
   # - neovim (handled separately in install_debian_dependencies), git, curl, ripgrep, fd-find, lazygit, tree-sitter-cli
@@ -858,8 +1027,7 @@ _install_lazyvim_prereqs_debian() {
 
   _install_lazygit_debian
 
-  # tree-sitter CLI: package name varies. Try a best-effort install.
-  if ! command_exists tree-sitter; then
+  if ! _tree_sitter_cli_usable; then
     if ask_yes_no "  Install tree-sitter CLI (LazyVim prerequisite) with apt?" "y"; then
       echo -n -e "${CYAN}  Installing tree-sitter CLI... ${NC}"
       if sudo apt-get install -y tree-sitter-cli >/dev/null 2>&1 || sudo apt-get install -y tree-sitter >/dev/null 2>&1; then
@@ -869,6 +1037,10 @@ _install_lazyvim_prereqs_debian() {
         print_message "$YELLOW" "  Could not install tree-sitter CLI via apt (tree-sitter-cli/tree-sitter)."
       fi
     fi
+  fi
+
+  if ! _tree_sitter_cli_usable; then
+    _install_tree_sitter_cli_cargo_debian
   fi
 
   # Debian/Ubuntu fd package provides `fdfind`. Many tools expect `fd`.
@@ -1009,6 +1181,7 @@ install_mac_dependencies() {
   _install_catppuccin_tmux
   _install_ghostty_brew
   _install_eza_brew
+  _install_playwright_cli_script
 
   if ! $all_ok; then return 1; fi
   return 0
@@ -1039,6 +1212,7 @@ install_arch_dependencies() {
   _install_catppuccin_tmux
   _install_ghostty_arch
   _install_eza_arch
+  _install_playwright_cli_script
 
   if ! $all_ok; then return 1; fi
   return 0
@@ -1104,6 +1278,7 @@ install_debian_dependencies() {
   _install_catppuccin_tmux
   _install_ghostty_debian
   _install_eza_debian
+  _install_playwright_cli_script
 
   if ! $all_ok; then return 1; fi
   print_message "$GREEN" "Debian/Ubuntu dependency check complete."
@@ -1159,6 +1334,7 @@ print_installation_summary() {
     command_exists ghostty && installed_tools+=("Ghostty") || failed_tools+=("Ghostty")
     command_exists eza && installed_tools+=("eza") || failed_tools+=("eza")
     command_exists lazygit && installed_tools+=("LazyGit") || failed_tools+=("LazyGit")
+    command_exists playwright && installed_tools+=("Playwright") || failed_tools+=("Playwright")
 
      # Check linked configs
      local linked_configs=()
