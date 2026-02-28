@@ -583,6 +583,43 @@ _install_claude_code_script() {
   else print_message "$YELLOW" "  Claude Code installation skipped."; fi
 }
 
+_install_nvm() {
+  # Node Version Manager (nvm) installation
+  # zshrc already has nvm loader, so we use PROFILE=/dev/null to prevent shell config modification
+  if [ -d "$HOME/.nvm" ] && [ -s "$HOME/.nvm/nvm.sh" ]; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  nvm is already installed."; fi
+    return 0
+  fi
+  if ! command_exists curl; then
+    if [ "$QUIET" = false ]; then print_message "$YELLOW" "  curl not found, skipping nvm installation."; fi
+    return 1
+  fi
+  if ask_yes_no "  Install nvm (Node Version Manager)?" "y"; then
+    echo -n -e "${CYAN}    Installing nvm... ${NC}"
+    local nvm_out nvm_ec
+    if [ "$QUIET" = true ]; then
+      nvm_out=$(PROFILE=/dev/null curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh 2>/dev/null | bash 2>&1); nvm_ec=$?
+    else
+      echo
+      PROFILE=/dev/null curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash; nvm_ec=$?
+    fi
+    # Source nvm for immediate use in this session
+    if [ -s "$HOME/.nvm/nvm.sh" ]; then
+      export NVM_DIR="$HOME/.nvm"
+      \. "$NVM_DIR/nvm.sh"
+    fi
+    if [ $nvm_ec -eq 0 ] && [ -d "$HOME/.nvm" ] && [ -s "$HOME/.nvm/nvm.sh" ]; then
+      echo -e "${GREEN}✓${NC}"
+      if [ "$QUIET" = false ]; then print_message "$GREEN" "    nvm installed successfully."; fi
+    else
+      echo -e "${RED}✗${NC}"
+      print_message "$RED" "    nvm installation failed (code: $nvm_ec)."
+      if [ -n "$nvm_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $nvm_out"; fi
+    fi
+  else print_message "$YELLOW" "  nvm installation skipped."; fi
+}
+XN|
+
 _install_catppuccin_tmux() {
   local plugin_dir="$HOME/.config/tmux/plugins/catppuccin/tmux"
   if [ -d "$plugin_dir" ]; then
@@ -1176,6 +1213,8 @@ install_mac_dependencies() {
   _install_bun_script
   _install_opencode_script
   _install_claude_code_script
+  _install_nvm
+  _install_catppuccin_tmux
   _install_catppuccin_tmux
   _install_ghostty_brew
   _install_eza_brew
@@ -1207,6 +1246,8 @@ install_arch_dependencies() {
   _install_bun_script
   _install_opencode_script
   _install_claude_code_script
+  _install_nvm
+  _install_catppuccin_tmux
   _install_catppuccin_tmux
   _install_ghostty_arch
   _install_eza_arch
@@ -1273,6 +1314,8 @@ install_debian_dependencies() {
   _install_bun_script
   _install_opencode_script
   _install_claude_code_script
+  _install_nvm
+  _install_catppuccin_tmux
   _install_catppuccin_tmux
   _install_ghostty_debian
   _install_eza_debian
