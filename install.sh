@@ -1215,7 +1215,7 @@ install_mac_dependencies() {
   _install_claude_code_script
   _install_nvm
   _install_catppuccin_tmux
-  _install_catppuccin_tmux
+
   _install_ghostty_brew
   _install_eza_brew
   _install_playwright_cli_script
@@ -1248,7 +1248,7 @@ install_arch_dependencies() {
   _install_claude_code_script
   _install_nvm
   _install_catppuccin_tmux
-  _install_catppuccin_tmux
+
   _install_ghostty_arch
   _install_eza_arch
   _install_playwright_cli_script
@@ -1316,7 +1316,7 @@ install_debian_dependencies() {
   _install_claude_code_script
   _install_nvm
   _install_catppuccin_tmux
-  _install_catppuccin_tmux
+
   _install_ghostty_debian
   _install_eza_debian
   _install_playwright_cli_script
