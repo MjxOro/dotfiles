@@ -618,7 +618,7 @@ _install_nvm() {
     fi
   else print_message "$YELLOW" "  nvm installation skipped."; fi
 }
-XN|
+#QN|
 
 _install_catppuccin_tmux() {
   local plugin_dir="$HOME/.config/tmux/plugins/catppuccin/tmux"
@@ -1474,7 +1474,7 @@ if [ -z "$PACKAGES_TO_PROCESS" ]; then
         PACKAGES_TO_PROCESS=$(IFS=,; echo "${AVAILABLE_PACKAGES_ARR[*]}")
         print_message "$GREEN" "Selected all packages: $PACKAGES_TO_PROCESS"
       else
-        local selected_temp_arr=()
+        selected_temp_arr=()
         IFS=',' read -ra choice_indices <<<"$choices_str"
         for idx_str_loop in "${choice_indices[@]}"; do
           curr_idx_str=$(echo "$idx_str_loop" | tr -d '[:space:]')
