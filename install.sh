@@ -712,8 +712,6 @@ _install_playwright_cli_script() {
       fi
       if [ $pw_browser_ec -eq 0 ]; then
         print_message "$GREEN" "    Playwright browsers installed."
-      if playwright install >/dev/null 2>&1; then
-        print_message "$GREEN" "    Playwright browsers installed."
       else
         print_message "$YELLOW" "    Playwright browsers installation may have failed. Run 'playwright install' manually."
       fi
