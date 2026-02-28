@@ -187,18 +187,26 @@ tmux_opencode_layout() {
     fallback_theme="system"
   fi
 
+  local fallback_theme_quoted
+  fallback_theme_quoted="${(q)fallback_theme}"
   local opencode_config_content
   opencode_config_content="{\"theme\":\"${fallback_theme}\"}"
+  local opencode_config_content_quoted
+  opencode_config_content_quoted="${(q)opencode_config_content}"
   local term_for_opencode
   term_for_opencode="tmux-256color"
+  local term_for_opencode_quoted
+  term_for_opencode_quoted="${(q)term_for_opencode}"
   local opentui_no_graphics
   opentui_no_graphics="1"
+  local opentui_no_graphics_quoted
+  opentui_no_graphics_quoted="${(q)opentui_no_graphics}"
   local opencode_disable_terminal_title
   opencode_disable_terminal_title="1"
+  local opencode_disable_terminal_title_quoted
+  opencode_disable_terminal_title_quoted="${(q)opencode_disable_terminal_title}"
   local opencode_force_explicit_width
   opencode_force_explicit_width="0"
-  local opencode_startup_settle_seconds
-  opencode_startup_settle_seconds="3"
   local term_program
   term_program="tmux"
   local term_program_version
@@ -208,6 +216,10 @@ tmux_opencode_layout() {
   if [[ "$tmux_version_output" == tmux\ * ]]; then
     term_program_version="${tmux_version_output#tmux }"
   fi
+  local opencode_force_explicit_width_quoted
+  opencode_force_explicit_width_quoted="${(q)opencode_force_explicit_width}"
+  local opencode_launch_cmd
+  opencode_launch_cmd="TERM=$term_for_opencode_quoted OPENTUI_NO_GRAPHICS=$opentui_no_graphics_quoted OPENTUI_FORCE_EXPLICIT_WIDTH=$opencode_force_explicit_width_quoted OPENCODE_DISABLE_TERMINAL_TITLE=$opencode_disable_terminal_title_quoted OPENCODE_THEME_FALLBACK=$fallback_theme_quoted OPENCODE_CONFIG_CONTENT=$opencode_config_content_quoted command opencode ."
 
   tmux set-environment -t "$session" OPENCODE_THEME_FALLBACK "$fallback_theme"
   tmux set-environment -t "$session" OPENCODE_CONFIG_CONTENT "$opencode_config_content"
@@ -219,26 +231,24 @@ tmux_opencode_layout() {
   tmux set-environment -t "$session" OPENCODE_DISABLE_TERMINAL_TITLE "$opencode_disable_terminal_title"
 
   local i
+  local launch_delay="0.25"
   for ((i = 1; i < pane_count; i++)); do
     tmux split-window -t "$session":0 -c "$PWD"
     tmux select-layout -t "$session":0 tiled
   done
 
-  (
-    sleep 0.4
-
-    for i in 0 1 2 3; do
-      tmux select-pane -t "$session":0."$i"
-      tmux respawn-pane -k -t "$session":0."$i" "command opencode ."
-      sleep "$opencode_startup_settle_seconds"
-    done
-
-    tmux select-pane -t "$session":0.0
-  ) &
-
   if [ -n "$TMUX" ]; then
     tmux switch-client -t "$session"
-  else
+  fi
+
+  for i in 0 1 2 3; do
+    tmux respawn-pane -k -t "$session":0."$i" "$opencode_launch_cmd"
+    sleep "$launch_delay"
+  done
+
+  tmux select-pane -t "$session":0.4
+
+  if [ -z "$TMUX" ]; then
     tmux attach-session -t "$session"
   fi
 }

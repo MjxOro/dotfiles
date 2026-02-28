@@ -144,13 +144,13 @@ export PATH="/Library/TeX/texbin:$PATH"
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init - zsh)"
+export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 
 # Java (Homebrew OpenJDK)
 export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
 
-# opencode
-export PATH=/Users/mjxoro/.opencode/bin:$PATH
+# Machine-specific paths belong in secrets.zsh
 
 # carapace - multi-shell completion
 export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense'
@@ -165,3 +165,7 @@ if command -v eza &> /dev/null; then
   alias lt='eza --tree --level=2 --icons --group-directories-first'
   alias lta='eza --tree --level=2 -a --icons --group-directories-first'
 fi
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
