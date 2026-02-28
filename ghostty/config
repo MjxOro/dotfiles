@@ -3,7 +3,6 @@ theme = poimandres
 font-size = 14
 
 copy-on-select = clipboard
-selection-clear-on-copy = true
 
 # Use xterm-256color for SSH compatibility
 term = xterm-256color
