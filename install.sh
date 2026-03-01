@@ -79,6 +79,7 @@ show_help() {
   echo "  -q, --quiet          Minimize output"
   echo "  -p, --packages       Comma-separated list of packages to link/unlink (default: all)"
   echo "                       (e.g., nvim,tmux,zsh)"
+  echo "      --install-nvm    Enable optional nvm installation (default: off)"
   echo
   echo "Environment Variables:"
   echo "  VERBOSE=1            Enable verbose debug output"
@@ -97,6 +98,7 @@ INTERACTIVE=false
 QUIET=false
 PACKAGES_TO_PROCESS="" 
 LINK_ONLY=false
+INSTALL_NVM=false
 
 if [ -t 0 ] && [ -t 1 ]; then INTERACTIVE=true; fi
 
@@ -111,6 +113,7 @@ while [[ $# -gt 0 ]]; do
   -i | --interactive) INTERACTIVE=true; ASSUME_YES=false; shift ;;
   -q | --quiet) QUIET=true; INTERACTIVE=false; shift ;;
   -p | --packages) PACKAGES_TO_PROCESS="$2"; shift; shift ;; 
+  --install-nvm) INSTALL_NVM=true; shift ;;
   *) print_message "$RED" "Unknown option: $1"; show_help; exit 1 ;;
   esac
 done
@@ -584,6 +587,14 @@ _install_claude_code_script() {
 }
 
 _install_nvm() {
+  # Optional nvm installation, disabled by default for Bun-first setups
+  if [ "${INSTALL_NVM:-false}" != "true" ]; then
+    if [ "$QUIET" = false ]; then
+      print_message "$YELLOW" "  nvm installation disabled by default. Use --install-nvm to enable."
+    fi
+    return 0
+  fi
+
   # Node Version Manager (nvm) installation
   # zshrc already has nvm loader, so we use PROFILE=/dev/null to prevent shell config modification
   if [ -d "$HOME/.nvm" ] && [ -s "$HOME/.nvm/nvm.sh" ]; then
@@ -647,110 +658,74 @@ _install_catppuccin_tmux() {
  }
 
 _install_playwright_cli_script() {
-  # Playwright CLI for browser automation and web development tools
+  # Playwright CLI for browser automation and web development tools - BUN-FIRST IMPLEMENTATION
   if command_exists playwright && playwright --version >/dev/null 2>&1; then
     if [ "$QUIET" = false ]; then print_message "$GREEN" "  Playwright CLI is already installed."; fi
     return 0
   fi
+
   if ask_yes_no "  Install Playwright CLI (browser automation for web development)?" "y"; then
-    # Check if npm is available
-    if ! command_exists npm; then
-      print_message "$YELLOW" "    npm not found. Installing Node.js first..."
-      # Try to install Node.js based on OS
-      if command_exists brew; then
-        echo -n -e "${CYAN}    brew install node... ${NC}"
-        if brew install node >/dev/null 2>&1; then
-          echo -e "${GREEN}✓${NC}"
-        else
-          echo -e "${RED}✗${NC}"
-          print_message "$RED" "    Failed to install Node.js via Homebrew."
-          return 1
-        fi
-      elif command_exists pacman; then
-        echo -n -e "${CYAN}    pacman -S nodejs npm... ${NC}"
-        local pacman_cmd="sudo pacman -S --needed --noconfirm nodejs npm"
-        if [ "$ASSUME_YES" = false ]; then pacman_cmd="sudo pacman -S --needed nodejs npm"; fi
-        if eval "$pacman_cmd" >/dev/null 2>&1; then
-          echo -e "${GREEN}✓${NC}"
-        else
-          echo -e "${RED}✗${NC}"
-          print_message "$RED" "    Failed to install Node.js via pacman."
-          return 1
-        fi
-      elif command_exists apt-get; then
-        echo -n -e "${CYAN}    apt install nodejs npm... ${NC}"
-        if sudo apt-get install -y nodejs npm >/dev/null 2>&1; then
-          echo -e "${GREEN}✓${NC}"
-        else
-          echo -e "${RED}✗${NC}"
-          print_message "$RED" "    Failed to install Node.js via apt."
-          return 1
-        fi
-      else
-        print_message "$RED" "    No package manager found to install Node.js. Please install Node.js manually."
-        return 1
+    # Ensure Bun is available in this shell before continuing
+    if [ -f "$HOME/.bun/bin/bun" ]; then
+      export BUN_INSTALL="$HOME/.bun"
+      export PATH="$BUN_INSTALL/bin:$PATH"
+    fi
+
+    if ! command_exists bun; then
+      print_message "$YELLOW" "    Bun not found. Installing Bun first..."
+      if ! _install_bun_script; then
+        if [ "$QUIET" = false ]; then print_message "$YELLOW" "    Bun installation step reported an error."; fi
+      fi
+
+      if [ -f "$HOME/.bun/bin/bun" ]; then
+        export BUN_INSTALL="$HOME/.bun"
+        export PATH="$BUN_INSTALL/bin:$PATH"
       fi
     fi
-    
-    if ! command_exists npm; then
-      print_message "$RED" "    npm is still not available after installation attempt."
+
+    if ! command_exists bun; then
+      print_message "$RED" "    Bun is required for Playwright CLI installation."
       return 1
     fi
-    
-    echo -n -e "${CYAN}    Installing Playwright CLI via npm... ${NC}"
+
+    if ! command_exists bunx; then
+      print_message "$RED" "    bunx is required for Playwright browser installation."
+      return 1
+    fi
+
+    echo -n -e "${CYAN}    Installing Playwright CLI via Bun... ${NC}"
     local pw_out pw_ec
     if [ "$QUIET" = true ]; then
-      pw_out=$(npm install -g playwright 2>&1); pw_ec=$?
+      pw_out=$(bun install -g playwright 2>&1); pw_ec=$?
     else
       echo
-      npm install -g playwright; pw_ec=$?
+      bun install -g playwright; pw_ec=$?
     fi
-    
-    if [ $pw_ec -eq 0 ] && command_exists playwright; then
+
+    if [ -f "$HOME/.bun/bin/playwright" ]; then
+      export PATH="$HOME/.bun/bin:$PATH"
+    fi
+
+    if [ $pw_ec -eq 0 ] && (command_exists playwright || [ -f "$HOME/.bun/bin/playwright" ]); then
       echo -e "${GREEN}✓${NC}"
       print_message "$GREEN" "    Playwright CLI installed successfully."
       print_message "$CYAN" "    Installing Playwright browsers (this may take a while)..."
+
       local pw_browser_ec=1
-      # Try bunx first (with sudo for system deps on Linux)
-      if command_exists bun; then
-        if command_exists sudo && [ "$OSTYPE" != "darwin"* ]; then
-          # Linux: use sudo with PATH preservation for system dependencies
-          if sudo env "PATH=$PATH" bunx playwright install --with-deps >/dev/null 2>&1; then
-            pw_browser_ec=0
-          fi
-        else
-          # macOS or no sudo: run without sudo
-          if bunx playwright install --with-deps >/dev/null 2>&1; then
-            pw_browser_ec=0
-          fi
-        fi
-      fi
-      # Fall back to npx if bunx failed or not available
-      if [ $pw_browser_ec -ne 0 ] && command_exists npx; then
-        if command_exists sudo && [ "$OSTYPE" != "darwin"* ]; then
-          # Linux: use sudo with PATH preservation for system dependencies
-          if sudo env "PATH=$PATH" npx playwright install --with-deps >/dev/null 2>&1; then
-            pw_browser_ec=0
-          fi
-        else
-          # macOS or no sudo: run without sudo
-          if npx playwright install --with-deps >/dev/null 2>&1; then
-            pw_browser_ec=0
-          fi
-        fi
-      fi
-      # Last resort: try global playwright command
-      if [ $pw_browser_ec -ne 0 ] && command_exists playwright; then
-        if playwright install --with-deps >/dev/null 2>&1; then
+      if command_exists sudo && [ "$(uname -s)" = "Linux" ]; then
+        if sudo env "PATH=$PATH" bunx playwright install --with-deps >/dev/null 2>&1; then
           pw_browser_ec=0
-        elif playwright install >/dev/null 2>&1; then
+        fi
+      else
+        if bunx playwright install --with-deps >/dev/null 2>&1; then
           pw_browser_ec=0
         fi
       fi
+
       if [ $pw_browser_ec -eq 0 ]; then
         print_message "$GREEN" "    Playwright browsers installed."
       else
-        print_message "$YELLOW" "    Playwright browsers installation may have failed. Run 'playwright install' manually."
+        print_message "$YELLOW" "    Playwright browsers installation may have failed. Run 'bunx playwright install --with-deps' manually."
       fi
     else
       echo -e "${RED}✗${NC}"
