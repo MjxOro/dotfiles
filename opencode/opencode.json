@@ -5,7 +5,7 @@
     "opencode-anthropic-auth",
     "opencode-openai-codex-auth"
   ],
-  // "model": "openai/gpt-5.3-codex",
+  "model": "openai/gpt-5.3-codex",
   "small_model": "minimax/MiniMax-M2.5",
   "provider": {
     "minimax": {
