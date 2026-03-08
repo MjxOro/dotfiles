@@ -18,6 +18,7 @@ The repository follows a simple structure:
 ```
 dotfiles/
 ├── nvim/              # NeoVim configuration (links to ~/.config/nvim/)
+├── factory/           # Factory CLI home directory (links to ~/.factory/)
 ├── starship/          # Starship prompt config (links to ~/.config/starship/)
 ├── tmux/              # Tmux configuration
 │   └── .tmux.conf     # Links to ~/.tmux.conf
@@ -81,6 +82,7 @@ The script follows these rules for linking:
 
 1. Top-level non-dot-prefixed directories (like nvim, starship) link to ~/.config/
 2. Specific dotfiles (.zshrc, .tmux, .tmux.conf) inside package directories link to $HOME
+3. Tool-specific exceptions can link to native paths (for example `factory/` -> `~/.factory/`)
 
 ## Dependencies
 
@@ -94,6 +96,7 @@ The script can automatically install these dependencies based on your OS:
 Optional tools:
 - Starship prompt
 - Oh My Zsh
+- Factory CLI (`droid`)
 - Neovim (with unstable PPA option for Debian/Ubuntu)
 
 ## Customization
@@ -103,6 +106,48 @@ To add a new package:
 1. Create a new directory in the dotfiles repo, e.g., `foo/`
 2. Put configuration files in it
 3. Run `./install.sh -p foo` to link only this package or `./install.sh` to link all
+
+Factory CLI now links the repo's `factory/` directory to `~/.factory/`. Runtime artifacts such as `bin/`, `logs/`, `sessions/`, and generated caches should stay gitignored inside that directory.
+
+`factory/settings.json` is intended for shared, non-secret defaults and should be committed when it only contains team-wide settings. Keep authentication artifacts such as `auth.v2.file` and `auth.v2.key` local-only.
+
+### Factory proxy workflow
+
+For remote Linux/Ubuntu work, you can run Factory CLI against a local proxy instead of direct provider keys.
+
+Example: GitHub Copilot via LiteLLM on `http://127.0.0.1:4000`
+
+```bash
+python3 -m pip install --user litellm
+
+cat > ~/litellm-copilot.yaml <<'EOF'
+model_list:
+  - model_name: copilot-gpt4
+    litellm_params:
+      model: github_copilot/gpt-4
+EOF
+
+~/.local/bin/litellm --config ~/litellm-copilot.yaml --port 4000
+```
+
+Then point Factory at the proxy from `factory/settings.json`:
+
+```json
+{
+  "logoAnimation": "off",
+  "customModels": [
+    {
+      "model": "copilot-gpt4",
+      "displayName": "GitHub Copilot GPT-4",
+      "baseUrl": "http://127.0.0.1:4000",
+      "apiKey": "dummy-not-used",
+      "provider": "generic-chat-completion-api"
+    }
+  ]
+}
+```
+
+On first request, LiteLLM prompts for GitHub Copilot OAuth device login and then keeps using the cached credentials locally.
 
 ### Machine-specific overrides (avoid merge conflicts)
 
