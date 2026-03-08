@@ -63,6 +63,17 @@ command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
+resolve_path() {
+  local path="$1"
+  if command_exists realpath; then
+    realpath "$path" 2>/dev/null && return 0
+  fi
+  if command_exists perl; then
+    perl -MCwd=realpath -e 'my $resolved = realpath(shift); exit 1 unless defined $resolved; print $resolved;' "$path" 2>/dev/null && return 0
+  fi
+  return 1
+}
+
 # Function to display help message
 show_help() {
   echo -e "${BOLD}Dotfiles Installation Script${NC}"
@@ -179,8 +190,8 @@ process_single_item() {
     fi
 
     if [ -L "$target_path" ]; then
-      local current_link_target; current_link_target=$(readlink -f "$target_path" 2>/dev/null || true)
-      local expected_link_target; expected_link_target=$(readlink -f "$source_path" 2>/dev/null || true)
+      local current_link_target; current_link_target=$(resolve_path "$target_path" 2>/dev/null || true)
+      local expected_link_target; expected_link_target=$(resolve_path "$source_path" 2>/dev/null || true)
       echo -e "${PURPLE}    DEBUG: Target '$target_path' is a symlink. Current: '$current_link_target', Expected: '$expected_link_target'${NC}"
       if [[ "$current_link_target" == "$expected_link_target" ]]; then
         if [ "$QUIET" = false ]; then print_message "$GREEN" "  Symlink '$target_path' for '$display_name' already correct."; fi
@@ -204,7 +215,7 @@ process_single_item() {
         local item_backup_path="$main_backup_dir/$display_name" 
         if [ "$QUIET" = false ]; then print_message "$BLUE" "    Backing up '$target_path' to '$item_backup_path'"; fi
         mkdir -p "$(dirname "$item_backup_path")"
-        if cp -aL "$target_path" "$item_backup_path"; then
+        if cp -RL "$target_path" "$item_backup_path"; then
           if [ "$QUIET" = false ]; then print_message "$GRAY" "      Backed up."; fi
           if [ "$QUIET" = false ]; then print_message "$BLUE" "    Removing '$target_path'"; fi
           if ! rm -rf "$target_path"; then
@@ -238,8 +249,8 @@ process_single_item() {
       return 0 
     fi
 
-    local current_link_target; current_link_target=$(readlink -f "$target_path" 2>/dev/null || true)
-    local expected_link_target; expected_link_target=$(readlink -f "$source_path" 2>/dev/null || true)
+    local current_link_target; current_link_target=$(resolve_path "$target_path" 2>/dev/null || true)
+    local expected_link_target; expected_link_target=$(resolve_path "$source_path" 2>/dev/null || true)
     echo -e "${PURPLE}    DEBUG: Target '$target_path' is a symlink. Current: '$current_link_target', Expected: '$expected_link_target'${NC}"
 
     if [[ "$current_link_target" == "$expected_link_target" ]]; then
@@ -313,9 +324,22 @@ manage_dotfiles() {
      # Rule 1: Top-level non-dot-prefixed directories (like nvim, starship) link to ~/.config/
      if [[ "$package_name" != .* ]]; then # e.g. "nvim", "starship"
        # Skip macOS-only packages on non-macOS systems
-       if [[ ("$package_name" == "aerospace" || "$package_name" == "sketchybar" || "$package_name" == "borders") && "$(uname -s)" != "Darwin" ]]; then
-         if [ "$QUIET" = false ]; then print_message "$YELLOW" "  Skipping '$package_name': macOS-only package (current OS: $(uname -s))"; fi
-       else
+      if [[ ("$package_name" == "aerospace" || "$package_name" == "sketchybar" || "$package_name" == "borders") && "$(uname -s)" != "Darwin" ]]; then
+        if [ "$QUIET" = false ]; then print_message "$YELLOW" "  Skipping '$package_name': macOS-only package (current OS: $(uname -s))"; fi
+      elif [[ "$package_name" == "factory" ]]; then
+        local factory_target_dir="$HOME/.factory"
+        if [ -d "$package_source_dir" ]; then
+          items_processed_in_package=$((items_processed_in_package + 1))
+          echo -e "${PURPLE}  DEBUG: Applying Factory directory linking${NC}"
+          if process_single_item "$action" "$package_source_dir" "$factory_target_dir" "factory" "$main_backup_dir"; then
+            items_succeeded_in_package=$((items_succeeded_in_package + 1))
+          else
+            items_failed_in_package=$((items_failed_in_package + 1))
+          fi
+        else
+          if [ "$QUIET" = false ]; then print_message "$YELLOW" "  Skipping 'factory': package directory not found."; fi
+        fi
+      else
         echo -e "${PURPLE}  DEBUG: Applying Rule 1 for '$package_name'${NC}"
         items_processed_in_package=$((items_processed_in_package + 1))
         if process_single_item "$action" "$package_source_dir" "$HOME/.config/$package_name" "$package_name" "$main_backup_dir"; then
@@ -584,6 +608,36 @@ _install_claude_code_script() {
       if [ -n "$claude_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $claude_out"; fi
     fi
   else print_message "$YELLOW" "  Claude Code installation skipped."; fi
+}
+
+_install_factory_cli_script() {
+  if command_exists droid && droid --version >/dev/null 2>&1; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  Factory CLI is already installed."; fi
+    return 0
+  fi
+  if ask_yes_no "  Install Factory CLI (droid)?" "y"; then
+    if ! command_exists curl; then print_message "$RED" "    curl is required for Factory CLI installation. Please install curl."; return 1; fi
+    echo -n -e "${CYAN}    Installing Factory CLI (curl ... | sh)... ${NC}"
+    local factory_out factory_ec
+    if [ "$QUIET" = true ]; then
+      factory_out=$(curl -fsSL https://app.factory.ai/cli 2>/dev/null | sh 2>&1); factory_ec=$?
+    else
+      echo
+      curl -fsSL https://app.factory.ai/cli | sh; factory_ec=$?
+    fi
+    if [ -f "$HOME/.local/bin/droid" ]; then
+      export PATH="$HOME/.local/bin:$PATH"
+    fi
+    if [ $factory_ec -eq 0 ] && (command_exists droid || [ -f "$HOME/.local/bin/droid" ]); then
+      echo -e "${GREEN}✓${NC}"
+      if [ "$QUIET" = false ]; then print_message "$GREEN" "    Factory CLI installed successfully."; fi
+    else
+      echo -e "${RED}✗${NC}"
+      print_message "$RED" "    Factory CLI installation failed (code: $factory_ec)."
+      if [ -n "$factory_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $factory_out"; fi
+      return 1
+    fi
+  else print_message "$YELLOW" "  Factory CLI installation skipped."; fi
 }
 
 _install_nvm() {
@@ -1188,6 +1242,7 @@ install_mac_dependencies() {
   _install_bun_script
   _install_opencode_script
   _install_claude_code_script
+  _install_factory_cli_script
   _install_nvm
   _install_catppuccin_tmux
 
@@ -1201,7 +1256,7 @@ install_mac_dependencies() {
 install_arch_dependencies() {
   print_header "Dependency Check for Arch Linux"
   local all_ok=true
-  local arch_needed_pkgs=("gcc" "zsh" "curl" "git" "unzip") pkgs_to_install_pacman=()
+  local arch_needed_pkgs=("gcc" "zsh" "curl" "git" "unzip" "xdg-utils") pkgs_to_install_pacman=()
   for pkg in "${arch_needed_pkgs[@]}"; do
     if ! command_exists "$pkg"; then
       if ask_yes_no "  Package '$pkg' not found. Install with pacman?" "y"; then pkgs_to_install_pacman+=("$pkg"); fi
@@ -1221,6 +1276,7 @@ install_arch_dependencies() {
   _install_bun_script
   _install_opencode_script
   _install_claude_code_script
+  _install_factory_cli_script
   _install_nvm
   _install_catppuccin_tmux
 
@@ -1241,7 +1297,7 @@ install_debian_dependencies() {
     echo -e "${RED}✗${NC}"; print_message "$RED" "Failed to update apt lists."; all_ok=false
   fi
 
-  local essential_deps_script=("git" "curl" "software-properties-common" "build-essential" "zsh" "unzip") 
+  local essential_deps_script=("git" "curl" "software-properties-common" "build-essential" "zsh" "unzip" "xdg-utils")
   local packages_to_install_apt=()
   if [ "$QUIET" = false ]; then print_message "$BLUE" "Checking core packages (git, curl, build-essential/gcc, zsh)..."; fi
   for package in "${essential_deps_script[@]}"; do
@@ -1289,6 +1345,7 @@ install_debian_dependencies() {
   _install_bun_script
   _install_opencode_script
   _install_claude_code_script
+  _install_factory_cli_script
   _install_nvm
   _install_catppuccin_tmux
 
@@ -1346,6 +1403,7 @@ print_installation_summary() {
     (command_exists bun || [ -f "$HOME/.bun/bin/bun" ]) && installed_tools+=("Bun") || failed_tools+=("Bun")
     command_exists opencode && installed_tools+=("OpenCode") || failed_tools+=("OpenCode")
     command_exists claude && installed_tools+=("Claude Code") || failed_tools+=("Claude Code")
+    command_exists droid && installed_tools+=("Factory CLI") || failed_tools+=("Factory CLI")
     [ -d "$HOME/.oh-my-zsh" ] && installed_tools+=("Oh My Zsh") || failed_tools+=("Oh My Zsh")
     command_exists ghostty && installed_tools+=("Ghostty") || failed_tools+=("Ghostty")
     command_exists eza && installed_tools+=("eza") || failed_tools+=("eza")
@@ -1359,6 +1417,7 @@ print_installation_summary() {
      [ -L "$HOME/.tmux.conf" ] && linked_configs+=("Tmux")
      [ -L "$HOME/.zshrc" ] && linked_configs+=("Zsh")
      [ -L "$HOME/.config/opencode" ] && linked_configs+=("OpenCode")
+     [ -L "$HOME/.factory" ] && linked_configs+=("Factory")
       [ -L "$HOME/.config/ghostty" ] && linked_configs+=("Ghostty")
       [ -L "$HOME/.config/lazygit" ] && linked_configs+=("LazyGit")
       [ -L "$HOME/.claude" ] && linked_configs+=("Claude")
