@@ -6,7 +6,8 @@
   },
   "agents": {
     "sisyphus": {
-      "model": "kimi-for-coding/k2p5"
+      "model": "openai/gpt-5.4",
+      "variant": "medium"
     },
     "oracle": {
       "model": "openai/gpt-5.4",
