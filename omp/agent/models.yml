@@ -1,0 +1,25 @@
+providers:
+  cliproxy:
+    baseUrl: http://127.0.0.1:8317/v1
+    api: openai-responses
+    auth: none
+    models:
+      - id: gpt-5.4
+        name: GPT-5.4
+        reasoning: true
+        contextWindow: 400000
+        maxTokens: 128000
+        thinking:
+          mode: effort
+          minLevel: low
+          maxLevel: xhigh
+      - id: gpt-5.3-codex
+        name: GPT-5.3 Codex
+      - id: gpt-5.2
+        name: GPT-5.2
+      - id: gpt-5.2-codex
+        name: GPT-5.2 Codex
+      - id: gpt-5-mini
+        name: GPT-5 Mini
+      - id: gpt-5-nano
+        name: GPT-5 Nano

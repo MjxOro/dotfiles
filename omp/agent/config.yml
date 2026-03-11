@@ -1,0 +1,6 @@
+theme: 
+  dark: poimandres-terminal
+  light: light
+lastChangelogVersion: 13.10.1
+modelRoles: 
+  default: cliproxy/gpt-5.4:high

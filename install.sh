@@ -146,7 +146,9 @@ get_available_packages() {
     -not -name ".DS_Store" \
     -not -name "README.md" \
     -not -name "AGENTS.md" \
+    -not -name "docs" \
     -not -name "install.sh" \
+    -not -name "tools" \
     -not -name "*.itermcolors" \
     -exec basename {} \; | sort
 }
@@ -275,6 +277,111 @@ process_single_item() {
   fi
 }
 
+seed_file_if_missing() {
+  local action="$1"
+  local source_path="$2"
+  local target_path="$3"
+  local display_name="$4"
+
+  echo -e "${PURPLE}  DEBUG: seed_file_if_missing: action='$action', source='$source_path', target='$target_path', name='$display_name'${NC}"
+
+  if [ "$action" = "link" ]; then
+    if [ ! -f "$source_path" ]; then
+      print_message "$RED" "  ERROR: Source file '$source_path' for '$display_name' does not exist. Skipping."
+      return 1
+    fi
+
+    local target_parent_dir
+    target_parent_dir=$(dirname "$target_path")
+    if [ ! -d "$target_parent_dir" ]; then
+      if [ "$QUIET" = false ]; then print_message "$BLUE" "  Creating parent directory '$target_parent_dir' for '$display_name'"; fi
+      if ! mkdir -p "$target_parent_dir"; then
+        print_message "$RED" "  ERROR: Failed to create parent directory '$target_parent_dir' for '$display_name'."
+        return 1
+      fi
+    fi
+
+    if [ -e "$target_path" ] || [ -L "$target_path" ]; then
+      if [ "$QUIET" = false ]; then print_message "$GREEN" "  Preserving existing '$target_path' for '$display_name'."; fi
+      return 0
+    fi
+
+    if [ "$QUIET" = false ]; then echo -n -e "${CYAN}  Seeding '$source_path' to '$target_path'... ${NC}"; fi
+    if cp "$source_path" "$target_path"; then
+      if [ "$QUIET" = false ]; then echo -e "${GREEN}✓ Seeded${NC}"; fi
+      return 0
+    else
+      if [ "$QUIET" = false ]; then echo -e "${RED}✗ Seed Failed${NC}"; fi
+      print_message "$RED" "  ERROR: Failed to seed '$display_name'."
+      return 1
+    fi
+  elif [ "$action" = "unlink" ]; then
+    if [ "$QUIET" = false ]; then print_message "$GRAY" "  Leaving '$target_path' for '$display_name' in place (seeded local config)."; fi
+    return 0
+  fi
+
+  print_message "$RED" "  ERROR: Unknown action '$action' for '$display_name'."
+  return 1
+}
+
+
+restore_path_from_backup() {
+  local backup_path="$1"
+  local target_path="$2"
+
+  if [ ! -e "$backup_path" ]; then
+    return 0
+  fi
+
+  if [ -d "$backup_path" ]; then
+    mkdir -p "$target_path"
+    cp -RL "$backup_path/." "$target_path/"
+  elif [ ! -e "$target_path" ]; then
+    mkdir -p "$(dirname "$target_path")"
+    cp -RL "$backup_path" "$target_path"
+  fi
+}
+
+reconcile_cliproxy_runtime() {
+  local package_dir="$1"
+  local backup_dir="$2"
+
+  mkdir -p "$package_dir/auths" "$package_dir/logs"
+
+  restore_path_from_backup "$backup_dir/config.yaml" "$package_dir/config.yaml"
+  restore_path_from_backup "$backup_dir/auths" "$package_dir/auths"
+  restore_path_from_backup "$backup_dir/logs" "$package_dir/logs"
+
+  if [ ! -f "$package_dir/config.yaml" ]; then
+    cp "$package_dir/config.yaml.example" "$package_dir/config.yaml"
+  fi
+
+  if [ -f "$package_dir/config.yaml" ]; then
+    chmod 600 "$package_dir/config.yaml"
+  fi
+}
+
+reconcile_omp_runtime() {
+  local package_dir="$1"
+  local backup_dir="$2"
+
+  mkdir -p "$package_dir/agent" "$package_dir/logs"
+
+  restore_path_from_backup "$backup_dir/agent/agent.db" "$package_dir/agent/agent.db"
+  restore_path_from_backup "$backup_dir/agent/agent.db-shm" "$package_dir/agent/agent.db-shm"
+  restore_path_from_backup "$backup_dir/agent/agent.db-wal" "$package_dir/agent/agent.db-wal"
+  restore_path_from_backup "$backup_dir/agent/history.db" "$package_dir/agent/history.db"
+  restore_path_from_backup "$backup_dir/agent/history.db-shm" "$package_dir/agent/history.db-shm"
+  restore_path_from_backup "$backup_dir/agent/history.db-wal" "$package_dir/agent/history.db-wal"
+  restore_path_from_backup "$backup_dir/agent/models.db" "$package_dir/agent/models.db"
+  restore_path_from_backup "$backup_dir/agent/models.db-shm" "$package_dir/agent/models.db-shm"
+  restore_path_from_backup "$backup_dir/agent/models.db-wal" "$package_dir/agent/models.db-wal"
+  restore_path_from_backup "$backup_dir/agent/sessions" "$package_dir/agent/sessions"
+  restore_path_from_backup "$backup_dir/agent/terminal-sessions" "$package_dir/agent/terminal-sessions"
+  restore_path_from_backup "$backup_dir/gpu_cache.json" "$package_dir/gpu_cache.json"
+  restore_path_from_backup "$backup_dir/logs" "$package_dir/logs"
+}
+
 manage_dotfiles() {
   local action="$1" 
   local header_msg=""
@@ -338,6 +445,28 @@ manage_dotfiles() {
           fi
         else
           if [ "$QUIET" = false ]; then print_message "$YELLOW" "  Skipping 'factory': package directory not found."; fi
+        fi
+      elif [[ "$package_name" == "cliproxy" ]]; then
+        items_processed_in_package=$((items_processed_in_package + 1))
+        echo -e "${PURPLE}  DEBUG: Applying CLIProxy directory linking${NC}"
+        if process_single_item "$action" "$package_source_dir" "$HOME/.cliproxy" "cliproxy" "$main_backup_dir"; then
+          if [ "$action" = "link" ]; then
+            reconcile_cliproxy_runtime "$package_source_dir" "$main_backup_dir/cliproxy"
+          fi
+          items_succeeded_in_package=$((items_succeeded_in_package + 1))
+        else
+          items_failed_in_package=$((items_failed_in_package + 1))
+        fi
+      elif [[ "$package_name" == "omp" ]]; then
+        items_processed_in_package=$((items_processed_in_package + 1))
+        echo -e "${PURPLE}  DEBUG: Applying OMP directory linking${NC}"
+        if process_single_item "$action" "$package_source_dir" "$HOME/.omp" "omp" "$main_backup_dir"; then
+          if [ "$action" = "link" ]; then
+            reconcile_omp_runtime "$package_source_dir" "$main_backup_dir/omp"
+          fi
+          items_succeeded_in_package=$((items_succeeded_in_package + 1))
+        else
+          items_failed_in_package=$((items_failed_in_package + 1))
         fi
       else
         echo -e "${PURPLE}  DEBUG: Applying Rule 1 for '$package_name'${NC}"
@@ -1419,8 +1548,10 @@ print_installation_summary() {
      [ -L "$HOME/.config/opencode" ] && linked_configs+=("OpenCode")
      [ -L "$HOME/.factory" ] && linked_configs+=("Factory")
       [ -L "$HOME/.config/ghostty" ] && linked_configs+=("Ghostty")
-      [ -L "$HOME/.config/lazygit" ] && linked_configs+=("LazyGit")
-      [ -L "$HOME/.claude" ] && linked_configs+=("Claude")
+  [ -L "$HOME/.config/lazygit" ] && linked_configs+=("LazyGit")
+  [ -L "$HOME/.omp" ] && linked_configs+=("OMP")
+  [ -L "$HOME/.cliproxy" ] && linked_configs+=("CLIProxy")
+  [ -L "$HOME/.claude" ] && linked_configs+=("Claude")
      [[ "$(uname -s)" == "Darwin" ]] && [ -L "$HOME/.config/aerospace" ] && linked_configs+=("Aerospace")
      [[ "$(uname -s)" == "Darwin" ]] && [ -L "$HOME/.config/sketchybar" ] && linked_configs+=("SketchyBar")
      [[ "$(uname -s)" == "Darwin" ]] && [ -L "$HOME/.config/borders" ] && linked_configs+=("Borders")
