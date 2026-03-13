@@ -17,7 +17,9 @@ background-blur = true
 cursor-style = block
 cursor-color = #7dd3c0
 cursor-style-blink = true
-shell-integration-features = no-cursor
+# Disable Ghostty shell integration while testing agent/TUI mouse-reporting issues
+shell-integration = none
+cursor-click-to-move = false
 quick-terminal-position = center
 quick-terminal-size = 80%,80%
 
