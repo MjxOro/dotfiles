@@ -3,8 +3,8 @@ background = #1b1e28
 foreground = #e4f0fb
 cursor-color = #5DE4c7
 cursor-text = #1b1e28
-selection-background = #303340
-selection-foreground = #e4f0fb
+selection-background = #ADD7FF
+selection-foreground = #1b1e28
 bold-color = #ffffff
 
 palette = 0=#1b1e28

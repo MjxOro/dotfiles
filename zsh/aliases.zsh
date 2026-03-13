@@ -9,6 +9,22 @@ alias gs="git status"
 # misc
 alias updateZsh="source ~/.zshrc"
 
+fixmouse() {
+  # Restore terminal input after a TUI or tmux leaves xterm mouse reporting enabled.
+  printf '\e[?1006l\e[?1003l\e[?1002l\e[?1000l'
+
+  if [[ -t 0 ]]; then
+    stty sane
+  fi
+
+  if [[ "${1:-}" == "--hard" ]]; then
+    reset
+    return
+  fi
+
+  printf '\nMouse reporting disabled and tty restored. Run fixmouse --hard if the terminal is still broken.\n'
+}
+
 alias cc="claude --dangerously-skip-permissions"
 
 _opencode_fallback_theme() {
