@@ -1,0 +1,19 @@
+import Navigation from '@/components/landing/Navigation';
+import Hero from '@/components/landing/Hero';
+import Services from '@/components/landing/Services';
+import BookingSection from '@/components/landing/BookingSection';
+import Pricing from '@/components/landing/Pricing';
+import Footer from '@/components/landing/Footer';
+
+export default function Home() {
+  return (
+    <main>
+      <Navigation />
+      <Hero />
+      <Services />
+      <BookingSection />
+      <Pricing />
+      <Footer />
+    </main>
+  );
+}

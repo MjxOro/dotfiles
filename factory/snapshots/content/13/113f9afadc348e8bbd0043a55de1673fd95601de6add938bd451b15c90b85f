@@ -1,0 +1,1197 @@
+# Creative Coding Skill
+
+## Skill Description
+
+This skill enables agents to build award-winning, production-grade creative web experiences using GSAP, TailwindCSS, and React-based frameworks. Use it when building portfolio sites, marketing pages, interactive showcases, or any project requiring premium motion design and visual polish.
+
+**Activate when the user asks for:**
+- Animated landing pages or portfolio sites
+- Scroll-driven storytelling or interactive sections
+- Premium motion effects (parallax, reveals, transitions, loaders)
+- Any site targeting Awwwards, FWA, or similar creative benchmarks
+- Luxury, editorial, or high-craft brand experiences
+
+---
+
+## Technology Stack
+
+### Preferred Stack
+
+| Layer | Technology | Notes |
+|-------|-----------|-------|
+| Framework | React + Vite, Next.js (App Router), or TanStack Start | See framework sections below |
+| Animation | GSAP + ScrollTrigger | Core dependency, always install |
+| Styling | TailwindCSS v4 | Utility-first, pair with GSAP for motion |
+| Smooth Scroll | Lenis | Install alongside GSAP |
+| 3D / WebGL | Three.js or React Three Fiber | Only when visual concept demands it |
+| Routing (SPA) | TanStack Router | For multi-page React+Vite projects |
+| Data | TanStack Query | For any async data needs |
+
+### Installation
+
+```bash
+# React + Vite base
+npm create vite@latest my-project -- --template react-ts
+cd my-project
+npm install gsap @studio-freight/lenis
+npm install -D tailwindcss @tailwindcss/vite
+
+# Next.js base
+npx create-next-app@latest my-project --typescript --tailwind --app
+npm install gsap @studio-freight/lenis
+
+# TanStack additions
+npm install @tanstack/react-router @tanstack/react-query
+```
+
+---
+
+## Framework Integration
+
+### React + Vite: GSAP Setup
+
+Always use `useGSAP` (from `@gsap/react`) or manual `useEffect` with cleanup to avoid animation leaks and React StrictMode double-firing issues.
+
+```tsx
+// vite.config.ts - Tailwind plugin
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+})
+```
+
+```tsx
+// hooks/useGSAP.ts - safe GSAP in React
+import { useEffect, useRef } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
+
+export function useScrollAnimation(
+  ref: React.RefObject<Element>,
+  animation: (el: Element) => gsap.core.Tween | gsap.core.Timeline
+) {
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const anim = animation(el)
+    return () => { anim.kill() }
+  }, [])
+}
+```
+
+```tsx
+// components/AnimatedSection.tsx
+import { useRef, useEffect } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
+
+export function AnimatedSection({ children, className }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const ctx = gsap.context(() => {
+      gsap.from(el, {
+        scrollTrigger: { trigger: el, start: 'top 85%' },
+        y: 60,
+        opacity: 0,
+        duration: 1,
+        ease: 'power4.out',
+      })
+    }, el)
+
+    return () => ctx.revert()
+  }, [])
+
+  return (
+    <div ref={ref} className={className}>
+      {children}
+    </div>
+  )
+}
+```
+
+### Next.js App Router: GSAP Setup
+
+Next.js requires marking GSAP components as client components and handling SSR carefully.
+
+```tsx
+// app/providers.tsx
+'use client'
+import { useEffect } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import Lenis from '@studio-freight/lenis'
+
+gsap.registerPlugin(ScrollTrigger)
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    const lenis = new Lenis()
+
+    lenis.on('scroll', ScrollTrigger.update)
+    gsap.ticker.add((time) => lenis.raf(time * 1000))
+    gsap.ticker.lagSmoothing(0)
+
+    return () => {
+      lenis.destroy()
+      gsap.ticker.remove((time) => lenis.raf(time * 1000))
+    }
+  }, [])
+
+  return <>{children}</>
+}
+```
+
+```tsx
+// app/layout.tsx
+import { Providers } from './providers'
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  )
+}
+```
+
+```tsx
+// components/AnimatedText.tsx - SSR-safe
+'use client'
+import { useRef, useEffect } from 'react'
+import gsap from 'gsap'
+import { SplitText } from 'gsap/SplitText'
+
+gsap.registerPlugin(SplitText)
+
+export function AnimatedHeading({ text, className }: { text: string; className?: string }) {
+  const ref = useRef<HTMLHeadingElement>(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const split = new SplitText(el, { type: 'chars,words' })
+    const anim = gsap.from(split.chars, {
+      scrollTrigger: { trigger: el, start: 'top 80%' },
+      y: 80,
+      opacity: 0,
+      rotationX: -60,
+      duration: 1,
+      stagger: 0.025,
+      ease: 'power4.out',
+    })
+
+    return () => {
+      anim.kill()
+      split.revert()
+    }
+  }, [])
+
+  return <h1 ref={ref} className={className}>{text}</h1>
+}
+```
+
+### TanStack Router: Page Transitions
+
+```tsx
+// router.tsx
+import { createRouter, createRoute } from '@tanstack/react-router'
+import gsap from 'gsap'
+
+// Transition hook for route changes
+export function useRouteTransition() {
+  return {
+    onLeave: (container: Element) =>
+      gsap.to(container, { opacity: 0, y: -30, duration: 0.4, ease: 'power2.inOut' }),
+    onEnter: (container: Element) =>
+      gsap.from(container, { opacity: 0, y: 30, duration: 0.4, ease: 'power2.out' }),
+  }
+}
+```
+
+---
+
+## Core Animation Techniques
+
+### 1. Smooth Scrolling (Lenis + GSAP)
+
+```tsx
+// lib/lenis.ts - singleton pattern for React
+import Lenis from '@studio-freight/lenis'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+let lenisInstance: Lenis | null = null
+
+export function initLenis(): Lenis {
+  if (lenisInstance) return lenisInstance
+
+  lenisInstance = new Lenis({
+    duration: 1.2,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    smoothWheel: true,
+    wheelMultiplier: 1,
+    touchMultiplier: 2,
+  })
+
+  lenisInstance.on('scroll', ScrollTrigger.update)
+  gsap.ticker.add((time) => lenisInstance!.raf(time * 1000))
+  gsap.ticker.lagSmoothing(0)
+
+  return lenisInstance
+}
+
+export function destroyLenis() {
+  lenisInstance?.destroy()
+  lenisInstance = null
+}
+```
+
+### 2. Scroll-Driven Animations
+
+```tsx
+// Parallax with Tailwind positioning
+function ParallaxSection() {
+  const bgRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = bgRef.current
+    if (!el) return
+    const ctx = gsap.context(() => {
+      gsap.to(el, {
+        scrollTrigger: { trigger: el.parentElement, start: 'top bottom', end: 'bottom top', scrub: true },
+        yPercent: -20,
+      })
+    })
+    return () => ctx.revert()
+  }, [])
+
+  return (
+    <section className="relative overflow-hidden min-h-screen">
+      <div ref={bgRef} className="absolute inset-0 scale-110">
+        {/* background content */}
+      </div>
+      <div className="relative z-10 flex items-center min-h-screen">
+        {/* foreground content */}
+      </div>
+    </section>
+  )
+}
+```
+
+```tsx
+// Pinned section during scroll
+useEffect(() => {
+  const ctx = gsap.context(() => {
+    ScrollTrigger.create({
+      trigger: '.pinned-section',
+      start: 'top top',
+      end: '+=600',
+      pin: true,
+      pinSpacing: true,
+    })
+  })
+  return () => ctx.revert()
+}, [])
+```
+
+### 3. Text Animations
+
+```tsx
+// Reusable SplitText reveal component
+'use client'
+import { useRef, useEffect } from 'react'
+import gsap from 'gsap'
+import { SplitText } from 'gsap/SplitText'
+
+type SplitType = 'chars' | 'words' | 'lines' | 'chars,words' | 'chars,words,lines'
+
+interface TextRevealProps {
+  as?: 'h1' | 'h2' | 'h3' | 'p' | 'span'
+  children: string
+  splitType?: SplitType
+  stagger?: number
+  delay?: number
+  className?: string
+}
+
+export function TextReveal({
+  as: Tag = 'h2',
+  children,
+  splitType = 'chars',
+  stagger = 0.025,
+  delay = 0,
+  className,
+}: TextRevealProps) {
+  const ref = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const split = new SplitText(el, { type: splitType })
+    const targets = splitType.includes('lines') ? split.lines
+      : splitType.includes('words') ? split.words
+      : split.chars
+
+    const anim = gsap.from(targets, {
+      scrollTrigger: { trigger: el, start: 'top 85%' },
+      y: 60,
+      opacity: 0,
+      duration: 0.9,
+      stagger,
+      delay,
+      ease: 'power4.out',
+    })
+
+    return () => { anim.kill(); split.revert() }
+  }, [])
+
+  return <Tag ref={ref as any} className={className}>{children}</Tag>
+}
+```
+
+```css
+/* Tailwind-compatible line mask */
+/* Apply class="overflow-hidden" to the line wrapper */
+/* or use this for custom line containers */
+.split-line {
+  @apply overflow-hidden block;
+}
+```
+
+### 4. Scroll-Expanding Media
+
+A pattern where a constrained media container expands to full-bleed on scroll. Core technique for production-grade heroes.
+
+```tsx
+'use client'
+import { useRef, useEffect } from 'react'
+import gsap from 'gsap'
+
+export function ExpandingHero() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const mediaRef = useRef<HTMLDivElement>(null)
+  const titleTopRef = useRef<HTMLDivElement>(null)
+  const titleBottomRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top top',
+          end: '+=150vh',
+          scrub: 1,
+          pin: true,
+        },
+      })
+
+      tl.to(mediaRef.current, {
+        width: '100vw',
+        height: '100vh',
+        borderRadius: '0px',
+        ease: 'none',
+      })
+        .to(titleTopRef.current, { y: '-120%', opacity: 0, ease: 'none' }, '<')
+        .to(titleBottomRef.current, { y: '120%', opacity: 0, ease: 'none' }, '<')
+    })
+
+    return () => ctx.revert()
+  }, [])
+
+  return (
+    <section ref={containerRef} className="relative flex flex-col items-center justify-center min-h-screen bg-white overflow-hidden">
+      <div ref={titleTopRef} className="absolute top-[15%] text-[12vw] font-black tracking-tight uppercase text-black">
+        Studio
+      </div>
+
+      <div ref={mediaRef} className="w-[60vw] h-[40vh] rounded-2xl overflow-hidden">
+        <video autoPlay muted loop playsInline className="w-full h-full object-cover" />
+      </div>
+
+      <div ref={titleBottomRef} className="absolute bottom-[15%] text-[12vw] font-black tracking-tight uppercase text-black">
+        Work
+      </div>
+    </section>
+  )
+}
+```
+
+### 5. Horizontal Scroll Section
+
+```tsx
+'use client'
+import { useRef, useEffect } from 'react'
+import gsap from 'gsap'
+
+export function HorizontalScroll({ children }: { children: React.ReactNode }) {
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const section = sectionRef.current
+    const container = containerRef.current
+    if (!section || !container) return
+
+    const ctx = gsap.context(() => {
+      gsap.to(container, {
+        x: () => -(container.scrollWidth - window.innerWidth),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          pin: true,
+          scrub: 1,
+          end: () => '+=' + container.scrollWidth,
+          invalidateOnRefresh: true,
+        },
+      })
+    })
+
+    return () => ctx.revert()
+  }, [])
+
+  return (
+    <section ref={sectionRef} className="overflow-hidden">
+      <div ref={containerRef} className="flex gap-8 w-max will-change-transform px-8">
+        {children}
+      </div>
+    </section>
+  )
+}
+```
+
+### 6. Magnetic Button
+
+```tsx
+'use client'
+import { useRef } from 'react'
+import gsap from 'gsap'
+
+export function MagneticButton({ children, className }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLButtonElement>(null)
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const el = ref.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const x = e.clientX - rect.left - rect.width / 2
+    const y = e.clientY - rect.top - rect.height / 2
+
+    gsap.to(el, { x: x * 0.35, y: y * 0.35, duration: 0.3, ease: 'power2.out' })
+  }
+
+  const handleMouseLeave = () => {
+    gsap.to(ref.current, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.4)' })
+  }
+
+  return (
+    <button
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={className}
+    >
+      {children}
+    </button>
+  )
+}
+```
+
+### 7. Custom Cursor
+
+```tsx
+'use client'
+import { useEffect, useRef } from 'react'
+import gsap from 'gsap'
+
+export function CustomCursor() {
+  const dotRef = useRef<HTMLDivElement>(null)
+  const ringRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      gsap.to(dotRef.current, { x: e.clientX, y: e.clientY, duration: 0.1, ease: 'none' })
+      gsap.to(ringRef.current, { x: e.clientX, y: e.clientY, duration: 0.5, ease: 'power3.out' })
+    }
+
+    const onHover = () => gsap.to(ringRef.current, { scale: 2.5, duration: 0.3 })
+    const onLeave = () => gsap.to(ringRef.current, { scale: 1, duration: 0.3 })
+
+    window.addEventListener('mousemove', onMove)
+    document.querySelectorAll('a, button, [data-cursor-hover]').forEach((el) => {
+      el.addEventListener('mouseenter', onHover)
+      el.addEventListener('mouseleave', onLeave)
+    })
+
+    return () => window.removeEventListener('mousemove', onMove)
+  }, [])
+
+  return (
+    <>
+      <div ref={dotRef} className="fixed top-0 left-0 w-2 h-2 bg-white rounded-full pointer-events-none z-[9999] -translate-x-1/2 -translate-y-1/2" />
+      <div ref={ringRef} className="fixed top-0 left-0 w-8 h-8 border border-white rounded-full pointer-events-none z-[9999] -translate-x-1/2 -translate-y-1/2" />
+    </>
+  )
+}
+```
+
+### 8. Page Transition Overlay (Next.js App Router)
+
+```tsx
+// components/PageTransition.tsx
+'use client'
+import { useRef, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
+import gsap from 'gsap'
+
+export function PageTransition({ children }: { children: React.ReactNode }) {
+  const overlayRef = useRef<HTMLDivElement>(null)
+  const pathname = usePathname()
+
+  useEffect(() => {
+    const overlay = overlayRef.current
+    if (!overlay) return
+
+    const tl = gsap.timeline()
+    tl.set(overlay, { scaleY: 1 })
+      .to(overlay, { scaleY: 0, duration: 0.6, ease: 'power4.inOut', transformOrigin: 'top' })
+  }, [pathname])
+
+  return (
+    <>
+      <div
+        ref={overlayRef}
+        className="fixed inset-0 bg-black z-[9998] origin-bottom pointer-events-none"
+      />
+      {children}
+    </>
+  )
+}
+```
+
+### 9. Film Grain Overlay
+
+```tsx
+// Programmatic grain - no external image needed
+'use client'
+import { useEffect, useRef } from 'react'
+
+export function GrainOverlay({ opacity = 0.04 }: { opacity?: number }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')!
+    canvas.width = 256
+    canvas.height = 256
+
+    const refresh = () => {
+      const imageData = ctx.createImageData(256, 256)
+      for (let i = 0; i < imageData.data.length; i += 4) {
+        const v = Math.random() * 255
+        imageData.data[i] = imageData.data[i + 1] = imageData.data[i + 2] = v
+        imageData.data[i + 3] = 255
+      }
+      ctx.putImageData(imageData, 0, 0)
+    }
+
+    refresh()
+    const interval = setInterval(refresh, 100)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{ opacity }}
+      className="fixed inset-0 w-full h-full pointer-events-none z-[9997] mix-blend-overlay"
+    />
+  )
+}
+```
+
+### 10. WebGL Image Distortion (Three.js + React)
+
+```tsx
+'use client'
+import { useEffect, useRef } from 'react'
+import * as THREE from 'three'
+
+const vertexShader = `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`
+
+const fragmentShader = `
+  uniform sampler2D uTexture;
+  uniform float uTime;
+  uniform vec2 uMouse;
+  uniform float uHover;
+  varying vec2 vUv;
+
+  void main() {
+    vec2 uv = vUv;
+    float dist = distance(uv, uMouse);
+    float strength = uHover * 0.02;
+    float ripple = sin(dist * 20.0 - uTime * 2.0) * strength;
+    float rgbShift = uHover * 0.008 * (1.0 - dist);
+
+    vec4 r = texture2D(uTexture, uv + vec2(ripple + rgbShift, ripple));
+    vec4 g = texture2D(uTexture, uv + vec2(ripple, ripple));
+    vec4 b = texture2D(uTexture, uv + vec2(ripple - rgbShift, ripple));
+
+    gl_FragColor = vec4(r.r, g.g, b.b, 1.0);
+  }
+`
+
+export function WebGLImage({ src }: { src: string }) {
+  const mountRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const mount = mountRef.current
+    if (!mount) return
+
+    const { width, height } = mount.getBoundingClientRect()
+    const scene = new THREE.Scene()
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10)
+    camera.position.z = 1
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
+    renderer.setSize(width, height)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    mount.appendChild(renderer.domElement)
+
+    const texture = new THREE.TextureLoader().load(src)
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uMouse: { value: new THREE.Vector2(0.5, 0.5) },
+        uTexture: { value: texture },
+        uHover: { value: 0 },
+      },
+      vertexShader,
+      fragmentShader,
+    })
+
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material)
+    scene.add(mesh)
+
+    let raf: number
+    const tick = () => {
+      material.uniforms.uTime.value += 0.01
+      renderer.render(scene, camera)
+      raf = requestAnimationFrame(tick)
+    }
+    tick()
+
+    const onMove = (e: MouseEvent) => {
+      const rect = mount.getBoundingClientRect()
+      material.uniforms.uMouse.value.set(
+        (e.clientX - rect.left) / rect.width,
+        1 - (e.clientY - rect.top) / rect.height
+      )
+    }
+    const onEnter = () => { material.uniforms.uHover.value = 1 }
+    const onLeave = () => { material.uniforms.uHover.value = 0 }
+
+    mount.addEventListener('mousemove', onMove)
+    mount.addEventListener('mouseenter', onEnter)
+    mount.addEventListener('mouseleave', onLeave)
+
+    return () => {
+      cancelAnimationFrame(raf)
+      renderer.dispose()
+      mount.removeChild(renderer.domElement)
+    }
+  }, [src])
+
+  return <div ref={mountRef} className="w-full h-full" />
+}
+```
+
+---
+
+## Tailwind Patterns for Creative Layouts
+
+### Asymmetric Grids
+
+```tsx
+// Project list row
+function ProjectRow({ title, category, year }: { title: string; category: string; year: string }) {
+  return (
+    <div className="grid grid-cols-[2fr_3fr_1fr] py-6 border-b border-white/10 transition-all duration-300 hover:pl-4 hover:bg-white/[0.02] group">
+      <span className="text-white/50 text-sm uppercase tracking-widest self-center">{category}</span>
+      <span className="text-white text-2xl font-light">{title}</span>
+      <span className="text-white/40 text-sm self-center text-right">{year}</span>
+    </div>
+  )
+}
+
+// Three-column asymmetric layout
+<div className="grid grid-cols-[1fr_2fr_1fr] gap-8 items-baseline" />
+
+// Split-screen with sticky sidebars
+<div className="grid grid-cols-[280px_1fr_320px] min-h-screen">
+  <aside className="sticky top-0 h-screen p-8 border-r border-black/10" />
+  <main className="relative overflow-hidden" />
+  <aside className="sticky top-0 h-screen p-8 border-l border-black/10" />
+</div>
+```
+
+### Typography Scale
+
+```tsx
+// tailwind.config.ts additions
+export default {
+  theme: {
+    extend: {
+      fontSize: {
+        'display': 'clamp(3rem, 10vw, 12rem)',
+        'hero': 'clamp(4rem, 15vw, 20rem)',
+        'cta': 'clamp(1rem, 2vw, 2rem)',
+      },
+      letterSpacing: {
+        'display': '-0.03em',
+        'editorial': '-0.02em',
+      },
+      lineHeight: {
+        'display': '0.85',
+      },
+    },
+  },
+}
+```
+
+```tsx
+// Oversized wordmark
+<h1 className="text-[clamp(4rem,15vw,20rem)] font-black leading-[0.85] tracking-[-0.03em] uppercase text-[#b8c5d6] pointer-events-none" />
+
+// Vertical edge label
+<span className="[writing-mode:vertical-rl] rotate-180 text-xs tracking-[0.2em] uppercase text-white/40" />
+```
+
+### Full-Bleed Section Shell
+
+```tsx
+function Section({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {
+  return (
+    <section className={`relative w-full min-h-screen flex items-center ${dark ? 'bg-[#0a0a0a] text-white' : 'bg-[#fafaf9] text-[#1a1a1a]'}`}>
+      <div className="w-full max-w-[1400px] mx-auto px-8">
+        {children}
+      </div>
+    </section>
+  )
+}
+```
+
+---
+
+## Color Palettes
+
+```css
+/* Dark & Moody */
+--bg: #0a0a0a; --accent: #b8c5d6; --text: #ffffff;
+
+/* Warm Editorial (luxury/interiors) */
+--bg: #0c0a09; --accent: #d4a574; --text: #fafaf9;
+
+/* Exploration / Cartographic */
+--bg: #f5f5f0; --accent: #a3e635; --text: #1a1a1a; --map-bg: #2d3748;
+
+/* Brutalist Studio */
+--bg: #ffffff; --accent: #000000; --text: #000000;
+
+/* Cool Tech */
+--bg: #020617; --accent: #60a5fa; --text: #f8fafc;
+```
+
+---
+
+## Technique Patterns (Generalized)
+
+These patterns are extracted from real award-winning sites. Use them as blueprints, adapting them to the project's brand concept.
+
+---
+
+### Pattern A: Luxury Editorial
+
+**When to use:** Interior design, fashion, boutique hospitality, architecture, premium personal brands.
+
+**Core principle:** Motion supports atmosphere. Every animation communicates taste, not cleverness.
+
+**Motion rules:**
+1. Use slow, settled reveals for hero media and major headings
+2. Large typography arrives with minimal travel distance and strong deceleration easing
+3. Keep simultaneous animated elements low — the page should feel composed, not busy
+4. Prefer fade-and-settle, mask reveals, and subtle vertical drift over dramatic effects
+5. Hover states are quiet (slight scale or brightness), never flashy
+
+**Layout rules:**
+1. One typographic element dominates each section
+2. Whitespace is an active design material
+3. Text and media may overlap in controlled, compositional ways
+4. UI chrome (nav, buttons) stays minimal so photography and type carry the brand tone
+5. Sections feel like editorial spreads, not SaaS landing page blocks
+
+**Avoid:** particle systems, spring/bounce animations, rapid stagger chains, loaders with countdown counters, overly clever transitions that distract from imagery.
+
+**GSAP timing for this pattern:**
+```tsx
+// Settled reveal — primary motion vocabulary
+gsap.from(el, { opacity: 0, y: 30, duration: 1.4, ease: 'power3.out', delay: 0.2 })
+
+// Image crop reveal
+gsap.from(imageEl, { clipPath: 'inset(100% 0% 0% 0%)', duration: 1.2, ease: 'power4.out' })
+
+// Gentle section drift
+gsap.from(el, {
+  scrollTrigger: { trigger: el, start: 'top 90%', end: 'top 40%', scrub: 0.8 },
+  y: 40, opacity: 0,
+})
+```
+
+---
+
+### Pattern B: World-Building Staged Reveal
+
+**When to use:** Brand storytelling, exploration-themed sites, adventure brands, map/geography concepts, any site where the homepage IS the brand world.
+
+**Core principle:** The loader and the hero are the same world in different states of focus. The user watches the world resolve, not a loading bar complete.
+
+**Motion rules:**
+1. Start with the final world already designed, then put the intro state in an earlier stage of that same world
+2. Reveal by expanding scale, mask area, visible element count, and layer opacity simultaneously
+3. Let foreground UI and labels settle last — the page should feel like it has landed
+4. Use decelerating curves throughout — `power2.out`, `power3.out`, or a cinematic custom bezier
+5. Keep palette and motifs consistent between intro and hero for continuity
+
+**HTML structure:**
+```tsx
+function WorldReveal() {
+  return (
+    <div className="relative w-screen h-screen overflow-hidden">
+      {/* Atmosphere layer (canvas or video) */}
+      <canvas className="absolute inset-0 w-full h-full" />
+
+      {/* Preload overlay — same visual world, earlier state */}
+      <div className="preload-overlay absolute inset-0 z-20 flex items-center justify-center bg-[#f5f5f0]">
+        <div className="space-y-2 text-sm uppercase tracking-[0.2em] text-[#a3e635]">
+          <p>System initializing</p>
+          <p>Assets resolving</p>
+          <p>World ready</p>
+        </div>
+      </div>
+
+      {/* World layers */}
+      <div className="world-terrain absolute inset-0" />
+      <svg className="world-routes absolute inset-0 w-full h-full" />
+      <div className="world-grid absolute inset-0 [background-image:linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:100px_100px]" />
+
+      {/* Hero CTA */}
+      <h1 className="world-cta absolute bottom-12 left-1/2 -translate-x-1/2 text-[#a3e635] text-sm uppercase tracking-[0.2em]">
+        Scroll to enter
+      </h1>
+    </div>
+  )
+}
+```
+
+**GSAP reveal timeline:**
+```tsx
+useEffect(() => {
+  const tl = gsap.timeline()
+
+  tl.fromTo('.world-terrain', { scale: 1.06, opacity: 0.6 }, { scale: 1, opacity: 1, duration: 1.8, ease: 'power2.out' })
+    .fromTo('.world-routes', { drawSVG: '0% 0%', opacity: 0 }, { drawSVG: '0% 100%', opacity: 1, duration: 1.4, ease: 'power2.inOut' }, 0.2)
+    .fromTo('.world-grid', { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power3.out' }, 0.5)
+    .to('.preload-overlay', { opacity: 0, pointerEvents: 'none', duration: 0.4, ease: 'power2.out' }, 1.0)
+    .fromTo('.world-cta', { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' }, 1.2)
+}, [])
+```
+
+**Map/route visual elements:**
+```css
+/* Animated dotted route */
+.route-path {
+  stroke: #a3e635;
+  stroke-width: 2;
+  stroke-dasharray: 5 10;
+  animation: dash 30s linear infinite;
+  filter: drop-shadow(0 0 4px #a3e635);
+}
+@keyframes dash { to { stroke-dashoffset: -100; } }
+
+/* Pulsing waypoint */
+.waypoint {
+  @apply w-4 h-4 rounded-full border-2 border-[#a3e635] shadow-[0_0_10px_#a3e635];
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.6; }
+}
+```
+
+---
+
+### Pattern C: Motion Studio / Typographic Brutalism
+
+**When to use:** Motion studios, production companies, creative agencies whose work is visually complex (3D, VFX, motion graphics).
+
+**Core principle:** The surrounding UI must be as quiet and stark as possible so complex portfolio pieces can breathe. Typography is massive, black, and structural.
+
+**Motion rules:**
+1. Use scroll-expanding media as the primary mechanic (see `ExpandingHero` component above)
+2. The hero title splits — top half goes up, bottom half goes down — as media expands to fill the screen
+3. Pacing is heavy and deliberate; easing is grounded (`power3.inOut`, not springy)
+4. Section rhythm alternates between white-space-heavy typography and full-bleed media
+5. Use `scrub: 1` for media expansion — smooth but substantial
+
+**Typography style:**
+```tsx
+<h1 className="text-[clamp(4rem,15vw,20rem)] font-black leading-[0.85] tracking-[-0.03em] uppercase text-black">
+  Studio
+</h1>
+```
+
+**Layout transitions:** Stark jump from all-white typographic section to full-bleed dark media section creates impact without transitions.
+
+---
+
+### Pattern D: Continuous Narrative Scroll
+
+**When to use:** Personal portfolios, single-page storytelling experiences, cases where the entire site is one unbroken journey.
+
+**Core principle:** No hard stops. Every section flows into the next. The user is on a continuous path, not navigating between pages.
+
+**Key mechanics:**
+1. Lenis for butter-smooth baseline scroll
+2. Horizontal scroll sections embedded in vertical flow (see `HorizontalScroll` component)
+3. Images reveal with clip-path entering viewport, parallax internally
+4. Typography as kinetic element — marquees, staggered reveals, words that animate on scroll
+5. Custom cursor changes state on interactive elements
+
+**Image reveal with internal parallax:**
+```tsx
+function ParallaxImage({ src, alt }: { src: string; alt: string }) {
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const imgRef = useRef<HTMLImageElement>(null)
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Clip-path reveal on enter
+      gsap.from(wrapRef.current, {
+        scrollTrigger: { trigger: wrapRef.current, start: 'top 85%' },
+        clipPath: 'inset(100% 0% 0% 0%)',
+        duration: 1.2,
+        ease: 'power4.out',
+      })
+
+      // Internal parallax
+      gsap.to(imgRef.current, {
+        scrollTrigger: { trigger: wrapRef.current, start: 'top bottom', end: 'bottom top', scrub: true },
+        yPercent: -15,
+        scale: 1.15,
+      })
+    })
+    return () => ctx.revert()
+  }, [])
+
+  return (
+    <div ref={wrapRef} className="overflow-hidden rounded-xl">
+      <img ref={imgRef} src={src} alt={alt} className="w-full h-full object-cover scale-110 will-change-transform" />
+    </div>
+  )
+}
+```
+
+**Marquee component:**
+```tsx
+'use client'
+import { useRef, useEffect } from 'react'
+import gsap from 'gsap'
+
+export function Marquee({ text, speed = 30 }: { text: string; speed?: number }) {
+  const trackRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const track = trackRef.current
+    if (!track) return
+
+    gsap.to(track, {
+      xPercent: -50,
+      duration: speed,
+      ease: 'none',
+      repeat: -1,
+    })
+  }, [speed])
+
+  const repeated = Array(8).fill(text).join(' — ')
+
+  return (
+    <div className="overflow-hidden whitespace-nowrap">
+      <div ref={trackRef} className="inline-block text-[clamp(2rem,5vw,5rem)] font-black uppercase tracking-tight">
+        {repeated}&nbsp;{repeated}
+      </div>
+    </div>
+  )
+}
+```
+
+---
+
+## Performance
+
+```tsx
+// Tailwind + CSS performance helpers
+// Apply to animated elements:
+// className="will-change-transform" or "will-change-[transform,opacity]"
+// className="[transform:translateZ(0)] backface-hidden"
+
+// Remove will-change after animation completes
+gsap.to(el, {
+  x: 100,
+  onComplete: () => { el.style.willChange = 'auto' },
+})
+```
+
+```css
+/* Reduced motion — always include */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+```tsx
+// ScrollTrigger batch for many elements (better than stagger from single trigger)
+ScrollTrigger.batch('.card', {
+  onEnter: (els) => gsap.from(els, { y: 60, opacity: 0, stagger: 0.1, duration: 0.8, ease: 'power3.out' }),
+  start: 'top 85%',
+})
+```
+
+---
+
+## Animation Timing Reference
+
+### Entrance Animations
+
+| Type | Duration | Easing | Stagger |
+|------|----------|--------|---------|
+| Fade in | 0.6s | power2.out | — |
+| Slide up | 0.8s | power4.out | — |
+| Char reveal | 1.0s | power4.out | 0.02s |
+| Word reveal | 0.8s | power3.out | 0.08s |
+| Line reveal | 1.0s | power4.out | 0.12s |
+| Clip reveal | 1.2s | power4.out | — |
+| Luxury settle | 1.4s | power3.out | — |
+
+### Scroll Animations
+
+| Type | Scrub | Feel |
+|------|-------|------|
+| Parallax drift | true (0.5–1s) | Weightless |
+| Media expand | 1 | Substantial |
+| Pin progress | true | Locked |
+| World reveal | false (timeline) | Cinematic |
+
+### Easing Quick Reference
+
+- `power4.out` — Dramatic deceleration, hero entrances
+- `power2.inOut` — Balanced, transitions
+- `power3.out` — Smooth, general reveals
+- `elastic.out(1, 0.4)` — Springy, magnetic reset
+- `expo.out` — Snappy, UI feedback
+- `none` — Scrub animations, linear progress
+
+---
+
+## Project File Structure
+
+### React + Vite
+
+```
+src/
+├── components/
+│   ├── ui/               # MagneticButton, CustomCursor, etc.
+│   ├── sections/         # Hero, Work, About, Contact
+│   └── layout/           # Navigation, PageWrapper
+├── hooks/
+│   ├── useScrollAnimation.ts
+│   └── useMediaQuery.ts
+├── lib/
+│   ├── lenis.ts          # Lenis singleton
+│   └── gsap.ts           # Plugin registration
+├── shaders/
+│   ├── vertex.glsl
+│   └── fragment.glsl
+└── styles/
+    └── globals.css       # Tailwind base + custom
+```
+
+### Next.js App Router
+
+```
+app/
+├── layout.tsx            # Root layout with Providers
+├── page.tsx
+├── providers.tsx         # Lenis + GSAP init
+└── (routes)/
+components/
+├── ui/
+├── sections/
+└── three/                # WebGL components
+lib/
+└── gsap.ts
+```
+
+---
+
+## Essential Libraries
+
+| Library | Purpose | Size |
+|---------|---------|------|
+| gsap | Core animations, timelines | ~33kb |
+| gsap/ScrollTrigger | Scroll-driven animations | ~8kb |
+| gsap/SplitText | Text splitting (Club) | Club |
+| gsap/DrawSVG | SVG path drawing (Club) | Club |
+| @studio-freight/lenis | Smooth scrolling | ~3kb |
+| three | WebGL / 3D | ~150kb |
+| @react-three/fiber | React wrapper for Three.js | ~50kb |
+| @tanstack/react-router | File-based routing | ~40kb |
+| @tanstack/react-query | Async data / caching | ~13kb |
+
+---
+
+## Resources
+
+- [GSAP Docs](https://greensock.com/docs/)
+- [GSAP React Guide](https://greensock.com/react/)
+- [Lenis Docs](https://github.com/studio-freight/lenis)
+- [Three.js Manual](https://threejs.org/manual/)
+- [React Three Fiber](https://docs.pmnd.rs/react-three-fiber/)
+- [TanStack Router](https://tanstack.com/router/latest)
+- [Awwwards](https://www.awwwards.com/) — Inspiration
+- [Codrops](https://tympanus.net/codrops/) — Tutorials
+- [Easing Reference](https://easings.net/)

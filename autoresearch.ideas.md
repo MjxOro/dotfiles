@@ -1,0 +1,3 @@
+- Compare release cadence and issue closure rates across pi-mono and OMP over the last 90 days.
+- Check whether OMP-specific namespaces still lag upstream plugin package namespaces.
+- Look for maintainers discussing roadmap or compatibility plans in issues/PRs.

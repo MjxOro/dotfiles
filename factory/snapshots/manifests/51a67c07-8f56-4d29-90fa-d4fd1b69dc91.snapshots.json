@@ -1,0 +1,59 @@
+{
+  "sessionId": "51a67c07-8f56-4d29-90fa-d4fd1b69dc91",
+  "version": 1,
+  "createdAt": 1773244591564,
+  "lastAccessedAt": 1773247338245,
+  "boundaries": [
+    {
+      "messageId": "f0d29ae3-dde4-4e7f-a38d-5bf42b95a3d1",
+      "messageIndex": 0,
+      "timestamp": 1773245059437,
+      "files": [],
+      "deletions": [],
+      "creations": [
+        {
+          "filePath": "/home/cat/tmp/creative-coding-skills/SKILL.md",
+          "createdAt": 1773245059437,
+          "toolCallId": "toolu_01S4fEEYLQGB5yuFWJ18TxaX"
+        }
+      ],
+      "totalSize": 0
+    },
+    {
+      "messageId": "251f14bb-af34-4a7d-aeca-47aea4e6f491",
+      "messageIndex": 8,
+      "timestamp": 1773247256162,
+      "files": [
+        {
+          "filePath": "/home/cat/tmp/creative-coding-skills/SKILL.md",
+          "contentHash": "13113f9afadc348e8bbd0043a55de1673fd95601de6add938bd451b15c90b85f",
+          "size": 33993,
+          "capturedAt": 1773247256162,
+          "toolCallId": "toolu_01Ler8gjFsZB7GeTErmvwS7Y"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 33993
+    },
+    {
+      "messageId": "251f14bb-af34-4a7d-aeca-47aea4e6f491",
+      "messageIndex": 8,
+      "timestamp": 1773247338132,
+      "files": [
+        {
+          "filePath": "/home/cat/tmp/creative-coding-skills/SKILL.md",
+          "contentHash": "cc68b95a90f6ea9903daf01740f9740c25833fa25fe98b6c44e9a4691982a584",
+          "size": 41946,
+          "capturedAt": 1773247338132,
+          "toolCallId": "toolu_016NghHufZV5oL12LZ5hEQBu"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 41946
+    }
+  ],
+  "oldestAvailableBoundaryIndex": 0,
+  "evictedBoundaryCount": 0
+}
