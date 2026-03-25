@@ -1,0 +1,11 @@
+{
+  "factory-plugins": {
+    "source": {
+      "source": "github",
+      "repo": "Factory-AI/factory-plugins"
+    },
+    "installLocation": "/home/cat/.factory/plugins/marketplaces/factory-plugins",
+    "lastUpdated": "2026-03-11T15:56:31.157Z",
+    "autoUpdate": true
+  }
+}

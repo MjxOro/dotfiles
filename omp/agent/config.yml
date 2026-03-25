@@ -1,6 +1,22 @@
 theme: 
   dark: poimandres-terminal
-  light: light
-lastChangelogVersion: 13.10.1
+  light: poimandres-terminal
+lastChangelogVersion: 13.14.0
 modelRoles: 
   default: cliproxy/gpt-5.4:high
+  vision: openrouter/openrouter/healer-alpha:high
+  smol: opencode-go/minimax-m2.5
+  slow: cliproxy/gpt-5.4:xhigh
+  plan: cliproxy/gpt-5.4:xhigh
+task: 
+  agentModelOverrides: 
+    {}
+  disabledAgents: 
+    []
+disabledExtensions: 
+  []
+statusLine: 
+  preset: default
+  separator: pipe
+display: 
+  showTokenUsage: true

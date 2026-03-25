@@ -1,0 +1,78 @@
+{
+  "sessionId": "bfd5d417-62c7-49b1-84a6-bf5a5c4ed01e",
+  "version": 1,
+  "createdAt": 1773238552056,
+  "lastAccessedAt": 1773240733721,
+  "boundaries": [
+    {
+      "messageId": "3668dade-45b8-4495-b0d1-3ce8570cf34c",
+      "messageIndex": 2,
+      "timestamp": 1773239701155,
+      "files": [
+        {
+          "filePath": "/home/cat/tmp/creative-coding-skills/SKILLS.md",
+          "contentHash": "a13de1e11da0521895d073c0498931651c8a70192d8f9dd7219b0d538d9ae51b",
+          "size": 29873,
+          "capturedAt": 1773239701155,
+          "toolCallId": "tc-6qookdmv04c"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 29873
+    },
+    {
+      "messageId": "3668dade-45b8-4495-b0d1-3ce8570cf34c",
+      "messageIndex": 2,
+      "timestamp": 1773239741492,
+      "files": [
+        {
+          "filePath": "/home/cat/tmp/creative-coding-skills/SKILLS.md",
+          "contentHash": "daebb1535358b5407c635e8530ce76485e04d23c32292383bf5dba44456aeb62",
+          "size": 29908,
+          "capturedAt": 1773239741492,
+          "toolCallId": "tc-94nao1auq1"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 29908
+    },
+    {
+      "messageId": "f02a4395-f620-413c-91e8-30623f6c64fb",
+      "messageIndex": 110,
+      "timestamp": 1773240716997,
+      "files": [
+        {
+          "filePath": "/home/cat/tmp/creative-coding-skills/SKILLS.md",
+          "contentHash": "2514444e25959bbbf7d70fbd7c5afa1a7e93838a4b2fc4a793904867cad0532d",
+          "size": 32457,
+          "capturedAt": 1773240716997,
+          "toolCallId": "tc-qstmiufad2n"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 32457
+    },
+    {
+      "messageId": "f02a4395-f620-413c-91e8-30623f6c64fb",
+      "messageIndex": 110,
+      "timestamp": 1773240733681,
+      "files": [
+        {
+          "filePath": "/home/cat/tmp/creative-coding-skills/SKILLS.md",
+          "contentHash": "c58717605cc29ef9684e5c200cf3fb960ce7a232fbc62dc258f5955231ae3453",
+          "size": 32478,
+          "capturedAt": 1773240733681,
+          "toolCallId": "tc-3zsileznlyt"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 32478
+    }
+  ],
+  "oldestAvailableBoundaryIndex": 0,
+  "evictedBoundaryCount": 0
+}

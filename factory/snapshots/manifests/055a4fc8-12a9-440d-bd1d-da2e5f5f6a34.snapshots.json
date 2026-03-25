@@ -1,0 +1,27 @@
+{
+  "sessionId": "055a4fc8-12a9-440d-bd1d-da2e5f5f6a34",
+  "version": 1,
+  "createdAt": 1772943143727,
+  "lastAccessedAt": 1772943422927,
+  "boundaries": [
+    {
+      "messageId": "5c89cc28-aef7-4ff3-8c45-5d0b83259c4e",
+      "messageIndex": 28,
+      "timestamp": 1772943422656,
+      "files": [
+        {
+          "filePath": "/home/cat/developerbump/backend-api/src/index.ts",
+          "contentHash": "0dc80c6696e5984aefb40802a6d2b1e5825da5441245efb2ebe334a62da7d990",
+          "size": 4525,
+          "capturedAt": 1772943422656,
+          "toolCallId": "call_amVPRt8ABiLP8KDzBakYoPQ8"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 4525
+    }
+  ],
+  "oldestAvailableBoundaryIndex": 0,
+  "evictedBoundaryCount": 0
+}

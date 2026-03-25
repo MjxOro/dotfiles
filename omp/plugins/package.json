@@ -1,0 +1,16 @@
+{
+  "name": "omp-plugins",
+  "private": true,
+  "scripts": {
+    "postinstall": "node ./scripts/fix-installed-plugins.mjs"
+  },
+  "dependencies": {
+    "@oh-my-pi/pi-ai": "13.14.2",
+    "@oh-my-pi/pi-coding-agent": "13.14.2",
+    "@oh-my-pi/pi-tui": "13.14.2",
+    "@sinclair/typebox": "^0.34.41",
+    "pi-autoresearch": "https://github.com/davebcn87/pi-autoresearch",
+    "pi-design-deck": "^0.3.4",
+    "pi-multi-pass": "^1.2.0"
+  }
+}

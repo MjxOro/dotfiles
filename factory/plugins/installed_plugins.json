@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "plugins": {
+    "core@factory-plugins": [
+      {
+        "scope": "project",
+        "installPath": "/home/cat/.factory/plugins/cache/factory-plugins/core/2c0bfc47fc3d",
+        "version": "2c0bfc47fc3d",
+        "installedAt": "2026-03-10T13:53:15.251Z",
+        "lastUpdated": "2026-03-10T13:53:15.251Z",
+        "source": "factory-plugins"
+      }
+    ]
+  }
+}
