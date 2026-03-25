@@ -1,0 +1,484 @@
+{
+  "sessionId": "eba01d2e-229f-4dc0-9ea2-693d92958981",
+  "version": 1,
+  "createdAt": 1773118570625,
+  "lastAccessedAt": 1773126325317,
+  "boundaries": [
+    {
+      "messageId": "bab6ce89-45c1-41ca-bdf4-b75c17cf6b92",
+      "messageIndex": 0,
+      "timestamp": 1773118893062,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Hero.tsx",
+          "contentHash": "f6244eb363420413b505e881f6d5a836d5228d1ec7479499ffda3d89711e3954",
+          "size": 6049,
+          "capturedAt": 1773118893062,
+          "toolCallId": "toolu_01A8bHUaYaed9Ro8FgqnNGFf"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 6049
+    },
+    {
+      "messageId": "26dc0cfb-cbf7-495b-a2be-8a5cd9bdfca0",
+      "messageIndex": 22,
+      "timestamp": 1773119486099,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Hero.tsx",
+          "contentHash": "16c74287609cfbcde4a6b523496bd8049069a46855501814ec1f9a12cb5c9937",
+          "size": 6785,
+          "capturedAt": 1773119486099,
+          "toolCallId": "toolu_01BzcijUvjzwVfkHWPTXQcg8"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 6785
+    },
+    {
+      "messageId": "26dc0cfb-cbf7-495b-a2be-8a5cd9bdfca0",
+      "messageIndex": 22,
+      "timestamp": 1773119498091,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Hero.tsx",
+          "contentHash": "044dcfd60780d667677bd0bb79617bdeccfa955efe58ca9f5fd4b0a896418ccb",
+          "size": 6785,
+          "capturedAt": 1773119498091,
+          "toolCallId": "toolu_01D7EEKbtmcftheoUjS7q9qv"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 6785
+    },
+    {
+      "messageId": "1c652ea0-dd24-455d-96dd-f7fde7b3950e",
+      "messageIndex": 50,
+      "timestamp": 1773120568780,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Hero.tsx",
+          "contentHash": "6940ee4f59d9a68bbb25f4949e09d573ed94dc38d1117361728e9d1995bc76ab",
+          "size": 6634,
+          "capturedAt": 1773120568780,
+          "toolCallId": "toolu_01PR9kWFyD59eWAsyE51DtbT"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 6634
+    },
+    {
+      "messageId": "1c652ea0-dd24-455d-96dd-f7fde7b3950e",
+      "messageIndex": 50,
+      "timestamp": 1773120579078,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Hero.tsx",
+          "contentHash": "d9d3016f90b13474ffc62beccc7ca3bedb72ceb31c5f8dafdf3f7292bbf18ac6",
+          "size": 6663,
+          "capturedAt": 1773120579078,
+          "toolCallId": "toolu_01PPyjp67DUfYQVZuByajwnE"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 6663
+    },
+    {
+      "messageId": "760527be-73c1-40ac-84ee-bea523852f8f",
+      "messageIndex": 66,
+      "timestamp": 1773121066399,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Hero.tsx",
+          "contentHash": "542fb9ffef92da1408cae20d41bff5792f23c84ec3299a153cfd43a782b29a9c",
+          "size": 6243,
+          "capturedAt": 1773121066399,
+          "toolCallId": "toolu_01JTnFF6L8vgThBexpFGSFXE"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 6243
+    },
+    {
+      "messageId": "e991e860-d01b-4809-9c23-4377de44b4a3",
+      "messageIndex": 74,
+      "timestamp": 1773121583729,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Hero.tsx",
+          "contentHash": "6cca0c11c3fc50b3b76f88b4807a482daedd21830ea22921e310000eb8d1ed0f",
+          "size": 6673,
+          "capturedAt": 1773121583729,
+          "toolCallId": "toolu_014JHELZtVqkh37rNcr2tBeb"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 6673
+    },
+    {
+      "messageId": "47260932-0ef8-4961-8d9b-9949b863dfb0",
+      "messageIndex": 80,
+      "timestamp": 1773122248051,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Hero.tsx",
+          "contentHash": "4a63e97b84204a5de99e8d0369e94e19a29e093372640b0d213a0d43abb58820",
+          "size": 6446,
+          "capturedAt": 1773122248051,
+          "toolCallId": "toolu_01DybxmGPFM4YSP1Zd2EqTef"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 6446
+    },
+    {
+      "messageId": "124106f2-cd3c-4d44-becb-5463bb939496",
+      "messageIndex": 88,
+      "timestamp": 1773122543938,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Hero.tsx",
+          "contentHash": "e822235adf0c3b67d02f79c6a11b71eb535828aa70815c9ca82e4e9da1d8c646",
+          "size": 7073,
+          "capturedAt": 1773122543938,
+          "toolCallId": "toolu_019usBhyxWSJMLLwh3QUx7BC"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 7073
+    },
+    {
+      "messageId": "5ae861c7-a962-4ade-9290-d38a174c2fec",
+      "messageIndex": 94,
+      "timestamp": 1773122872549,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Navigation.tsx",
+          "contentHash": "036411ada07a6624430a4c588c99f51a4545f70712d18d797a352745367b7604",
+          "size": 1195,
+          "capturedAt": 1773122872549,
+          "toolCallId": "toolu_019qYwadMj78wXuUe4wjDJFu"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 1195
+    },
+    {
+      "messageId": "ea993fde-eeb5-40ba-89da-50cfe4b8e624",
+      "messageIndex": 120,
+      "timestamp": 1773124486680,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Pricing.tsx",
+          "contentHash": "f50f2f437ce9fdf96f2c8f278f105dec1a598b2ba16183a36cc74759ae7994c5",
+          "size": 5423,
+          "capturedAt": 1773124486680,
+          "toolCallId": "toolu_01XdbBWjzqfgcqpahZ9JBP4q"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 5423
+    },
+    {
+      "messageId": "ea993fde-eeb5-40ba-89da-50cfe4b8e624",
+      "messageIndex": 120,
+      "timestamp": 1773124510003,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Pricing.tsx",
+          "contentHash": "ed9fce4e3c2bfff3817c0f15c02f6165ede003ef42cb217336bd139ff7f86f7e",
+          "size": 5504,
+          "capturedAt": 1773124510003,
+          "toolCallId": "toolu_016hvEp3Taqnnerq3sUAtNjT"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 5504
+    },
+    {
+      "messageId": "a47e5af3-a40c-4290-af82-cd0631a159d4",
+      "messageIndex": 130,
+      "timestamp": 1773124914197,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Pricing.tsx",
+          "contentHash": "029e313a28bc2c5066cd8491c44be26c2fa92d1d27975f6dfb17f37338a19ba6",
+          "size": 6806,
+          "capturedAt": 1773124914197,
+          "toolCallId": "toolu_01Lu4M3sQoE8N3Q8nvxy2rfF"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 6806
+    },
+    {
+      "messageId": "a47e5af3-a40c-4290-af82-cd0631a159d4",
+      "messageIndex": 130,
+      "timestamp": 1773124932408,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Pricing.tsx",
+          "contentHash": "ada820f79d9cf028ebbd761c0571df5e234d965beb1b6612d952e1b06d19c785",
+          "size": 6806,
+          "capturedAt": 1773124932408,
+          "toolCallId": "toolu_01YGwAobH527fXWB35C1wkYy"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 6806
+    },
+    {
+      "messageId": "207f65b1-c33c-4a42-8d4b-1f4171a77a6d",
+      "messageIndex": 142,
+      "timestamp": 1773125038419,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Pricing.tsx",
+          "contentHash": "ea457a512e3be8c4d5ceeac00d298490b900f6e42a8f13c9137cd6af4e7d24ee",
+          "size": 7718,
+          "capturedAt": 1773125038419,
+          "toolCallId": "toolu_01KSnSZkULE9EXDsmDe7Bx2i"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 7718
+    },
+    {
+      "messageId": "207f65b1-c33c-4a42-8d4b-1f4171a77a6d",
+      "messageIndex": 142,
+      "timestamp": 1773125044018,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Pricing.tsx",
+          "contentHash": "4f1b959a17d9287f5804514a537b75de9d684b051b6cc6c2f38377468d2f3780",
+          "size": 7032,
+          "capturedAt": 1773125044018,
+          "toolCallId": "toolu_01QK1Hn1zUy43ps4eqVmJSob"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 7032
+    },
+    {
+      "messageId": "0633a05a-714f-47f0-af9f-b466fbe514fb",
+      "messageIndex": 150,
+      "timestamp": 1773125294662,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Footer.tsx",
+          "contentHash": "844d4b48e5fdc152dbde1e2dcd2dc9abee64e43e965b925c37b29c480c9568cd",
+          "size": 3994,
+          "capturedAt": 1773125294662,
+          "toolCallId": "toolu_011e1JFPxmNH7GnsKtnGj8nh"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 3994
+    },
+    {
+      "messageId": "0633a05a-714f-47f0-af9f-b466fbe514fb",
+      "messageIndex": 150,
+      "timestamp": 1773125306170,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Footer.tsx",
+          "contentHash": "fe2aecb9d0ab365f5087cd7bf94485cd5bc15b871e670bb4ed38c8729ac2f771",
+          "size": 4113,
+          "capturedAt": 1773125306170,
+          "toolCallId": "toolu_014tWouEEdbuvHPTcTbsTXM3"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 4113
+    },
+    {
+      "messageId": "05eafaf4-a839-4f95-8190-58b1caa2e839",
+      "messageIndex": 160,
+      "timestamp": 1773125463288,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Hero.tsx",
+          "contentHash": "6bf4588e41772e973ca6f552c73f821e6cb933a70e2673a8adbedea37823c636",
+          "size": 6971,
+          "capturedAt": 1773125463288,
+          "toolCallId": "toolu_01MuQ6fbtNqaowDu3eNw2una"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 6971
+    },
+    {
+      "messageId": "05eafaf4-a839-4f95-8190-58b1caa2e839",
+      "messageIndex": 160,
+      "timestamp": 1773125477067,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Hero.tsx",
+          "contentHash": "69f8ee520c5c63dead48f9e4e9bc4de8d9f7bb9cd19693a235a8ce5ef2928a03",
+          "size": 7664,
+          "capturedAt": 1773125477067,
+          "toolCallId": "toolu_01Ah5aUnM1HTb34b54QrnC5j"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 7664
+    },
+    {
+      "messageId": "05eafaf4-a839-4f95-8190-58b1caa2e839",
+      "messageIndex": 160,
+      "timestamp": 1773125488588,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Hero.tsx",
+          "contentHash": "baa871537ec99ae84bb88634085536271b82b94484d626566ee4a730998e9596",
+          "size": 9146,
+          "capturedAt": 1773125488588,
+          "toolCallId": "toolu_01QfPtC4bpA2CeT5D2hbysjC"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 9146
+    },
+    {
+      "messageId": "494785ef-7998-43b1-84d0-8f65d07fbaeb",
+      "messageIndex": 172,
+      "timestamp": 1773125639488,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Hero.tsx",
+          "contentHash": "812bad86590ebb148ebf26a73e9eb0e6b600cae31995588a53596143c7a5e912",
+          "size": 10570,
+          "capturedAt": 1773125639488,
+          "toolCallId": "toolu_019TUFkzhJJLyYSxeNmizKRA"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 10570
+    },
+    {
+      "messageId": "494785ef-7998-43b1-84d0-8f65d07fbaeb",
+      "messageIndex": 172,
+      "timestamp": 1773125661268,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Hero.tsx",
+          "contentHash": "7723c875836efe39776df34fae2416bb1c179690f08d33c324cca0bc25f1f162",
+          "size": 10574,
+          "capturedAt": 1773125661268,
+          "toolCallId": "toolu_01HMAVv2pWfg7xM6RFKgtZUe"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 10574
+    },
+    {
+      "messageId": "494785ef-7998-43b1-84d0-8f65d07fbaeb",
+      "messageIndex": 172,
+      "timestamp": 1773125673562,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Hero.tsx",
+          "contentHash": "3b071e50d79e5d544f7e123eca7f99d2bd5a73ca15053db3469cbb8a2b6eb5f3",
+          "size": 10636,
+          "capturedAt": 1773125673562,
+          "toolCallId": "toolu_01GgDJLutzNHqKVDbgrj6VdJ"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 10636
+    },
+    {
+      "messageId": "67299d80-bf26-4715-bbbe-c26beda41e74",
+      "messageIndex": 184,
+      "timestamp": 1773125925450,
+      "files": [],
+      "deletions": [],
+      "creations": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Footer.tsx",
+          "createdAt": 1773125925450,
+          "toolCallId": "toolu_01HPdxJVwPP2N9NrU2MSeg3B"
+        }
+      ],
+      "totalSize": 0
+    },
+    {
+      "messageId": "9ca69d86-eb88-4f97-b0ef-592bd3cac45a",
+      "messageIndex": 192,
+      "timestamp": 1773126083148,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Footer.tsx",
+          "contentHash": "6554ed4cc65a54dbdb9465c966399161045fb9000beafe888a9389112f0b3d6a",
+          "size": 4525,
+          "capturedAt": 1773126083148,
+          "toolCallId": "toolu_01Y7vgZb2SCAjwfAeWWQUjQy"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 4525
+    },
+    {
+      "messageId": "9d15c540-7a24-4c32-88f0-3f6888ccd4a7",
+      "messageIndex": 198,
+      "timestamp": 1773126317646,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Pricing.tsx",
+          "contentHash": "d867805ae0a2dd70d44207eb8fe2e05b47de46fe4a7956c67809f14fe61f669c",
+          "size": 6811,
+          "capturedAt": 1773126317646,
+          "toolCallId": "toolu_01DQx1qvHE5ha4WK1L8DubyB"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 6811
+    },
+    {
+      "messageId": "9d15c540-7a24-4c32-88f0-3f6888ccd4a7",
+      "messageIndex": 198,
+      "timestamp": 1773126325092,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Pricing.tsx",
+          "contentHash": "3d9820d71888aaff63ee29a1d893c6e65ba891f37a60f5860dbda2702f1d9057",
+          "size": 6810,
+          "capturedAt": 1773126325092,
+          "toolCallId": "toolu_01VNxnAcp58f2QwJkYkEuL2j"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 6810
+    }
+  ],
+  "oldestAvailableBoundaryIndex": 0,
+  "evictedBoundaryCount": 0
+}

@@ -1,0 +1,236 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Toast from './Toast';
+import RevealWrapper from './RevealWrapper';
+import LandingSectionInner from './LandingSectionInner';
+
+const BUSINESS_EMAIL = 't-ng@live.com';
+
+const services = [
+  'Self-Tape Session — $150',
+  'Demo Reel Edit — $250',
+  'Headshot Session — $200',
+  'Multiple Services',
+  'Other / Not Sure',
+];
+
+export default function BookingSection() {
+  const [showToast, setShowToast] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    service: '',
+    notes: '',
+  });
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<string>).detail;
+      if (detail) {
+        setFormData((prev) => ({ ...prev, service: detail }));
+      }
+    };
+    window.addEventListener('select-service', handler);
+    return () => window.removeEventListener('select-service', handler);
+  }, []);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleToastClose = () => {
+    setShowToast(false);
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    const subject = encodeURIComponent(
+      `Inquiry: ${formData.service || 'General'} — ${formData.name}`
+    );
+
+    const bodyLines = [
+      `Name: ${formData.name}`,
+      `Email: ${formData.email}`,
+      formData.phone ? `Phone: ${formData.phone}` : '',
+      `Service: ${formData.service}`,
+      '',
+      formData.notes ? `Notes:\n${formData.notes}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const body = encodeURIComponent(bodyLines);
+
+    window.location.href = `mailto:${BUSINESS_EMAIL}?subject=${subject}&body=${body}`;
+    setShowToast(true);
+  };
+
+  return (
+    <section id="booking" className="bg-ngm-black">
+      <LandingSectionInner className="px-8 py-28 lg:px-16">
+        <div className="max-w-2xl mx-auto">
+          <RevealWrapper>
+            <p className="font-condensed text-[0.7rem] tracking-[0.45em] uppercase text-ngm-amber mb-4 text-center">
+              Work With Us
+            </p>
+          </RevealWrapper>
+
+          <RevealWrapper delay={80}>
+            <h2 className="font-display text-[clamp(2.2rem,4vw,3.5rem)] font-bold leading-tight mb-6 text-center">
+              Let&apos;s <em className="italic text-ngm-amber">Talk</em>
+            </h2>
+          </RevealWrapper>
+
+          <RevealWrapper delay={120}>
+            <p className="text-ngm-muted text-sm leading-relaxed mb-2 text-center">
+              Tell us about your project and we&apos;ll be in touch within 24 hours.
+            </p>
+          </RevealWrapper>
+
+          <RevealWrapper delay={160}>
+            <div className="w-[60px] h-0.5 bg-ngm-amber mb-14 mx-auto" />
+          </RevealWrapper>
+
+          <RevealWrapper delay={200}>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="flex flex-col gap-2">
+                  <label
+                    htmlFor="name"
+                    className="font-condensed text-[0.7rem] tracking-[0.25em] uppercase text-ngm-muted"
+                  >
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="Your name"
+                    required
+                    className="bg-ngm-near-black border border-[rgba(200,146,42,0.2)] text-ngm-white font-body text-sm px-5 py-3 outline-none transition-colors duration-300 focus:border-ngm-amber w-full"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label
+                    htmlFor="email"
+                    className="font-condensed text-[0.7rem] tracking-[0.25em] uppercase text-ngm-muted"
+                  >
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="your@email.com"
+                    required
+                    className="bg-ngm-near-black border border-[rgba(200,146,42,0.2)] text-ngm-white font-body text-sm px-5 py-3 outline-none transition-colors duration-300 focus:border-ngm-amber w-full"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="flex flex-col gap-2">
+                  <label
+                    htmlFor="phone"
+                    className="font-condensed text-[0.7rem] tracking-[0.25em] uppercase text-ngm-muted"
+                  >
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="+1 (000) 000-0000"
+                    className="bg-ngm-near-black border border-[rgba(200,146,42,0.2)] text-ngm-white font-body text-sm px-5 py-3 outline-none transition-colors duration-300 focus:border-ngm-amber w-full"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label
+                    htmlFor="service"
+                    className="font-condensed text-[0.7rem] tracking-[0.25em] uppercase text-ngm-muted"
+                  >
+                    Service Interested In
+                  </label>
+                  <select
+                    id="service"
+                    name="service"
+                    value={formData.service}
+                    onChange={handleInputChange}
+                    required
+                    className="bg-ngm-near-black border border-[rgba(200,146,42,0.2)] text-ngm-white font-body text-sm px-5 py-3 outline-none transition-colors duration-300 focus:border-ngm-amber w-full cursor-pointer appearance-none"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888880' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 1rem center',
+                      paddingRight: '2.5rem',
+                    }}
+                  >
+                    <option value="" disabled>
+                      Select a service…
+                    </option>
+                    {services.map((service) => (
+                      <option key={service} value={service}>
+                        {service}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="notes"
+                  className="font-condensed text-[0.7rem] tracking-[0.25em] uppercase text-ngm-muted"
+                >
+                  Tell Us About Your Project
+                </label>
+                <textarea
+                  id="notes"
+                  name="notes"
+                  value={formData.notes}
+                  onChange={handleInputChange}
+                  placeholder="Describe your project, preferred dates, deadlines, or any special requirements…"
+                  rows={5}
+                  className="bg-ngm-near-black border border-[rgba(200,146,42,0.2)] text-ngm-white font-body text-sm px-5 py-3 outline-none transition-colors duration-300 focus:border-ngm-amber w-full resize-y min-h-[120px]"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="bg-ngm-amber text-ngm-black font-condensed font-bold text-xs tracking-[0.2em] uppercase px-8 py-4 transition-all duration-300 hover:bg-ngm-amber-light hover:-translate-y-0.5 w-full"
+              >
+                Send Inquiry
+              </button>
+
+              <p className="text-ngm-muted/60 text-xs text-center leading-relaxed">
+                This will open your email client with a pre-filled message.
+                <br />
+                We typically respond within 24 hours.
+              </p>
+            </form>
+          </RevealWrapper>
+        </div>
+      </LandingSectionInner>
+
+      <Toast
+        message="Inquiry Sent — Check Your Email Client"
+        isVisible={showToast}
+        onClose={handleToastClose}
+      />
+    </section>
+  );
+}

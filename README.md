@@ -17,6 +17,8 @@ The repository follows a simple structure:
 
 ```
 dotfiles/
+├── docs/              # Shared setup guides and reference docs
+├── tools/             # Helper scripts and templates for local services
 ├── nvim/              # NeoVim configuration (links to ~/.config/nvim/)
 ├── factory/           # Factory CLI home directory (links to ~/.factory/)
 ├── starship/          # Starship prompt config (links to ~/.config/starship/)
@@ -111,43 +113,11 @@ Factory CLI now links the repo's `factory/` directory to `~/.factory/`. Runtime 
 
 `factory/settings.json` is intended for shared, non-secret defaults and should be committed when it only contains team-wide settings. Keep authentication artifacts such as `auth.v2.file` and `auth.v2.key` local-only.
 
-### Factory proxy workflow
+`cliproxy/` now links to `~/.cliproxy/`, and `omp/` now links to `~/.omp/`. Sensitive per-machine files stay local through the package `.gitignore` files, while tracked config and script changes propagate across machines after a pull.
 
-For remote Linux/Ubuntu work, you can run Factory CLI against a local proxy instead of direct provider keys.
+### Proxy workflows
 
-Example: GitHub Copilot via LiteLLM on `http://127.0.0.1:4000`
-
-```bash
-python3 -m pip install --user litellm
-
-cat > ~/litellm-copilot.yaml <<'EOF'
-model_list:
-  - model_name: copilot-gpt4
-    litellm_params:
-      model: github_copilot/gpt-4
-EOF
-
-~/.local/bin/litellm --config ~/litellm-copilot.yaml --port 4000
-```
-
-Then point Factory at the proxy from `factory/settings.json`:
-
-```json
-{
-  "logoAnimation": "off",
-  "customModels": [
-    {
-      "model": "copilot-gpt4",
-      "displayName": "GitHub Copilot GPT-4",
-      "baseUrl": "http://127.0.0.1:4000",
-      "apiKey": "dummy-not-used",
-      "provider": "generic-chat-completion-api"
-    }
-  ]
-}
-```
-
-On first request, LiteLLM prompts for GitHub Copilot OAuth device login and then keeps using the cached credentials locally.
+Proxy setup now lives in `docs/proxies.md` so Amp, opencode, Factory, and `oh-my-pi` all share one reference. That guide is now OpenAI-only, defaults to the headless device-code login flow for Codex/OpenAI accounts, and assumes the current user has working Docker daemon access for the local proxy on `localhost:8317`.
 
 ### Machine-specific overrides (avoid merge conflicts)
 

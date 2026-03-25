@@ -1,0 +1,167 @@
+import Image from 'next/image';
+
+import headshot from '../../../headshot-10.jpg';
+
+export default function Hero() {
+  return (
+    <section
+      id="top"
+      className="min-h-screen relative overflow-hidden bg-ngm-black"
+    >
+      {/* Mobile/Tablet: Full background image */}
+      <div className="lg:hidden absolute inset-0">
+        <Image
+          src={headshot}
+          alt="Professional headshot"
+          fill
+          className="object-cover object-center"
+          sizes="100vw"
+          priority
+          unoptimized
+        />
+        
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-ngm-black/90 via-ngm-black/60 to-ngm-black/40" />
+      </div>
+
+      {/* Desktop: Split layout */}
+      <div className="hidden lg:flex absolute inset-0">
+        {/* Left side: Dark with content */}
+        <div className="w-1/2 flex items-center justify-end bg-ngm-black pl-8 pr-8 xl:pl-14 xl:pr-16">
+          <div className="max-w-xl w-full">
+            <p
+              className="font-condensed text-xs tracking-[0.4em] uppercase text-ngm-amber mb-6 opacity-0 animate-fade-up"
+              style={{ animationDelay: '0.2s' }}
+            >
+              Actor & Corporate Media Services
+            </p>
+
+            <h1
+              className="font-display text-[clamp(4rem,7vw,8rem)] font-black leading-[0.92] tracking-[-0.02em] mb-8 text-ngm-white opacity-0 animate-fade-up"
+              style={{ animationDelay: '0.4s' }}
+            >
+              Nice
+              <br />
+              <em className="italic text-ngm-amber">Guy</em>
+              <br />
+              Media
+            </h1>
+
+            <p
+              className="text-base leading-relaxed text-ngm-muted mb-12 opacity-0 animate-fade-up"
+              style={{ animationDelay: '0.6s' }}
+            >
+              Professional self-tapes, demo reel editing, and headshot photography
+              crafted for actors and corporate professionals who refuse to be
+              forgettable.
+            </p>
+
+            <div
+              className="flex gap-5 items-center opacity-0 animate-fade-up"
+              style={{ animationDelay: '0.8s' }}
+            >
+              <a
+                href="#booking"
+                className="bg-ngm-amber text-ngm-black font-condensed font-bold text-xs tracking-[0.2em] uppercase px-8 py-4 no-underline transition-all duration-300 hover:bg-ngm-amber-light hover:-translate-y-0.5"
+              >
+                Book a Session
+              </a>
+              <a
+                href="#services"
+                className="text-ngm-white font-condensed font-normal text-xs tracking-[0.2em] uppercase no-underline border-b border-ngm-white/30 pb-0.5 transition-colors duration-300 hover:text-ngm-amber hover:border-ngm-amber"
+              >
+                View Services
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Right side: Full-bleed image, capped at 960px */}
+        <div className="w-1/2 relative overflow-hidden">
+          {/* Image grows with panel up to 960px, then stops */}
+          <div className="absolute inset-y-0 left-0 w-full max-w-[960px]">
+            <Image
+              src={headshot}
+              alt="Professional headshot"
+              fill
+              className="object-cover object-top"
+              sizes="min(50vw, 960px)"
+              priority
+              unoptimized
+            />
+            {/* Fade right edge — blends into dark bg when cap is active */}
+            <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-ngm-black to-transparent pointer-events-none" />
+          </div>
+          {/* Blend left edge into content panel */}
+          <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-ngm-black to-transparent pointer-events-none" />
+        </div>
+      </div>
+
+      {/* Mobile/Tablet Content */}
+      <div className="lg:hidden relative z-10 w-full max-w-[1400px] mx-auto px-6 sm:px-8 min-h-screen flex flex-col justify-center pt-24">
+        <div className="max-w-xl">
+          <p
+            className="font-condensed text-xs tracking-[0.4em] uppercase text-ngm-amber mb-6 opacity-0 animate-fade-up"
+            style={{ animationDelay: '0.2s' }}
+          >
+            Actor & Corporate Media Services
+          </p>
+
+          <h1
+            className="font-display text-[clamp(3.5rem,12vw,6rem)] font-black leading-[0.92] tracking-[-0.02em] mb-8 text-ngm-white opacity-0 animate-fade-up"
+            style={{ animationDelay: '0.4s' }}
+          >
+            Nice
+            <br />
+            <em className="italic text-ngm-amber">Guy</em>
+            <br />
+            Media
+          </h1>
+
+          <p
+            className="max-w-md text-base leading-relaxed text-ngm-white/80 mb-12 opacity-0 animate-fade-up"
+            style={{ animationDelay: '0.6s' }}
+          >
+            Professional self-tapes, demo reel editing, and headshot photography
+            crafted for actors and corporate professionals who refuse to be
+            forgettable.
+          </p>
+
+          <div
+            className="flex flex-col sm:flex-row gap-5 items-start sm:items-center opacity-0 animate-fade-up"
+            style={{ animationDelay: '0.8s' }}
+          >
+            <a
+              href="#booking"
+              className="bg-ngm-amber text-ngm-black font-condensed font-bold text-xs tracking-[0.2em] uppercase px-8 py-4 no-underline transition-all duration-300 hover:bg-ngm-amber-light hover:-translate-y-0.5"
+            >
+              Book a Session
+            </a>
+            <a
+              href="#services"
+              className="text-ngm-white font-condensed font-normal text-xs tracking-[0.2em] uppercase no-underline border-b border-ngm-white/30 pb-0.5 transition-colors duration-300 hover:text-ngm-amber hover:border-ngm-amber"
+            >
+              View Services
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Scroll indicator */}
+      <div
+        className="absolute bottom-10 left-6 sm:left-8 flex items-center gap-4 opacity-0 animate-fade-up lg:left-16 z-10"
+        style={{ animationDelay: '1.2s' }}
+      >
+        <div className="w-10 h-px bg-ngm-white/40 relative overflow-hidden">
+          <div
+            className="absolute top-0 w-full h-full bg-ngm-amber animate-scroll-line"
+            style={{ animationDelay: '1.5s' }}
+          />
+        </div>
+        <span className="font-condensed text-[0.65rem] tracking-[0.3em] uppercase text-ngm-muted lg:text-ngm-muted">
+          Scroll to explore
+        </span>
+      </div>
+    </section>
+  );
+}

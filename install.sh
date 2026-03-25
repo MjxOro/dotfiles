@@ -63,6 +63,26 @@ command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
+ensure_bun_bin_on_path() {
+  local bun_bin_dir="$HOME/.bun/bin"
+  if [ ! -d "$bun_bin_dir" ]; then
+    return 0
+  fi
+
+  export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+
+  case ":$PATH:" in
+    *":$bun_bin_dir:"*) ;;
+    *) export PATH="$bun_bin_dir:$PATH" ;;
+  esac
+}
+
+bun_global_command_exists() {
+  local command_name="$1"
+  ensure_bun_bin_on_path
+  command_exists "$command_name" || [ -x "$HOME/.bun/bin/$command_name" ]
+}
+
 resolve_path() {
   local path="$1"
   if command_exists realpath; then
@@ -380,6 +400,48 @@ reconcile_omp_runtime() {
   restore_path_from_backup "$backup_dir/agent/terminal-sessions" "$package_dir/agent/terminal-sessions"
   restore_path_from_backup "$backup_dir/gpu_cache.json" "$package_dir/gpu_cache.json"
   restore_path_from_backup "$backup_dir/logs" "$package_dir/logs"
+
+  patch_global_omp_install "$package_dir"
+}
+
+patch_global_omp_install() {
+  local package_dir="$1"
+  local patch_script="$package_dir/scripts/patch-global-omp.mjs"
+
+  if [ ! -f "$patch_script" ]; then
+    if [ "$QUIET" = false ]; then print_message "$YELLOW" "  OMP compatibility patch script not found at '$patch_script'."; fi
+    return 0
+  fi
+
+  ensure_bun_bin_on_path
+  if ! command_exists bun; then
+    if [ "$QUIET" = false ]; then print_message "$YELLOW" "  Bun not found, skipping OMP compatibility patch."; fi
+    return 0
+  fi
+
+  if [ "$QUIET" = false ]; then
+    print_message "$BLUE" "  Applying OMP compatibility patch to the active global install..."
+    echo
+    if bun "$patch_script"; then
+      print_message "$GREEN" "    OMP compatibility patch applied."
+    else
+      print_message "$YELLOW" "    Warning: failed to apply the OMP compatibility patch. Run 'bun ~/.omp/scripts/patch-global-omp.mjs' after installing OMP."
+    fi
+    return 0
+  fi
+
+  local patch_out patch_ec
+  set +e
+  patch_out=$(bun "$patch_script" 2>&1)
+  patch_ec=$?
+  set -e
+  if [ $patch_ec -eq 0 ]; then
+    return 0
+  fi
+
+  print_message "$YELLOW" "  Warning: failed to apply the OMP compatibility patch. Run 'bun ~/.omp/scripts/patch-global-omp.mjs' after installing OMP."
+  print_message "$GRAY" "    Output: $patch_out"
+  return 0
 }
 
 manage_dotfiles() {
@@ -651,6 +713,7 @@ _set_zsh_default_shell() {
 }
 
 _install_bun_script() {
+  ensure_bun_bin_on_path
   if command_exists bun; then
     if [ "$QUIET" = false ]; then print_message "$GREEN" "  Bun is already installed."; fi
     return 0
@@ -669,11 +732,8 @@ _install_bun_script() {
       echo
       curl -fsSL https://bun.sh/install | bash; bun_ec=$?
     fi
-    if [ -f "$HOME/.bun/bin/bun" ]; then
-      export BUN_INSTALL="$HOME/.bun"
-      export PATH="$BUN_INSTALL/bin:$PATH"
-    fi
-    if [ $bun_ec -eq 0 ] && (command_exists bun || [ -f "$HOME/.bun/bin/bun" ]); then
+    ensure_bun_bin_on_path
+    if [ $bun_ec -eq 0 ] && command_exists bun; then
       echo -e "${GREEN}✓${NC}"
       if [ "$QUIET" = false ]; then print_message "$GREEN" "    Bun installed successfully."; fi
     else
@@ -842,28 +902,20 @@ _install_catppuccin_tmux() {
 
 _install_playwright_cli_script() {
   # Playwright CLI for browser automation and web development tools - BUN-FIRST IMPLEMENTATION
-  if command_exists playwright && playwright --version >/dev/null 2>&1; then
+  if bun_global_command_exists playwright && playwright --version >/dev/null 2>&1; then
     if [ "$QUIET" = false ]; then print_message "$GREEN" "  Playwright CLI is already installed."; fi
     return 0
   fi
 
   if ask_yes_no "  Install Playwright CLI (browser automation for web development)?" "y"; then
-    # Ensure Bun is available in this shell before continuing
-    if [ -f "$HOME/.bun/bin/bun" ]; then
-      export BUN_INSTALL="$HOME/.bun"
-      export PATH="$BUN_INSTALL/bin:$PATH"
-    fi
+    ensure_bun_bin_on_path
 
     if ! command_exists bun; then
       print_message "$YELLOW" "    Bun not found. Installing Bun first..."
       if ! _install_bun_script; then
         if [ "$QUIET" = false ]; then print_message "$YELLOW" "    Bun installation step reported an error."; fi
       fi
-
-      if [ -f "$HOME/.bun/bin/bun" ]; then
-        export BUN_INSTALL="$HOME/.bun"
-        export PATH="$BUN_INSTALL/bin:$PATH"
-      fi
+      ensure_bun_bin_on_path
     fi
 
     if ! command_exists bun; then
@@ -885,11 +937,9 @@ _install_playwright_cli_script() {
       bun install -g playwright; pw_ec=$?
     fi
 
-    if [ -f "$HOME/.bun/bin/playwright" ]; then
-      export PATH="$HOME/.bun/bin:$PATH"
-    fi
+    ensure_bun_bin_on_path
 
-    if [ $pw_ec -eq 0 ] && (command_exists playwright || [ -f "$HOME/.bun/bin/playwright" ]); then
+    if [ $pw_ec -eq 0 ] && bun_global_command_exists playwright; then
       echo -e "${GREEN}✓${NC}"
       print_message "$GREEN" "    Playwright CLI installed successfully."
       print_message "$CYAN" "    Installing Playwright browsers (this may take a while)..."
@@ -920,6 +970,7 @@ _install_playwright_cli_script() {
     print_message "$YELLOW" "  Playwright CLI installation skipped."
   fi
 }
+
 
 
 _install_ghostty_brew() {
@@ -1528,6 +1579,8 @@ print_installation_summary() {
     local installed_tools=()
     local failed_tools=()
 
+    ensure_bun_bin_on_path
+
     command_exists starship && installed_tools+=("Starship") || failed_tools+=("Starship")
     (command_exists bun || [ -f "$HOME/.bun/bin/bun" ]) && installed_tools+=("Bun") || failed_tools+=("Bun")
     command_exists opencode && installed_tools+=("OpenCode") || failed_tools+=("OpenCode")
@@ -1537,7 +1590,7 @@ print_installation_summary() {
     command_exists ghostty && installed_tools+=("Ghostty") || failed_tools+=("Ghostty")
     command_exists eza && installed_tools+=("eza") || failed_tools+=("eza")
     command_exists lazygit && installed_tools+=("LazyGit") || failed_tools+=("LazyGit")
-    command_exists playwright && installed_tools+=("Playwright") || failed_tools+=("Playwright")
+    bun_global_command_exists playwright && installed_tools+=("Playwright") || failed_tools+=("Playwright")
 
      # Check linked configs
      local linked_configs=()

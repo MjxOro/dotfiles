@@ -1,0 +1,384 @@
+{
+  "sessionId": "5af3c38f-d22d-4576-a665-87794d050e5d",
+  "version": 1,
+  "createdAt": 1773151818272,
+  "lastAccessedAt": 1773156520415,
+  "boundaries": [
+    {
+      "messageId": "901cefee-ba33-4698-8bda-ec21a973f6a6",
+      "messageIndex": 0,
+      "timestamp": 1773152244609,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/BookingSection.tsx",
+          "contentHash": "e3f9f3cb5694440d4e3f4a14ed614abce31dfdd54e43c620384d4a713746cebb",
+          "size": 8058,
+          "capturedAt": 1773152244609,
+          "toolCallId": "toolu_01LV92u6HGCap8Rn5zWrBq7j"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 8058
+    },
+    {
+      "messageId": "901cefee-ba33-4698-8bda-ec21a973f6a6",
+      "messageIndex": 0,
+      "timestamp": 1773152269679,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Pricing.tsx",
+          "contentHash": "9336fe6d29f4726dc3ff531905162951f4c4ee4d57bd4af39ec70343c09fe1df",
+          "size": 7842,
+          "capturedAt": 1773152269679,
+          "toolCallId": "toolu_01HQVJoRzA2Q8EVWQbaB9n9J"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 7842
+    },
+    {
+      "messageId": "901cefee-ba33-4698-8bda-ec21a973f6a6",
+      "messageIndex": 0,
+      "timestamp": 1773152276056,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Pricing.tsx",
+          "contentHash": "0139512e2343cab3f768886479f8e5024470c132fa84eb1b5c3b265ff21995a4",
+          "size": 8144,
+          "capturedAt": 1773152276056,
+          "toolCallId": "toolu_01W1ExeEktd3ApwgQQFgHGb5"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 8144
+    },
+    {
+      "messageId": "901cefee-ba33-4698-8bda-ec21a973f6a6",
+      "messageIndex": 0,
+      "timestamp": 1773152282380,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Navigation.tsx",
+          "contentHash": "bd20e6878a4ae7ee61b148aa445a716a81f6bb84dbf01a9acefb0c791e71250a",
+          "size": 1175,
+          "capturedAt": 1773152282380,
+          "toolCallId": "toolu_01Xk7sDYR8i7wFGojdWzf2vi"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 1175
+    },
+    {
+      "messageId": "901cefee-ba33-4698-8bda-ec21a973f6a6",
+      "messageIndex": 0,
+      "timestamp": 1773152289212,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Footer.tsx",
+          "contentHash": "77e464aaa9e195753e7b687e43f9ef8d69a28a7f6a3bdf165ef11d52c5b4015d",
+          "size": 4592,
+          "capturedAt": 1773152289212,
+          "toolCallId": "toolu_0194EyjyPWpyL8qVW5RSBxtm"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 4592
+    },
+    {
+      "messageId": "901cefee-ba33-4698-8bda-ec21a973f6a6",
+      "messageIndex": 0,
+      "timestamp": 1773152311848,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Hero.tsx",
+          "contentHash": "5333ee02ea05b9c5800c6a599b88e5179259c72fe55e4073c53c67f77fe4c592",
+          "size": 10773,
+          "capturedAt": 1773152311848,
+          "toolCallId": "toolu_01KdET8fv529TDbGgzP2YLQX"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 10773
+    },
+    {
+      "messageId": "901cefee-ba33-4698-8bda-ec21a973f6a6",
+      "messageIndex": 0,
+      "timestamp": 1773152312479,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Hero.tsx",
+          "contentHash": "b1a67fd929e743fab9b0e984dd5e68daa2831603d37452f4cd4652320677ce49",
+          "size": 10770,
+          "capturedAt": 1773152312479,
+          "toolCallId": "toolu_01TquovN3mn5xyMYbBGt5XDs"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 10770
+    },
+    {
+      "messageId": "a3f9e0e2-f1e0-4c61-ba4f-cfebf740c729",
+      "messageIndex": 34,
+      "timestamp": 1773153460776,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/app/page.tsx",
+          "contentHash": "ab22ddd7da1d0e3c4938e855f6ebf344d825c4cf79e4f412924fc8664f2fdb56",
+          "size": 516,
+          "capturedAt": 1773153460776,
+          "toolCallId": "toolu_01JVVg42zMKuRvThKp7BMUzU"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 516
+    },
+    {
+      "messageId": "a3f9e0e2-f1e0-4c61-ba4f-cfebf740c729",
+      "messageIndex": 34,
+      "timestamp": 1773153509673,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/BookingSection.tsx",
+          "contentHash": "b15ab6d3ae38ba47d28a0d663b28a605d025ad13097f7371aa97c584574fe7f9",
+          "size": 9655,
+          "capturedAt": 1773153509673,
+          "toolCallId": "toolu_015Rp5haQ76qrLjmXjPUhZ4r"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 9655
+    },
+    {
+      "messageId": "acf5030d-e572-4346-9120-3a392d5f55cb",
+      "messageIndex": 60,
+      "timestamp": 1773153843723,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/BookingSection.tsx",
+          "contentHash": "99013546f91ee04ce7273a760541803579b6ceb20291675866bb2f43368c336f",
+          "size": 9120,
+          "capturedAt": 1773153843723,
+          "toolCallId": "toolu_012bQJN3ufxiRLSYWsYmk7fX"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 9120
+    },
+    {
+      "messageId": "acf5030d-e572-4346-9120-3a392d5f55cb",
+      "messageIndex": 60,
+      "timestamp": 1773153853080,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/BookingSection.tsx",
+          "contentHash": "afbe7b11710bc60aace2de6f345c60b66a12346ed827be792e6236e72e96cb37",
+          "size": 9049,
+          "capturedAt": 1773153853080,
+          "toolCallId": "toolu_01WDxgFnErvUdQardwSE1UHC"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 9049
+    },
+    {
+      "messageId": "acf5030d-e572-4346-9120-3a392d5f55cb",
+      "messageIndex": 60,
+      "timestamp": 1773153854352,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/BookingSection.tsx",
+          "contentHash": "1851e9cb238e6a8748b415f43cd1eb96967241bece8d81915c16b0935521599d",
+          "size": 9035,
+          "capturedAt": 1773153854352,
+          "toolCallId": "toolu_016SB7XjuzvThy5poDHPFG11"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 9035
+    },
+    {
+      "messageId": "acf5030d-e572-4346-9120-3a392d5f55cb",
+      "messageIndex": 60,
+      "timestamp": 1773153855495,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/BookingSection.tsx",
+          "contentHash": "548ec0131d8c2ee5488fae6fc87f1c3c1886b72366676a382e014d6003c16789",
+          "size": 9035,
+          "capturedAt": 1773153855495,
+          "toolCallId": "toolu_01CZVvZZ1khovEj6SuLWZHPx"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 9035
+    },
+    {
+      "messageId": "acf5030d-e572-4346-9120-3a392d5f55cb",
+      "messageIndex": 60,
+      "timestamp": 1773153867666,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/BookingSection.tsx",
+          "contentHash": "c1626083ee69c65656f4f7a1382d8716d77b1b63f253ed5b23bc54e841faae92",
+          "size": 8949,
+          "capturedAt": 1773153867666,
+          "toolCallId": "toolu_01FFWRmjh9rgwPLWRpqdGQFn"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 8949
+    },
+    {
+      "messageId": "acf5030d-e572-4346-9120-3a392d5f55cb",
+      "messageIndex": 60,
+      "timestamp": 1773153873681,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Navigation.tsx",
+          "contentHash": "5f9313bcc09cc338acd6858cb67edf1e3b270a732cc6b50dc2d71b52af4ad6cf",
+          "size": 1178,
+          "capturedAt": 1773153873681,
+          "toolCallId": "toolu_01WsuKE8Ape9m8caTk6Auoop"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 1178
+    },
+    {
+      "messageId": "acf5030d-e572-4346-9120-3a392d5f55cb",
+      "messageIndex": 60,
+      "timestamp": 1773153874507,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Pricing.tsx",
+          "contentHash": "a26268cdf6178c09949f67c48c39fe0d3751cdc266e61636345ceb43106457f3",
+          "size": 8221,
+          "capturedAt": 1773153874507,
+          "toolCallId": "toolu_01RvBgSWhsQLcSrxiwACdHnQ"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 8221
+    },
+    {
+      "messageId": "db5e1729-72ba-4492-8a82-56f0718b7fc5",
+      "messageIndex": 78,
+      "timestamp": 1773154538163,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Footer.tsx",
+          "contentHash": "e54d5a42a4e078ef2c5ed6810fcf58ec8efd8794e054bde6a38cb6254637ae28",
+          "size": 4593,
+          "capturedAt": 1773154538163,
+          "toolCallId": "toolu_019zSnLC9Z7mEAoYpQrr4esr"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 4593
+    },
+    {
+      "messageId": "db5e1729-72ba-4492-8a82-56f0718b7fc5",
+      "messageIndex": 78,
+      "timestamp": 1773154547162,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Hero.tsx",
+          "contentHash": "39af20637907ee67aa25db374f2db1bc08e57bf414ef3ce071237b9eba4876f2",
+          "size": 10767,
+          "capturedAt": 1773154547162,
+          "toolCallId": "toolu_01C52PpeAeebshHFA3HsBmpZ"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 10767
+    },
+    {
+      "messageId": "db5e1729-72ba-4492-8a82-56f0718b7fc5",
+      "messageIndex": 78,
+      "timestamp": 1773154572333,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/components/landing/Hero.tsx",
+          "contentHash": "6ba3158675d6bd07addbfa61bc9153e31df23e6596349a64e3fdb904b4cf6513",
+          "size": 10285,
+          "capturedAt": 1773154572333,
+          "toolCallId": "toolu_01Rh6DS5GpMnwRhw5ZbFkMrk"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 10285
+    },
+    {
+      "messageId": "8d931268-81a3-49da-ba8e-19de38b6ec91",
+      "messageIndex": 90,
+      "timestamp": 1773155995334,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/app/layout.tsx",
+          "contentHash": "9d83d3eac1a1d07d1ce618bfa8fcd40cbd31f6cc189cf7e533791404d7bb9a89",
+          "size": 1055,
+          "capturedAt": 1773155995334,
+          "toolCallId": "toolu_01TShE8mpPgya3Lj3N9et4Zh"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 1055
+    },
+    {
+      "messageId": "240e0015-2f50-4413-b23e-14665e9316f7",
+      "messageIndex": 102,
+      "timestamp": 1773156519511,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/public/site.webmanifest",
+          "contentHash": "91a78d4fe16316df93ec91b33a15c7ed84aab2b0de8a9959da40f108dfc2154e",
+          "size": 436,
+          "capturedAt": 1773156519511,
+          "toolCallId": "toolu_01BpdkwPHnXY2QJozHMBL9wt"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 436
+    },
+    {
+      "messageId": "240e0015-2f50-4413-b23e-14665e9316f7",
+      "messageIndex": 102,
+      "timestamp": 1773156520375,
+      "files": [
+        {
+          "filePath": "/home/cat/niceguy/src/app/layout.tsx",
+          "contentHash": "00dc31f7a3b614d585ddcb95ae1d5fccf3f167d16553804eaee23f0cb464aaa6",
+          "size": 1374,
+          "capturedAt": 1773156520375,
+          "toolCallId": "toolu_01FcAZq88FFJfWNX31QAr5YG"
+        }
+      ],
+      "deletions": [],
+      "creations": [],
+      "totalSize": 1374
+    }
+  ],
+  "oldestAvailableBoundaryIndex": 0,
+  "evictedBoundaryCount": 0
+}

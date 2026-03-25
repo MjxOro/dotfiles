@@ -1,0 +1,35 @@
+import LandingSectionInner from './LandingSectionInner';
+
+export default function Navigation() {
+  const navLinks = [
+    { href: '#services', label: 'Services' },
+    { href: '#booking', label: 'Book' },
+    { href: '#payment', label: 'Pricing' },
+    { href: '#footer', label: 'Contact' },
+  ];
+
+  return (
+    <nav className="fixed top-0 left-0 right-0 z-[100] bg-ngm-black border-b border-[rgba(200,146,42,0.15)]">
+      <LandingSectionInner className="px-8 py-5 flex items-center justify-between lg:px-16">
+        <a
+          href="#top"
+          className="font-condensed font-bold text-sm tracking-[0.25em] uppercase text-ngm-amber"
+        >
+          Nice Guy Media
+        </a>
+        <ul className="hidden md:flex gap-10 list-none">
+          {navLinks.map((link) => (
+            <li key={link.href}>
+          <a
+            href={link.href}
+            className="font-condensed text-xs tracking-[0.2em] uppercase text-ngm-white/80 no-underline transition-colors duration-300 hover:text-ngm-amber-light"
+          >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </LandingSectionInner>
+    </nav>
+  );
+}
