@@ -48,3 +48,7 @@ tt.*
 
 # Accidental literal HOME path
 #{HOME}/
+
+
+# Dependency directories
+**/node_modules/
