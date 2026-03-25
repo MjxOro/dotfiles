@@ -1,0 +1,133 @@
+import { Elysia } from 'elysia';
+import { cors } from '@elysiajs/cors';
+import { auth } from './lib/auth';
+import { config } from './lib/config';
+import { logger } from './lib/logger';
+import { offersRoutes } from './routes/offers';
+import { usersRoutes } from './routes/users';
+import { listingsRoutes } from './routes/listings';
+import { accountRoutes } from './routes/account';
+import { ordersRoutes } from './routes/orders';
+import { mediaRoutes } from './routes/media';
+import { notificationsRoutes } from './routes/notifications';
+import { messagesRoutes } from './routes/messages';
+import { sseRoutes } from './routes/sse';
+import { proposalsRoutes } from './routes/proposals';
+import { priceProposalsRoutes } from './routes/price-proposals';
+import { wsRoutes, wsTokenRoutes } from './routes/ws';
+import { startMessageWorker } from './lib/message-queue';
+import { stripeWebhooksRoutes } from './routes/stripe-webhooks';
+
+const betterAuthPlugin = new Elysia({ name: 'better-auth' }).mount(auth.handler).macro({
+  auth: {
+    async resolve({ status, request: { headers } }) {
+      const session = await auth.api.getSession({ headers });
+      if (!session) return status(401);
+      return { user: session.user, session: session.session };
+    },
+  },
+});
+
+const requestTimings = new WeakMap<Request, { startTime: number; requestId: string }>();
+
+const elysia = new Elysia()
+  .use(
+    cors({
+      origin: config.server.allowedOrigins,
+      credentials: true,
+    })
+  )
+  .onRequest(({ request }) => {
+    const url = new URL(request.url);
+    const requestId = crypto.randomUUID().slice(0, 8);
+    requestTimings.set(request, { startTime: performance.now(), requestId });
+    logger.info(`--> ${request.method} ${url.pathname}`, { requestId });
+  })
+  .onAfterResponse(({ request, response }) => {
+    const timing = requestTimings.get(request);
+    if (!timing) return;
+    
+    if (!response) return;
+    
+    const url = new URL(request.url);
+    const duration = Math.round(performance.now() - timing.startTime);
+    const status = (response as Response).status;
+    
+    if (status >= 500) {
+      logger.error(`<-- ${request.method} ${url.pathname} ${status}`, { requestId: timing.requestId, duration: `${duration}ms` });
+    } else if (status >= 400) {
+      logger.warn(`<-- ${request.method} ${url.pathname} ${status}`, { requestId: timing.requestId, duration: `${duration}ms` });
+    } else {
+      logger.info(`<-- ${request.method} ${url.pathname} ${status}`, { requestId: timing.requestId, duration: `${duration}ms` });
+    }
+  })
+  .onError(({ code, error, path, request, set }) => {
+    const timing = requestTimings.get(request);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    const duration = timing ? Math.round(performance.now() - timing.startTime) : 0;
+    const requestId = timing?.requestId;
+    
+    logger.error(`Elysia error on ${request.method} ${path}`, {
+      code,
+      error: errorMessage,
+      stack: config.isDev ? errorStack : undefined,
+      requestId,
+      duration: `${duration}ms`,
+    });
+    
+    // Determine appropriate status code
+    let status = 500;
+    if (code === 'VALIDATION') status = 400;
+    else if (code === 'NOT_FOUND') status = 404;
+    else if (code === 'PARSE') status = 400;
+    
+    set.status = status;
+    set.headers['content-type'] = 'application/json';
+    
+    // Return JSON error response - never leak raw error messages in production
+    return {
+      success: false,
+      error: config.isDev ? errorMessage : 'Internal Server Error',
+      requestId,
+    };
+  })
+  .use(betterAuthPlugin)
+  .use(offersRoutes)
+  .use(usersRoutes)
+  .use(listingsRoutes)
+  .use(accountRoutes)
+  .use(ordersRoutes)
+  .use(mediaRoutes)
+  .use(notificationsRoutes)
+  .use(messagesRoutes)
+  .use(sseRoutes)
+  .use(proposalsRoutes)
+  .use(priceProposalsRoutes)
+  .use(stripeWebhooksRoutes)
+  .use(wsTokenRoutes)
+  .use(wsRoutes)
+  .get('/health', () => ({
+    status: 'ok',
+    timestamp: Date.now(),
+    env: config.env,
+  }))
+  .get('/api/me', ({ user }) => user, { auth: true });
+
+if (import.meta.main) {
+  elysia.listen(config.server.port, () => {
+    logger.info(`Server running`, {
+      port: config.server.port,
+      env: config.env,
+      url: `http://localhost:${config.server.port}`,
+    });
+
+    logger.info('Cutover configuration loaded', {
+      cutover: config.cutover,
+    });
+
+    startMessageWorker();
+  });
+}
+
+export { elysia };

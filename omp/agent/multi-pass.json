@@ -1,0 +1,10 @@
+{
+  "subscriptions": [
+    {
+      "provider": "openai-codex",
+      "index": 2,
+      "label": "cafxfeind"
+    }
+  ],
+  "pools": []
+}

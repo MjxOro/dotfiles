@@ -1,0 +1,39 @@
+# One source URL per line. Optional tags in trailing comments.
+https://api.github.com/repos/badlogic/pi-mono #official #fresh
+https://api.github.com/repos/badlogic/pi-mono/releases/latest #official #fresh
+https://api.github.com/repos/badlogic/pi-mono/commits?per_page=10 #official #fresh
+https://raw.githubusercontent.com/badlogic/pi-mono/main/packages/coding-agent/CHANGELOG.md #official #fresh
+https://api.github.com/repos/can1357/oh-my-pi #official #fresh
+https://api.github.com/repos/can1357/oh-my-pi/releases/latest #official #fresh
+https://api.github.com/repos/can1357/oh-my-pi/commits?per_page=10 #official #fresh
+https://raw.githubusercontent.com/can1357/oh-my-pi/main/packages/coding-agent/CHANGELOG.md #official #fresh
+https://api.github.com/repos/hjanuschka/pi-multi-pass #official #fresh #plugin
+https://raw.githubusercontent.com/hjanuschka/pi-multi-pass/main/package.json #official #fresh #plugin
+https://raw.githubusercontent.com/hjanuschka/pi-multi-pass/main/extensions/multi-sub.ts #official #fresh #plugin #compat
+https://registry.npmjs.org/pi-multi-pass #official #fresh #plugin
+https://api.github.com/repos/nicobailon/pi-design-deck #official #fresh #plugin
+https://raw.githubusercontent.com/nicobailon/pi-design-deck/main/package.json #official #fresh #plugin
+https://raw.githubusercontent.com/nicobailon/pi-design-deck/main/index.ts #official #fresh #plugin #compat
+https://registry.npmjs.org/pi-design-deck #official #fresh #plugin
+https://api.github.com/repos/davebcn87/pi-autoresearch #official #fresh #plugin
+https://raw.githubusercontent.com/davebcn87/pi-autoresearch/main/package.json #official #fresh #plugin #compat
+https://api.github.com/repos/can1357/oh-my-pi/issues/413 #official #fresh #plugin #compat
+https://github.com/badlogic/pi-mono/issues/1896 #official #fresh #plugin
+https://api.github.com/repos/badlogic/pi-mono/issues/1896 #official #fresh #plugin
+https://github.com/badlogic/pi-mono/issues/1944 #official #fresh #plugin
+https://api.github.com/repos/badlogic/pi-mono/issues/1944 #official #fresh #plugin
+https://github.com/badlogic/pi-mono/issues/2285 #official #fresh #plugin
+https://api.github.com/repos/badlogic/pi-mono/issues/2285 #official #fresh #plugin
+https://github.com/nicobailon/pi-design-deck #official #fresh #plugin
+https://github.com/hjanuschka/pi-multi-pass #official #fresh #plugin
+https://github.com/davebcn87/pi-autoresearch #official #fresh #plugin
+https://github.com/can1357/oh-my-pi #official #fresh
+https://github.com/badlogic/pi-mono #official #fresh
+https://api.github.com/repos/gsd-build/gsd-2 #official #fresh #workflow
+https://raw.githubusercontent.com/gsd-build/gsd-2/main/README.md #official #fresh #workflow
+https://raw.githubusercontent.com/gsd-build/gsd-2/main/package.json #official #fresh #workflow #compat
+https://raw.githubusercontent.com/gsd-build/gsd-2/main/docs/architecture.md #official #fresh #workflow #compat
+https://raw.githubusercontent.com/gsd-build/gsd-2/main/docs/commands.md #official #fresh #workflow
+https://raw.githubusercontent.com/gsd-build/gsd-2/main/src/resources/extensions/gsd/index.ts #official #fresh #workflow #compat
+https://raw.githubusercontent.com/gsd-build/gsd-2/main/src/resources/extensions/gsd/package.json #official #fresh #workflow #compat
+https://raw.githubusercontent.com/gsd-build/gsd-2/main/src/resources/extensions/gsd/bootstrap/register-extension.ts #official #fresh #workflow #compat

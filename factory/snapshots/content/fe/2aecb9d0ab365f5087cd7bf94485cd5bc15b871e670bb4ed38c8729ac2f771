@@ -1,0 +1,114 @@
+import RevealWrapper from './RevealWrapper';
+import LandingSectionInner from './LandingSectionInner';
+
+const socialLinks = [
+  {
+    href: 'https://facebook.com',
+    label: 'Facebook',
+    content: 'f',
+  },
+  {
+    href: 'https://instagram.com',
+    label: 'Instagram',
+    content: (
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      >
+        <rect x="2" y="2" width="20" height="20" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+  },
+  {
+    href: 'https://linkedin.com',
+    label: 'LinkedIn',
+    content: 'in',
+  },
+];
+
+export default function Footer() {
+  return (
+    <footer
+      id="footer"
+      className="bg-ngm-near-black border-t border-[rgba(200,146,42,0.2)]"
+    >
+      <LandingSectionInner className="px-8 py-20 lg:px-16">
+        <RevealWrapper>
+          <div className="grid gap-16 items-start mb-16 lg:grid-cols-[1fr_auto]">
+          <div>
+            <h2 className="font-display text-3xl font-black mb-3">
+              Nice <em className="italic text-ngm-amber">Guy</em> Media
+            </h2>
+            <p className="text-sm text-ngm-muted max-w-sm leading-relaxed mb-8">
+              Professional media production for actors and corporate clients who
+              know that first impressions are everything.
+            </p>
+            <div className="flex gap-4">
+              {socialLinks.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-11 h-11 border border-[rgba(200,146,42,0.2)] flex items-center justify-center text-ngm-muted no-underline text-sm transition-all duration-300 hover:border-ngm-amber hover:text-ngm-amber hover:bg-[rgba(200,146,42,0.05)]"
+                  aria-label={link.label}
+                >
+                  {link.content}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="font-condensed text-[0.7rem] tracking-[0.35em] uppercase text-ngm-amber mb-6">
+              Get in Touch
+            </h3>
+            <div className="space-y-5">
+              <div className="text-sm text-ngm-muted flex items-center gap-3">
+                <span>📧</span>
+                <a
+                  href="mailto:hello@niceguymedia.com"
+                  className="text-ngm-muted no-underline transition-colors duration-300 hover:text-ngm-amber"
+                >
+                  hello@niceguymedia.com
+                </a>
+              </div>
+              <div className="flex gap-4">
+                {socialLinks.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-11 h-11 border border-[rgba(200,146,42,0.2)] flex items-center justify-center text-ngm-muted no-underline text-sm transition-all duration-300 hover:border-ngm-amber hover:text-ngm-amber hover:bg-[rgba(200,146,42,0.05)]"
+                    aria-label={link.label}
+                  >
+                    {link.content}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </RevealWrapper>
+
+      <RevealWrapper delay={80}>
+        <div className="flex justify-between items-center pt-8 border-t border-[rgba(200,146,42,0.2)] flex-col gap-4 text-center lg:flex-row">
+          <p className="font-condensed text-[0.7rem] tracking-[0.2em] text-[rgba(136,136,128,0.5)] uppercase">
+            © 2026 Nice Guy Media. All rights reserved.
+          </p>
+          <p className="font-condensed text-[0.7rem] tracking-[0.2em] text-[rgba(136,136,128,0.5)] uppercase">
+            Crafted for creators.
+          </p>
+        </div>
+      </RevealWrapper>
+      </LandingSectionInner>
+    </footer>
+  );
+}

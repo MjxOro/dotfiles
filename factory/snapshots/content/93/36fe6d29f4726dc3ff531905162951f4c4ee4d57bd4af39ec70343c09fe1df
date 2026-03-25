@@ -1,0 +1,194 @@
+import Image from 'next/image';
+import RevealWrapper from './RevealWrapper';
+import LandingSectionInner from './LandingSectionInner';
+
+const headshot = '/images/headshot-9.jpeg';
+
+const pricingPlans = [
+  {
+    name: 'Self-Tape Session',
+    price: '$150',
+    period: '/ session',
+    description: 'Full mobile self-tape session — we come to you.',
+    features: [
+      'Up to 2 scenes / sides',
+      'Professional lighting setup',
+      'Clean audio recording',
+      'Same-day digital delivery',
+      'On-location (within metro area)',
+    ],
+    featured: false,
+  },
+  {
+    name: 'Demo Reel Edit',
+    price: '$250',
+    period: '/ reel',
+    description: 'Your clips, professionally cut into a powerful reel.',
+    features: [
+      'Up to 5 minutes of source footage',
+      'Professional colour grade',
+      'Music licensing included',
+      '2 rounds of revisions',
+      '5–7 business day delivery',
+    ],
+    featured: true,
+  },
+  {
+    name: 'Headshot Session',
+    price: '$200',
+    period: '/ session',
+    description: 'Actor & corporate headshots — studio and natural light.',
+    features: [
+      '1 hour shoot, 2–3 looks',
+      '50+ edited selects delivered',
+      '5 fully retouched finals',
+      'Actor & corporate packages',
+      'Online gallery & download',
+    ],
+    featured: false,
+  },
+];
+
+
+export default function Pricing() {
+  return (
+    <section id="payment" className="bg-ngm-charcoal">
+      <LandingSectionInner className="px-8 py-28 lg:px-16">
+        {/* Mobile header — hidden on desktop (header lives in sticky column there) */}
+        <div className="lg:hidden mb-8">
+          <RevealWrapper>
+            <p className="font-condensed text-[0.7rem] tracking-[0.45em] uppercase text-ngm-amber mb-4">
+              Transparent Pricing
+            </p>
+          </RevealWrapper>
+          <RevealWrapper delay={80}>
+            <h2 className="font-display text-[clamp(2.2rem,4vw,3.5rem)] font-bold leading-tight mb-6">
+              Simple, <em className="italic text-ngm-amber">Honest</em> Rates
+            </h2>
+          </RevealWrapper>
+          <RevealWrapper delay={160}>
+            <div className="w-[60px] h-0.5 bg-ngm-amber" />
+          </RevealWrapper>
+        </div>
+
+        {/* Mobile image — full-bleed cinematic band, cards pull up over it */}
+        <RevealWrapper>
+          <div className="lg:hidden -mx-8 relative overflow-hidden" style={{ height: '80vw' }}>
+            <Image
+              src={headshot}
+              alt="Professional headshot"
+              fill
+              className="object-cover object-top"
+              sizes="100vw"
+              unoptimized
+            />
+            <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-ngm-charcoal to-transparent pointer-events-none" />
+            <div className="absolute bottom-0 inset-x-0 h-40 bg-gradient-to-t from-ngm-charcoal to-transparent pointer-events-none" />
+            <div className="absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-ngm-charcoal to-transparent pointer-events-none" />
+            <div className="absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-ngm-charcoal to-transparent pointer-events-none" />
+          </div>
+        </RevealWrapper>
+
+        <div className="flex flex-col lg:flex-row gap-10 lg:items-start -mt-16 lg:mt-0 relative z-10">
+          {/* Desktop sticky left column: header + image */}
+          <div className="hidden lg:flex flex-col w-[42%] flex-shrink-0 sticky top-24 gap-10">
+            {/* Header */}
+            <div>
+              <RevealWrapper>
+                <p className="font-condensed text-[0.7rem] tracking-[0.45em] uppercase text-ngm-amber mb-4">
+                  Transparent Pricing
+                </p>
+              </RevealWrapper>
+              <RevealWrapper delay={80}>
+                <h2 className="font-display text-[clamp(2.2rem,4vw,3.5rem)] font-bold leading-tight mb-6">
+                  Simple, <em className="italic text-ngm-amber">Honest</em> Rates
+                </h2>
+              </RevealWrapper>
+              <RevealWrapper delay={160}>
+                <div className="w-[60px] h-0.5 bg-ngm-amber" />
+              </RevealWrapper>
+            </div>
+
+            {/* Image */}
+            <div className="relative bg-ngm-image-bg-light overflow-hidden" style={{ aspectRatio: '2/3' }}>
+              <Image
+                src={headshot}
+                alt="Professional headshot"
+                fill
+                className="object-cover object-center"
+                sizes="42vw"
+                unoptimized
+              />
+              {/* Blend right edge into section bg */}
+              <div className="absolute inset-y-0 right-0 w-28 bg-gradient-to-l from-ngm-charcoal to-transparent pointer-events-none" />
+              {/* Top/bottom fades */}
+              <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-ngm-charcoal/40 to-transparent pointer-events-none" />
+              <div className="absolute bottom-0 inset-x-0 h-40 bg-gradient-to-t from-ngm-charcoal to-transparent pointer-events-none" />
+            </div>
+          </div>
+
+          {/* Cards — vertical stack on both mobile and desktop */}
+          <div className="flex-1 flex flex-col gap-6">
+            {pricingPlans.map((plan, index) => (
+              <RevealWrapper key={plan.name} delay={index * 80}>
+                <article
+                  className={`border p-8 relative transition-all duration-300 hover:border-ngm-amber hover:-translate-y-1 bg-ngm-near-black ${
+                    plan.featured
+                      ? 'border-ngm-amber'
+                      : 'border-[rgba(200,146,42,0.2)]'
+                  }`}
+                  style={
+                    plan.featured
+                      ? {
+                          background:
+                            'linear-gradient(135deg, var(--charcoal) 0%, rgba(200,146,42,0.05) 100%)',
+                        }
+                      : undefined
+                  }
+                >
+                  {plan.featured && (
+                    <div className="absolute -top-px right-6 bg-ngm-amber text-ngm-black font-condensed text-[0.6rem] font-bold tracking-[0.2em] uppercase px-3 py-1">
+                      Most Popular
+                    </div>
+                  )}
+
+                  <h3 className="font-display text-xl font-bold mb-2">{plan.name}</h3>
+
+                  <div className="font-condensed text-4xl font-bold text-ngm-amber leading-none mb-2">
+                    {plan.price}
+                    <span className="text-base text-ngm-muted font-light">{plan.period}</span>
+                  </div>
+
+                  <p className="text-sm text-ngm-muted leading-relaxed my-2 border-t border-[rgba(200,146,42,0.2)] pt-4">
+                    {plan.description}
+                  </p>
+
+                  <ul className="list-none flex flex-col gap-2.5 mb-8 mt-4">
+                    {plan.features.map((feature) => (
+                      <li
+                        key={feature}
+                        className="text-sm text-ngm-muted flex items-start gap-3"
+                      >
+                        <span className="text-ngm-amber flex-shrink-0">—</span>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <a
+                    href="#booking"
+                    className="bg-ngm-amber text-ngm-black font-condensed font-bold text-[0.75rem] tracking-[0.2em] uppercase px-6 py-3 transition-all duration-300 hover:bg-ngm-amber-light block text-center"
+                  >
+                    Book Now
+                  </a>
+                </article>
+              </RevealWrapper>
+            ))}
+          </div>
+        </div>
+
+
+      </LandingSectionInner>
+    </section>
+  );
+}
