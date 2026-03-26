@@ -1,7 +1,7 @@
 theme: 
   dark: poimandres-terminal
   light: poimandres-terminal
-lastChangelogVersion: 13.14.0
+lastChangelogVersion: 13.15.3
 modelRoles: 
   default: cliproxy/gpt-5.4:high
   vision: openrouter/openrouter/healer-alpha:high

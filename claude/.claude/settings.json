@@ -1,17 +1,5 @@
 {
   "model": "opus",
-  "enabledPlugins": {
-    "oh-my-claude@oh-my-claude": true,
-    "frontend-design@claude-plugins-official": true,
-    "context7@claude-plugins-official": true,
-    "feature-dev@claude-plugins-official": false,
-    "code-review@claude-plugins-official": true,
-    "serena@claude-plugins-official": false,
-    "github@claude-plugins-official": false,
-    "commit-commands@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true
-  },
-  "claude.general.allowDangerouslySkipPermissions": true,
   "hooks": {
     "SessionStart": [
       {
@@ -51,5 +39,26 @@
   "statusLine": {
     "type": "command",
     "command": "node \"/home/cat/dotfiles/claude/.claude/hooks/gsd-statusline.js\""
-  }
+  },
+  "enabledPlugins": {
+    "oh-my-claude@oh-my-claude": true,
+    "frontend-design@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": false,
+    "code-review@claude-plugins-official": true,
+    "serena@claude-plugins-official": false,
+    "github@claude-plugins-official": false,
+    "commit-commands@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "superpowers@superpowers-marketplace": true
+  },
+  "extraKnownMarketplaces": {
+    "superpowers-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "obra/superpowers-marketplace"
+      }
+    }
+  },
+  "claude.general.allowDangerouslySkipPermissions": true
 }
