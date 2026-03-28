@@ -9,11 +9,8 @@
 # Dependencies: lib/logging.sh, lib/utils.sh
 #
 
-# Source dependencies
-SCRIPT_DIR="${SCRIPT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
-source "${SCRIPT_DIR}/logging.sh"
-source "${SCRIPT_DIR}/utils.sh"
-
+# Note: This file is meant to be sourced by install.sh, not executed directly.
+# Dependencies: lib/logging.sh, lib/utils.sh (already sourced by install.sh)
 # ------------------------------------------------------------------------------
 # Installation Summary
 # ------------------------------------------------------------------------------
