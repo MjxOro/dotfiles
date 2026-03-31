@@ -1,7 +1,7 @@
 theme: 
   dark: poimandres-terminal
   light: poimandres-terminal
-lastChangelogVersion: 13.16.4
+lastChangelogVersion: 13.17.0
 modelRoles: 
   default: fireworks/accounts/fireworks/routers/kimi-k2p5-turbo
   vision: cliproxy/gpt-5.4:high
