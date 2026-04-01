@@ -1,0 +1,18 @@
+{
+  "name": "extension-installer",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Install extensions from git or npm into OMP",
+  "omp": {
+    "name": "Extension Installer",
+    "description": "Install OMP/pi-mono extensions from git repositories or npm packages",
+    "extensions": ["./src/index.ts"]
+  },
+  "scripts": {
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@oh-my-pi/pi-coding-agent": "^13.17.0",
+    "typescript": "^5.0.0"
+  }
+}
