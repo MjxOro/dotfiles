@@ -32,3 +32,5 @@ providers:
     models:
       - id: accounts/fireworks/routers/kimi-k2p5-turbo
         name: Kimi K2.5 Turbo
+        contextWindow: 256000
+        maxTokens: 256000
