@@ -1,10 +1,5 @@
 {
   "plugins": {
-    "pi-multi-pass": {
-      "version": "1.2.0",
-      "enabledFeatures": null,
-      "enabled": true
-    },
     "pi-design-deck": {
       "version": "0.3.4",
       "enabledFeatures": null,
@@ -12,6 +7,16 @@
     },
     "pi-autoresearch": {
       "version": "1.0.0",
+      "enabledFeatures": null,
+      "enabled": true
+    },
+    "pi-multi-pass": {
+      "version": "1.2.6",
+      "enabledFeatures": null,
+      "enabled": true
+    },
+    "@manojlds/ralphi": {
+      "version": "0.6.5",
       "enabledFeatures": null,
       "enabled": true
     }
