@@ -13,7 +13,6 @@
     "autoresearch-opencode": "https://github.com/dabiggm0e/autoresearch-opencode",
     "pi-autoresearch": "https://github.com/davebcn87/pi-autoresearch",
     "pi-design-deck": "^0.3.4",
-    "pi-diff-review": "https://github.com/badlogic/pi-diff-review",
     "pi-multi-pass": "^1.2.6"
   }
 }
