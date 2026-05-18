@@ -34,3 +34,27 @@ providers:
         name: Kimi K2.5 Turbo
         contextWindow: 256000
         maxTokens: 256000
+
+  kimi-code:
+    baseUrl: https://api.kimi.com/coding/v1
+    api: openai-completions
+    headers:
+      User-Agent: KimiCLI/1.0
+      X-Msh-Platform: kimi_cli
+    compat:
+      thinkingFormat: zai
+      reasoningContentField: reasoning_content
+      supportsDeveloperRole: false
+    models:
+      - id: K2.6-code-preview
+        name: Kimi K2.6 Code Preview
+        reasoning: true
+        input:
+          - text
+          - image
+        contextWindow: 262144
+        maxTokens: 65536
+        thinking:
+          mode: effort
+          minLevel: minimal
+          maxLevel: high

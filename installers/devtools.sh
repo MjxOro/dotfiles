@@ -82,7 +82,7 @@ _install_playwright_cli_script() {
     fi
 
     echo -n -e "${CYAN}    Installing Playwright CLI via Bun... ${NC}"
-    local pw_out pw_ec
+    local pw_out="" pw_ec
     if [ "$QUIET" = true ]; then
       pw_out=$(bun install -g playwright 2>&1); pw_ec=$?
     else
