@@ -293,7 +293,7 @@ patch_global_omp_install() {
     return 0
   fi
 
-  local patch_out patch_ec
+  local patch_out="" patch_ec
   set +e
   patch_out=$(bun "$patch_script" 2>&1)
   patch_ec=$?

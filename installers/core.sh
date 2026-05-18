@@ -13,7 +13,7 @@ _install_starship_via_curl_script() {
   if ask_yes_no "  Install Starship (prompt) via official script?" "y"; then
     if ! command_exists curl; then print_message "$RED" "    curl is required for Starship script. Please install curl."; return 1; fi
     echo -n -e "${CYAN}    Installing Starship (curl ... | sh)... ${NC}"
-    local s_out s_ec
+    local s_out="" s_ec
     if [ "$QUIET" = true ]; then
       s_out=$(curl -fsSL https://starship.rs/install.sh | sh -s -- -y 2>&1); s_ec=$?
     else
@@ -40,7 +40,7 @@ _install_ohmyzsh_script() {
   if ask_yes_no "  Install Oh My Zsh?" "y"; then
     local omz_url="https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
     echo -n -e "${CYAN}    Installing Oh My Zsh (curl ... | sh)... ${NC}"
-    local omz_out omz_ec
+    local omz_out="" omz_ec
     if [ "$QUIET" = true ]; then
       omz_out=$(CHSH=no RUNZSH=no curl -fsSL "$omz_url" | sh -s -- --unattended 2>&1); omz_ec=$?
     else
@@ -95,7 +95,7 @@ _install_bun_script() {
       return 1
     fi
     echo -n -e "${CYAN}    Installing Bun (curl ... | bash)... ${NC}"
-    local bun_out bun_ec
+    local bun_out="" bun_ec
     if [ "$QUIET" = true ]; then
       bun_out=$(curl -fsSL https://bun.sh/install 2>/dev/null | bash 2>&1); bun_ec=$?
     else
@@ -122,7 +122,7 @@ _install_opencode_script() {
   if ask_yes_no "  Install OpenCode (AI coding assistant)?" "y"; then
     if ! command_exists curl; then print_message "$RED" "    curl is required for OpenCode installation. Please install curl."; return 1; fi
     echo -n -e "${CYAN}    Installing OpenCode (curl ... | bash)... ${NC}"
-    local opencode_out opencode_ec
+    local opencode_out="" opencode_ec
     if [ "$QUIET" = true ]; then
       opencode_out=$(curl -fsSL https://opencode.ai/install 2>/dev/null | bash 2>&1); opencode_ec=$?
     else
@@ -151,7 +151,7 @@ _install_claude_code_script() {
   if ask_yes_no "  Install Claude Code (Anthropic's CLI)?" "y"; then
     if ! command_exists curl; then print_message "$RED" "    curl is required for Claude Code installation. Please install curl."; return 1; fi
     echo -n -e "${CYAN}    Installing Claude Code (curl ... | bash)... ${NC}"
-    local claude_out claude_ec
+    local claude_out="" claude_ec
     if [ "$QUIET" = true ]; then
       claude_out=$(curl -fsSL https://claude.ai/install.sh 2>/dev/null | bash 2>&1); claude_ec=$?
     else
@@ -180,7 +180,7 @@ _install_factory_cli_script() {
   if ask_yes_no "  Install Factory CLI (droid)?" "y"; then
     if ! command_exists curl; then print_message "$RED" "    curl is required for Factory CLI installation. Please install curl."; return 1; fi
     echo -n -e "${CYAN}    Installing Factory CLI (curl ... | sh)... ${NC}"
-    local factory_out factory_ec
+    local factory_out="" factory_ec
     if [ "$QUIET" = true ]; then
       factory_out=$(curl -fsSL https://app.factory.ai/cli 2>/dev/null | sh 2>&1); factory_ec=$?
     else
@@ -224,7 +224,7 @@ _install_nvm() {
   fi
   if ask_yes_no "  Install nvm (Node Version Manager)?" "y"; then
     echo -n -e "${CYAN}    Installing nvm... ${NC}"
-    local nvm_out nvm_ec
+    local nvm_out="" nvm_ec
     if [ "$QUIET" = true ]; then
       nvm_out=$(PROFILE=/dev/null curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh 2>/dev/null | bash 2>&1); nvm_ec=$?
     else

@@ -43,6 +43,7 @@
       "variant": "medium"
     }
   },
+  "agent_definitions": ["agents/oracle.md"],
   "categories": {
     "visual-engineering": {
       "model": "kimi-for-coding/k2p5"

@@ -1,13 +1,15 @@
 theme: 
   dark: poimandres-terminal
   light: poimandres-terminal
-lastChangelogVersion: 14.1.0
+lastChangelogVersion: 15.1.3
 modelRoles: 
-  default: fireworks/accounts/fireworks/routers/kimi-k2p5-turbo
-  vision: cliproxy/gpt-5.4:high
-  smol: fireworks/accounts/fireworks/routers/kimi-k2p5-turbo
-  slow: cliproxy/gpt-5.4:xhigh
-  plan: cliproxy/gpt-5.4:xhigh
+  default: openai-codex/gpt-5.5:medium
+  vision: kimi-code/kimi-for-coding:high
+  smol: openai-codex/gpt-5.4-nano:low
+  slow: openai-codex/gpt-5.4:xhigh
+  plan: openai-codex/gpt-5.4:xhigh
+  commit: kimi-code/kimi-for-coding:high
+  designer: kimi-code/kimi-for-coding:high
 task: 
   agentModelOverrides: 
     {}
