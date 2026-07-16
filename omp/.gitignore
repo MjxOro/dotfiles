@@ -3,5 +3,13 @@ agent/*.db-shm
 agent/*.db-wal
 agent/sessions/
 agent/terminal-sessions/
+agent/blobs/
+agent/search-db/
+agent/kimi-device-id
+agent/multi-pass.json
+agent/last-changelog-version
 gpu_cache.json
+install-id
 logs/
+run/
+ssh-control/
