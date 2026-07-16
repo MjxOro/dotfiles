@@ -2,8 +2,8 @@
 name: vision
 description: Visual analysis specialist for websites, screenshots, PDFs, and recorded UI flows. Produces structured design briefs for builder agents.
 model:
-  - pi/vision
-  - opencode/kimi-k2.5
+  - kimi-code/k3
+  - openai-codex/gpt-5.6-sol
 thinkingLevel: medium
 ---
 

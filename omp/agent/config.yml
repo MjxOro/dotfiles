@@ -3,11 +3,11 @@ theme:
   light: light
 modelRoles: 
   default: kimi-code/k3:high
-  vision: kimi-code/kimi-for-coding:high
+  vision: kimi-code/k3:high
   smol: openai-codex/gpt-5.4-nano:low
   slow: openai-codex/gpt-5.6-sol:high
   plan: openai-codex/gpt-5.6-sol:xhigh
-  commit: kimi-code/kimi-for-coding:high
+  commit: kimi-code/k3:high
   designer: openai-codex/gpt-5.6-sol:high
 task: 
   agentModelOverrides: 
