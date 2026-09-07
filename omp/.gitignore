@@ -13,3 +13,6 @@ install-id
 logs/
 run/
 ssh-control/
+agent/cache/
+cache/
+agent/config.yml.lock

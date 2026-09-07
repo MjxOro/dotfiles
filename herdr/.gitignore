@@ -1,0 +1,4 @@
+# herdr runtime state (local-only)
+session.json
+.plugins.lock
+*.sock

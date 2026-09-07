@@ -8,7 +8,7 @@
 # - Depends on packages/operations.sh (process_single_item, reconcile_*_runtime)
 #
 # This module provides the main orchestration function for managing dotfiles,
-# handling all package types including special cases for factory, cliproxy, omp,
+# handling all package types including special cases for cliproxy, omp,
 # and macOS-specific packages like aerospace, sketchybar, borders, and ghostty.
 
 # Ensure strict mode for this module
@@ -67,19 +67,6 @@ manage_dotfiles() {
       # Skip macOS-only packages on non-macOS systems
       if [[ ("$package_name" == "aerospace" || "$package_name" == "sketchybar" || "$package_name" == "borders") && "$(uname -s)" != "Darwin" ]]; then
         if [ "$QUIET" = false ]; then print_message "$YELLOW" "  Skipping '$package_name': macOS-only package (current OS: $(uname -s))"; fi
-      elif [[ "$package_name" == "factory" ]]; then
-        local factory_target_dir="$HOME/.factory"
-        if [ -d "$package_source_dir" ]; then
-          items_processed_in_package=$((items_processed_in_package + 1))
-          echo -e "${PURPLE}  DEBUG: Applying Factory directory linking${NC}"
-          if process_single_item "$action" "$package_source_dir" "$factory_target_dir" "factory" "$main_backup_dir"; then
-            items_succeeded_in_package=$((items_succeeded_in_package + 1))
-          else
-            items_failed_in_package=$((items_failed_in_package + 1))
-          fi
-        else
-          if [ "$QUIET" = false ]; then print_message "$YELLOW" "  Skipping 'factory': package directory not found."; fi
-        fi
       elif [[ "$package_name" == "cliproxy" ]]; then
         items_processed_in_package=$((items_processed_in_package + 1))
         echo -e "${PURPLE}  DEBUG: Applying CLIProxy directory linking${NC}"

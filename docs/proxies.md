@@ -88,65 +88,6 @@ Use `--force-expired` only when you intentionally want to reseed the account poo
 
 ## Client setup
 
-### Amp
-
-Point Amp at the local proxy instead of the upstream API:
-
-Amp talks to the proxy root URL, so this example uses `http://localhost:8317` without `/v1`. Amp still expects an API-key-shaped value, but on the default localhost-only setup that value is just a placeholder.
-
-```bash
-export AMP_API_BASE_URL="http://localhost:8317"
-export AMP_API_KEY="dummy-not-used"
-```
-
-Add those exports to your shell profile for interactive use. For headless or VM agent loops, set them in the service or container environment that runs Amp.
-
-### opencode
-
-Add a custom provider in `~/.config/opencode/opencode.json`:
-
-`opencode`, Factory, and `oh-my-pi` use the OpenAI-compatible endpoint, so their examples point at `http://localhost:8317/v1`. For clients that require an API key field, use a dummy placeholder unless you have explicitly enabled proxy `api-keys`.
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "provider": {
-    "cliproxy": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "CLIProxy",
-      "options": {
-        "baseURL": "http://localhost:8317/v1",
-        "apiKey": "dummy-not-used"
-      },
-      "models": {
-        "gpt-5": { "name": "GPT-5" }
-      }
-    }
-  },
-  "model": "cliproxy/gpt-5"
-}
-```
-
-If your opencode version fails to forward custom provider options and returns `404`, set these env vars instead and use the built-in OpenAI provider:
-
-```bash
-export OPENAI_BASE_URL="http://localhost:8317/v1"
-export OPENAI_API_KEY="dummy-not-used"
-```
-
-### Factory
-
-Set the API endpoint in your Factory workspace settings or `~/.factory/config.yaml`:
-
-```yaml
-api:
-  base_url: "http://localhost:8317/v1"
-  api_key: "dummy-not-used"
-  model: "gpt-5"
-```
-
-Keep shared, non-secret defaults in tracked `factory/settings.json` when they belong to the repo. Put machine-specific proxy endpoints and other local settings in local Factory config or workspace settings instead.
-
 ### Oh My Pi
 
 Track shared `oh-my-pi` defaults in `omp/agent/` and link them with `./install.sh -p omp`.

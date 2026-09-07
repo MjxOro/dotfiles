@@ -27,65 +27,6 @@ fixmouse() {
 
 alias cc="claude --dangerously-skip-permissions"
 
-_opencode_fallback_theme() {
-  if [[ -n "${OPENCODE_THEME_FALLBACK:-}" ]]; then
-    printf '%s\n' "$OPENCODE_THEME_FALLBACK"
-    return 0
-  fi
-
-  printf '%s\n' "system"
-}
-
-_opencode_tmux_fallback_theme() {
-  if [[ -z "${TMUX:-}" ]]; then
-    return 1
-  fi
-
-  local tmux_env
-  tmux_env="$(tmux show-environment -g OPENCODE_THEME_FALLBACK 2>/dev/null || true)"
-
-  if [[ "$tmux_env" == OPENCODE_THEME_FALLBACK=* ]]; then
-    printf '%s\n' "${tmux_env#OPENCODE_THEME_FALLBACK=}"
-    return 0
-  fi
-
-  return 1
-}
-
-opencode() {
-  local fallback_theme="${OPENCODE_THEME_FALLBACK:-}"
-
-  if [[ -n "${TMUX:-}" && -z "$fallback_theme" ]]; then
-    fallback_theme="$(_opencode_tmux_fallback_theme)"
-  fi
-
-  if [[ -n "${TMUX:-}" ]]; then
-    if [[ -z "$fallback_theme" ]]; then
-      fallback_theme="system"
-    fi
-
-    OPENCODE_CONFIG_CONTENT="{\"theme\":\"${fallback_theme}\"}" command opencode "$@"
-    return
-  fi
-
-  command opencode "$@"
-}
-
-ocssh() {
-  if (( $# < 1 )); then
-    echo "Usage: ocssh <ssh-target>"
-    return 1
-  fi
-
-  local ssh_target="$1"
-  local fallback_theme
-  fallback_theme="$(_opencode_fallback_theme)"
-  local fallback_theme_quoted
-  fallback_theme_quoted="${(q)fallback_theme}"
-
-  command ssh -t "$ssh_target" "export OPENCODE_THEME_FALLBACK=$fallback_theme_quoted; tmux set-environment -g OPENCODE_THEME_FALLBACK $fallback_theme_quoted 2>/dev/null || true; exec \$SHELL -l"
-}
-
 claudedev() {
      if [ "$1" = "zai" ]; then
         export ANTHROPIC_BASE_URL="https://api.z.ai/api/anthropic"
@@ -184,91 +125,6 @@ tkill() {
   tmux kill-session -t "$target" 2>/dev/null
 }
 
-tmux_opencode_layout() {
-  local pane_count="${1:-6}"
-  local session="agent${pane_count}"
-
-  if [[ "$pane_count" != "5" && "$pane_count" != "6" ]]; then
-    echo "Usage: tmux_opencode_layout [5|6]"
-    return 1
-  fi
-
-  tmux kill-session -t "$session" 2>/dev/null
-  tmux new-session -d -s "$session" -c "$PWD"
-
-  local fallback_theme
-  fallback_theme="$(_opencode_fallback_theme)"
-
-  if [[ -z "$fallback_theme" ]]; then
-    fallback_theme="system"
-  fi
-
-  local fallback_theme_quoted
-  fallback_theme_quoted="${(q)fallback_theme}"
-  local opencode_config_content
-  opencode_config_content="{\"theme\":\"${fallback_theme}\"}"
-  local opencode_config_content_quoted
-  opencode_config_content_quoted="${(q)opencode_config_content}"
-  local term_for_opencode
-  term_for_opencode="tmux-256color"
-  local term_for_opencode_quoted
-  term_for_opencode_quoted="${(q)term_for_opencode}"
-  local opentui_no_graphics
-  opentui_no_graphics="1"
-  local opentui_no_graphics_quoted
-  opentui_no_graphics_quoted="${(q)opentui_no_graphics}"
-  local opencode_disable_terminal_title
-  opencode_disable_terminal_title="1"
-  local opencode_disable_terminal_title_quoted
-  opencode_disable_terminal_title_quoted="${(q)opencode_disable_terminal_title}"
-  local opencode_force_explicit_width
-  opencode_force_explicit_width="0"
-  local term_program
-  term_program="tmux"
-  local term_program_version
-  term_program_version="0"
-  local tmux_version_output
-  tmux_version_output="$(tmux -V 2>/dev/null || true)"
-  if [[ "$tmux_version_output" == tmux\ * ]]; then
-    term_program_version="${tmux_version_output#tmux }"
-  fi
-  local opencode_force_explicit_width_quoted
-  opencode_force_explicit_width_quoted="${(q)opencode_force_explicit_width}"
-  local opencode_launch_cmd
-  opencode_launch_cmd="TERM=$term_for_opencode_quoted OPENTUI_NO_GRAPHICS=$opentui_no_graphics_quoted OPENTUI_FORCE_EXPLICIT_WIDTH=$opencode_force_explicit_width_quoted OPENCODE_DISABLE_TERMINAL_TITLE=$opencode_disable_terminal_title_quoted OPENCODE_THEME_FALLBACK=$fallback_theme_quoted OPENCODE_CONFIG_CONTENT=$opencode_config_content_quoted command opencode ."
-
-  tmux set-environment -t "$session" OPENCODE_THEME_FALLBACK "$fallback_theme"
-  tmux set-environment -t "$session" OPENCODE_CONFIG_CONTENT "$opencode_config_content"
-  tmux set-environment -t "$session" TERM "$term_for_opencode"
-  tmux set-environment -t "$session" TERM_PROGRAM "$term_program"
-  tmux set-environment -t "$session" TERM_PROGRAM_VERSION "$term_program_version"
-  tmux set-environment -t "$session" OPENTUI_NO_GRAPHICS "$opentui_no_graphics"
-  tmux set-environment -t "$session" OPENTUI_FORCE_EXPLICIT_WIDTH "$opencode_force_explicit_width"
-  tmux set-environment -t "$session" OPENCODE_DISABLE_TERMINAL_TITLE "$opencode_disable_terminal_title"
-
-  local i
-  local launch_delay="0.25"
-  for ((i = 1; i < pane_count; i++)); do
-    tmux split-window -t "$session":0 -c "$PWD"
-    tmux select-layout -t "$session":0 tiled
-  done
-
-  if [ -n "$TMUX" ]; then
-    tmux switch-client -t "$session"
-  fi
-
-  for i in 0 1 2 3; do
-    tmux respawn-pane -k -t "$session":0."$i" "$opencode_launch_cmd"
-    sleep "$launch_delay"
-  done
-
-  tmux select-pane -t "$session":0.4
-
-  if [ -z "$TMUX" ]; then
-    tmux attach-session -t "$session"
-  fi
-}
-
 tmux_nvim_lazygit_layout() {
   local session="nvlg"
 
@@ -286,8 +142,4 @@ tmux_nvim_lazygit_layout() {
   fi
 }
 
-alias o5="tmux_opencode_layout 5"
-alias o6="tmux_opencode_layout 6"
-alias agent5="tmux_opencode_layout 5"
-alias agent6="tmux_opencode_layout 6"
 alias nvlg="tmux_nvim_lazygit_layout"

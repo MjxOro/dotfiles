@@ -20,7 +20,6 @@ dotfiles/
 ├── docs/              # Shared setup guides and reference docs
 ├── tools/             # Helper scripts and templates for local services
 ├── nvim/              # NeoVim configuration (links to ~/.config/nvim/)
-├── factory/           # Factory CLI home directory (links to ~/.factory/)
 ├── starship/          # Starship prompt config (links to ~/.config/starship/)
 ├── tmux/              # Tmux configuration
 │   └── .tmux.conf     # Links to ~/.tmux.conf
@@ -84,7 +83,7 @@ The script follows these rules for linking:
 
 1. Top-level non-dot-prefixed directories (like nvim, starship) link to ~/.config/
 2. Specific dotfiles (.zshrc, .tmux, .tmux.conf) inside package directories link to $HOME
-3. Tool-specific exceptions can link to native paths (for example `factory/` -> `~/.factory/`)
+3. Tool-specific exceptions can link to native paths (for example `omp/` -> `~/.omp/`)
 
 ## Dependencies
 
@@ -98,7 +97,6 @@ The script can automatically install these dependencies based on your OS:
 Optional tools:
 - Starship prompt
 - Oh My Zsh
-- Factory CLI (`droid`)
 - Neovim (with unstable PPA option for Debian/Ubuntu)
 
 ## Customization
@@ -109,15 +107,11 @@ To add a new package:
 2. Put configuration files in it
 3. Run `./install.sh -p foo` to link only this package or `./install.sh` to link all
 
-Factory CLI now links the repo's `factory/` directory to `~/.factory/`. Runtime artifacts such as `bin/`, `logs/`, `sessions/`, and generated caches should stay gitignored inside that directory.
-
-`factory/settings.json` is intended for shared, non-secret defaults and should be committed when it only contains team-wide settings. Keep authentication artifacts such as `auth.v2.file` and `auth.v2.key` local-only.
-
 `cliproxy/` now links to `~/.cliproxy/`, and `omp/` now links to `~/.omp/`. Sensitive per-machine files stay local through the package `.gitignore` files, while tracked config and script changes propagate across machines after a pull.
 
 ### Proxy workflows
 
-Proxy setup now lives in `docs/proxies.md` so Amp, opencode, Factory, and `oh-my-pi` all share one reference. That guide is now OpenAI-only, defaults to the headless device-code login flow for Codex/OpenAI accounts, and assumes the current user has working Docker daemon access for the local proxy on `localhost:8317`.
+Proxy setup now lives in `docs/proxies.md` so Codex and `oh-my-pi` share one reference. That guide is now OpenAI-only, defaults to the headless device-code login flow for Codex/OpenAI accounts, and assumes the current user has working Docker daemon access for the local proxy on `localhost:8317`.
 
 ### Machine-specific overrides (avoid merge conflicts)
 

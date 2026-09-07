@@ -27,9 +27,7 @@ print_installation_summary() {
 
     command_exists starship && installed_tools+=("Starship") || failed_tools+=("Starship")
     (command_exists bun || [ -f "$HOME/.bun/bin/bun" ]) && installed_tools+=("Bun") || failed_tools+=("Bun")
-    command_exists opencode && installed_tools+=("OpenCode") || failed_tools+=("OpenCode")
     command_exists claude && installed_tools+=("Claude Code") || failed_tools+=("Claude Code")
-    command_exists droid && installed_tools+=("Factory CLI") || failed_tools+=("Factory CLI")
     [ -d "$HOME/.oh-my-zsh" ] && installed_tools+=("Oh My Zsh") || failed_tools+=("Oh My Zsh")
     command_exists ghostty && installed_tools+=("Ghostty") || failed_tools+=("Ghostty")
     command_exists eza && installed_tools+=("eza") || failed_tools+=("eza")
@@ -42,8 +40,6 @@ print_installation_summary() {
      [ -L "$HOME/.config/starship" ] && linked_configs+=("Starship")
      [ -L "$HOME/.tmux.conf" ] && linked_configs+=("Tmux")
      [ -L "$HOME/.zshrc" ] && linked_configs+=("Zsh")
-     [ -L "$HOME/.config/opencode" ] && linked_configs+=("OpenCode")
-     [ -L "$HOME/.factory" ] && linked_configs+=("Factory")
       [ -L "$HOME/.config/ghostty" ] && linked_configs+=("Ghostty")
   [ -L "$HOME/.config/lazygit" ] && linked_configs+=("LazyGit")
   [ -L "$HOME/.omp" ] && linked_configs+=("OMP")

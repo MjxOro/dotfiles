@@ -124,9 +124,8 @@ install_mac_dependencies() {
   _install_ohmyzsh_script
   _set_zsh_default_shell
   _install_bun_script
-  _install_opencode_script
   _install_claude_code_script
-  _install_factory_cli_script
+  _install_herdr_script
   _install_nvm
   _install_catppuccin_tmux
 

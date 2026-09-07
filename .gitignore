@@ -6,7 +6,8 @@ antigravity-accounts.json
 cliproxy/auths/
 cliproxy/config.yaml
 cliproxy/logs/
-
+tools/cliproxy/auths/
+tools/cliproxy/logs/
 # Claude Code sensitive data (keep md files, settings, downloads, plugin configs)
 claude/.claude/cache/
 claude/.claude/debug/
@@ -41,10 +42,6 @@ tt.*
 *.bak.*
 *~
 .#*
-
-# Sisyphus work directories
-.sisyphus/
-**/.sisyphus/
 
 # Accidental literal HOME path
 #{HOME}/

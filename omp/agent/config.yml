@@ -1,25 +1,27 @@
-theme: 
+theme:
   dark: poimandres-terminal
   light: light
-modelRoles: 
-  default: kimi-code/k3:high
+modelRoles:
   vision: kimi-code/k3:high
   smol: kimi-code/kimi-for-coding-highspeed:low
   slow: openai-codex/gpt-5.6-sol:high
   plan: openai-codex/gpt-5.6-sol:xhigh
   commit: kimi-code/k3:high
-  designer: openai-codex/gpt-5.6-sol:high
-task: 
-  agentModelOverrides: 
+  designer: kimi-code/k3:high
+  default: kimi-code/k3
+task:
+  agentModelOverrides:
     {}
-  disabledAgents: 
+  disabledAgents:
     []
-disabledExtensions: 
+disabledExtensions:
   []
-statusLine: 
+statusLine:
   preset: default
   separator: pipe
-display: 
+display:
   showTokenUsage: true
 symbolPreset: nerd
-setupVersion: 1
+setupVersion: 2
+composer:
+  shape: borderless

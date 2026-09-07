@@ -113,35 +113,6 @@ _install_bun_script() {
   else print_message "$YELLOW" "  Bun installation skipped."; fi
 }
 
-# OpenCode AI coding assistant installer
-_install_opencode_script() {
-  if command_exists opencode && opencode --version >/dev/null 2>&1; then
-    if [ "$QUIET" = false ]; then print_message "$GREEN" "  OpenCode is already installed."; fi
-    return 0
-  fi
-  if ask_yes_no "  Install OpenCode (AI coding assistant)?" "y"; then
-    if ! command_exists curl; then print_message "$RED" "    curl is required for OpenCode installation. Please install curl."; return 1; fi
-    echo -n -e "${CYAN}    Installing OpenCode (curl ... | bash)... ${NC}"
-    local opencode_out="" opencode_ec
-    if [ "$QUIET" = true ]; then
-      opencode_out=$(curl -fsSL https://opencode.ai/install 2>/dev/null | bash 2>&1); opencode_ec=$?
-    else
-      echo
-      curl -fsSL https://opencode.ai/install | bash; opencode_ec=$?
-    fi
-    if [ -f "$HOME/.opencode/bin/opencode" ]; then
-      export PATH="$HOME/.opencode/bin:$PATH"
-    fi
-    if [ $opencode_ec -eq 0 ] && (command_exists opencode || [ -f "$HOME/.opencode/bin/opencode" ]); then
-      echo -e "${GREEN}✓${NC}"
-      if [ "$QUIET" = false ]; then print_message "$GREEN" "    OpenCode installed successfully."; fi
-    else
-      echo -e "${RED}✗${NC}"; print_message "$RED" "    OpenCode installation failed (code: $opencode_ec)."
-      if [ -n "$opencode_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $opencode_out"; fi
-    fi
-  else print_message "$YELLOW" "  OpenCode installation skipped."; fi
-}
-
 # Claude Code Anthropic CLI installer
 _install_claude_code_script() {
   if command_exists claude && claude --version >/dev/null 2>&1; then
@@ -171,35 +142,49 @@ _install_claude_code_script() {
   else print_message "$YELLOW" "  Claude Code installation skipped."; fi
 }
 
-# Factory CLI (droid) installer
-_install_factory_cli_script() {
-  if command_exists droid && droid --version >/dev/null 2>&1; then
-    if [ "$QUIET" = false ]; then print_message "$GREEN" "  Factory CLI is already installed."; fi
+# herdr terminal workspace manager installer
+_install_herdr_script() {
+  if command_exists herdr; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  herdr is already installed."; fi
+    if ask_yes_no "  Update herdr to the latest version?" "y"; then
+      echo -n -e "${CYAN}    Updating herdr (herdr update)... ${NC}"
+      local herdr_up_out="" herdr_up_ec
+      if [ "$QUIET" = true ]; then
+        herdr_up_out=$(herdr update 2>&1); herdr_up_ec=$?
+      else
+        echo
+        herdr update; herdr_up_ec=$?
+      fi
+      if [ $herdr_up_ec -eq 0 ]; then echo -e "${GREEN}✓${NC}"; else
+        echo -e "${RED}✗${NC}"; print_message "$RED" "    herdr update failed (code: $herdr_up_ec)."
+        if [ -n "$herdr_up_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $herdr_up_out"; fi
+      fi
+    fi
     return 0
   fi
-  if ask_yes_no "  Install Factory CLI (droid)?" "y"; then
-    if ! command_exists curl; then print_message "$RED" "    curl is required for Factory CLI installation. Please install curl."; return 1; fi
-    echo -n -e "${CYAN}    Installing Factory CLI (curl ... | sh)... ${NC}"
-    local factory_out="" factory_ec
+  if ask_yes_no "  Install herdr (terminal workspace manager)?" "y"; then
+    if ! command_exists curl; then print_message "$RED" "    curl is required for herdr installation. Please install curl."; return 1; fi
+    echo -n -e "${CYAN}    Installing herdr (curl ... | sh)... ${NC}"
+    local herdr_out="" herdr_ec
     if [ "$QUIET" = true ]; then
-      factory_out=$(curl -fsSL https://app.factory.ai/cli 2>/dev/null | sh 2>&1); factory_ec=$?
+      herdr_out=$(curl -fsSL https://herdr.dev/install.sh 2>/dev/null | sh 2>&1); herdr_ec=$?
     else
       echo
-      curl -fsSL https://app.factory.ai/cli | sh; factory_ec=$?
+      curl -fsSL https://herdr.dev/install.sh | sh; herdr_ec=$?
     fi
-    if [ -f "$HOME/.local/bin/droid" ]; then
+    if [ -f "$HOME/.local/bin/herdr" ]; then
       export PATH="$HOME/.local/bin:$PATH"
     fi
-    if [ $factory_ec -eq 0 ] && (command_exists droid || [ -f "$HOME/.local/bin/droid" ]); then
+    if [ $herdr_ec -eq 0 ] && (command_exists herdr || [ -f "$HOME/.local/bin/herdr" ]); then
       echo -e "${GREEN}✓${NC}"
-      if [ "$QUIET" = false ]; then print_message "$GREEN" "    Factory CLI installed successfully."; fi
+      if [ "$QUIET" = false ]; then print_message "$GREEN" "    herdr installed successfully."; fi
     else
       echo -e "${RED}✗${NC}"
-      print_message "$RED" "    Factory CLI installation failed (code: $factory_ec)."
-      if [ -n "$factory_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $factory_out"; fi
+      print_message "$RED" "    herdr installation failed (code: $herdr_ec)."
+      if [ -n "$herdr_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $herdr_out"; fi
       return 1
     fi
-  else print_message "$YELLOW" "  Factory CLI installation skipped."; fi
+  else print_message "$YELLOW" "  herdr installation skipped."; fi
 }
 
 # Node Version Manager (nvm) installer
