@@ -16,3 +16,4 @@ ssh-control/
 agent/cache/
 cache/
 agent/config.yml.lock
+agent/auth.json

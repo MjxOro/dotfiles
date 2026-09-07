@@ -25,6 +25,7 @@ claude/.claude/transcripts/
 claude/.claude/plugins/cache/
 claude/.claude/plugins/marketplaces/
 claude/.claude/plugins/install-counts-cache.json
+claude/.claude/.credentials.json
 
 # System files
 .DS_Store
