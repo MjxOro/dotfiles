@@ -20,5 +20,6 @@
       }
     }
   },
-  "claude.general.allowDangerouslySkipPermissions": true
+  "claude.general.allowDangerouslySkipPermissions": true,
+  "hooks": {"SessionStart":[{"matcher":"*","hooks":[{"type":"command","command":"bash '/Users/mjxoro/.claude/hooks/herdr-agent-state.sh' session","timeout":10}]}]}
 }
