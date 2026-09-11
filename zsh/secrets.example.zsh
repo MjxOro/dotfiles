@@ -4,7 +4,7 @@
 
 # OpenRouter API Key for AI model access
 # Get your key from: https://openrouter.ai/keys
-# export OPENROUTER_KEY=sk-or-your-actual-key-here
+# export OPENROUTER_API_KEY=sk-or-your-actual-key-here
 
 # Minimax API Key for AI services
 # Get your key from: https://platform.minimaxi.com/
