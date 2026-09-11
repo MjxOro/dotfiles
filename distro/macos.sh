@@ -133,6 +133,7 @@ install_mac_dependencies() {
   _install_ghostty_brew
   _install_eza_brew
   _install_playwright_cli_script
+  _install_omp_script
 
   if ! $all_ok; then return 1; fi
   return 0

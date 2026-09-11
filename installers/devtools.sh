@@ -123,3 +123,54 @@ _install_playwright_cli_script() {
     print_message "$YELLOW" "  Playwright CLI installation skipped."
   fi
 }
+
+_install_omp_script() {
+  # Oh My Pi coding agent - BUN-FIRST IMPLEMENTATION
+  if bun_global_command_exists omp && omp --version >/dev/null 2>&1; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  OMP is already installed."; fi
+    return 0
+  fi
+
+  if ask_yes_no "  Install OMP (Oh My Pi coding agent)?" "y"; then
+    ensure_bun_bin_on_path
+
+    if ! command_exists bun; then
+      print_message "$YELLOW" "    Bun not found. Installing Bun first..."
+      if ! _install_bun_script; then
+        if [ "$QUIET" = false ]; then print_message "$YELLOW" "    Bun installation step reported an error."; fi
+      fi
+      ensure_bun_bin_on_path
+    fi
+
+    if ! command_exists bun; then
+      print_message "$RED" "    Bun is required for OMP installation."
+      return 1
+    fi
+
+    echo -n -e "${CYAN}    Installing OMP via Bun... ${NC}"
+    local omp_out="" omp_ec
+    if [ "$QUIET" = true ]; then
+      omp_out=$(bun install -g @oh-my-pi/pi-coding-agent 2>&1); omp_ec=$?
+    else
+      echo
+      bun install -g @oh-my-pi/pi-coding-agent; omp_ec=$?
+    fi
+
+    ensure_bun_bin_on_path
+
+    if [ $omp_ec -eq 0 ] && bun_global_command_exists omp; then
+      echo -e "${GREEN}✓${NC}"
+      print_message "$GREEN" "    OMP installed successfully."
+      # Bun blocks dependency postinstall scripts by default; onnxruntime-node
+      # needs its native binding downloaded. Trust is idempotent.
+      bun pm -g trust onnxruntime-node protobufjs >/dev/null 2>&1 || true
+    else
+      echo -e "${RED}✗${NC}"
+      print_message "$RED" "    OMP installation failed (code: $omp_ec)."
+      if [ -n "$omp_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $omp_out"; fi
+      return 1
+    fi
+  else
+    print_message "$YELLOW" "  OMP installation skipped."
+  fi
+}

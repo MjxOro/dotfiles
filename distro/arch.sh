@@ -50,6 +50,7 @@ install_arch_dependencies() {
   _install_ghostty_arch
   _install_eza_arch
   _install_playwright_cli_script
+  _install_omp_script
 
   if ! $all_ok; then return 1; fi
   return 0

@@ -362,6 +362,7 @@ install_debian_dependencies() {
   _install_ghostty_debian
   _install_eza_debian
   _install_playwright_cli_script
+  _install_omp_script
 
   if ! $all_ok; then return 1; fi
   print_message "$GREEN" "Debian/Ubuntu dependency check complete."
