@@ -306,3 +306,50 @@ patch_global_omp_install() {
   print_message "$GRAY" "    Output: $patch_out"
   return 0
 }
+
+# migrate_herdr_legacy_symlink()
+# Replace a legacy ~/.config/herdr -> <repo>/herdr directory symlink (created
+# by the old Rule 1 linking) with a real directory so only config.toml is
+# linked. Moves server runtime state out of the repo into the new directory.
+# Arguments:
+#   $1 - package_dir: Path to the herdr package directory
+# Returns: 1 if migration is deferred while the server runs, 0 otherwise
+migrate_herdr_legacy_symlink() {
+  local package_dir="$1"
+  local target_dir="$HOME/.config/herdr"
+
+  if [ ! -L "$target_dir" ]; then
+    return 0
+  fi
+  local current_link_target; current_link_target=$(resolve_path "$target_dir" 2>/dev/null || true)
+  local expected_link_target; expected_link_target=$(resolve_path "$package_dir" 2>/dev/null || true)
+  if [[ "$current_link_target" != "$expected_link_target" ]]; then
+    return 0
+  fi
+
+  # Never rewrite the config dir under a live server: its sockets are bound
+  # to the old path and panes die with it. Defer until it is stopped.
+  if [ -S "$target_dir/herdr.sock" ] || [ -S "$target_dir/herdr-client.sock" ] || [ -S "$package_dir/herdr.sock" ]; then
+    print_message "$YELLOW" "  Skipping herdr legacy migration: server is running. Run 'herdr server stop' (from outside herdr) and re-run install.sh -p herdr."
+    return 1
+  fi
+
+  if ! rm "$target_dir"; then
+    print_message "$RED" "  ERROR: Failed to remove legacy herdr directory symlink '$target_dir'."
+    return 0
+  fi
+  if ! mkdir -p "$target_dir"; then
+    print_message "$RED" "  ERROR: Failed to create herdr config directory '$target_dir'."
+    return 0
+  fi
+
+  local runtime_item
+  for runtime_item in session.json .plugins.lock release-notes.json herdr-server.log herdr-client.log herdr.sock herdr-client.sock; do
+    if { [ -e "$package_dir/$runtime_item" ] || [ -L "$package_dir/$runtime_item" ]; } && [ ! -e "$target_dir/$runtime_item" ]; then
+      mv "$package_dir/$runtime_item" "$target_dir/$runtime_item" 2>/dev/null || true
+    fi
+  done
+
+  if [ "$QUIET" = false ]; then print_message "$BLUE" "  Migrated legacy herdr directory symlink to file-level config link ($target_dir)."; fi
+  return 0
+}

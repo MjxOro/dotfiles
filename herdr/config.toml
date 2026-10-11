@@ -30,6 +30,7 @@ onboarding = false
 # green = "#a6e3a1"
 
 [terminal]
+new_cwd = "home"
 # Executable used for new interactive panes.
 # Empty means $SHELL, then /bin/sh.
 # default_shell = ""
@@ -327,6 +328,7 @@ onboarding = false
 # manage_ssh_config = true
 
 [experimental]
+kitty_graphics = true
 # Allow launching herdr from inside a herdr-managed pane.
 # allow_nested = false
 # Experimental local Kitty graphics rendering for attached clients.

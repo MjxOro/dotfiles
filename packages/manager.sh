@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # packages/manager.sh - Main orchestration for dotfile linking/unlinking
-# 
+#
 # API Contract:
 # - Uses global state from cli/args.sh (PACKAGES_TO_PROCESS, LINK_SRC_BASE_DIR, QUIET)
 # - Depends on lib/logging.sh (print_header, print_message, color vars)
 # - Depends on lib/utils.sh (resolve_path)
-# - Depends on packages/operations.sh (process_single_item, reconcile_*_runtime)
+# - Depends on packages/operations.sh (process_single_item, reconcile_*_runtime, migrate_herdr_legacy_symlink)
 #
 # This module provides the main orchestration function for managing dotfiles,
-# handling all package types including special cases for cliproxy, omp,
-# and macOS-specific packages like aerospace, sketchybar, borders, and ghostty.
+# handling all package types including special cases for cliproxy, omp, codex,
+# herdr, and macOS-specific packages like aerospace, sketchybar, borders, and ghostty.
 
 # Ensure strict mode for this module
 set -euo pipefail
@@ -88,6 +88,70 @@ manage_dotfiles() {
           items_succeeded_in_package=$((items_succeeded_in_package + 1))
         else
           items_failed_in_package=$((items_failed_in_package + 1))
+        fi
+      elif [[ "$package_name" == "agents" ]]; then
+        # Canonical agent-skills store. Rule 1 links it to ~/.config/agents
+        # (Kimi's recommended generic skills path); ~/.agents makes the
+        # skills-sh CLI global store land in the repo; sync-skills.sh fans
+        # out per-agent links into native skills dirs.
+        items_processed_in_package=$((items_processed_in_package + 1))
+        echo -e "${PURPLE}  DEBUG: Applying agent skills-store linking${NC}"
+        local agents_ok=true
+        if ! process_single_item "$action" "$package_source_dir" "$HOME/.config/$package_name" "$package_name" "$main_backup_dir"; then agents_ok=false; fi
+        if ! process_single_item "$action" "$package_source_dir" "$HOME/.agents" "agents-home" "$main_backup_dir"; then agents_ok=false; fi
+        if [ -x "$package_source_dir/sync-skills.sh" ]; then
+          if [ "$action" = "link" ]; then
+            if [ "$QUIET" = false ]; then
+              "$package_source_dir/sync-skills.sh" || agents_ok=false
+            else
+              "$package_source_dir/sync-skills.sh" >/dev/null 2>&1 || agents_ok=false
+            fi
+          else
+            "$package_source_dir/sync-skills.sh" --unlink >/dev/null 2>&1 || true
+          fi
+        fi
+        if $agents_ok; then items_succeeded_in_package=$((items_succeeded_in_package + 1)); else items_failed_in_package=$((items_failed_in_package + 1)); fi
+      elif [[ "$package_name" == "codex" ]]; then
+        # ~/.codex also holds the standalone install (packages/, tmp/), so only
+        # the tracked config file is linked, not the whole directory.
+        items_processed_in_package=$((items_processed_in_package + 1))
+        echo -e "${PURPLE}  DEBUG: Applying Codex config linking${NC}"
+        local codex_config_source="$package_source_dir/.codex/config.toml"
+        local codex_config_target="$HOME/.codex/config.toml"
+        if [ -f "$codex_config_source" ]; then
+          if process_single_item "$action" "$codex_config_source" "$codex_config_target" "codex/config.toml" "$main_backup_dir"; then
+            items_succeeded_in_package=$((items_succeeded_in_package + 1))
+          else
+            items_failed_in_package=$((items_failed_in_package + 1))
+          fi
+        else
+          print_message "$YELLOW" "  No config.toml found in '$package_source_dir/.codex'. Skipping codex config link."
+          items_failed_in_package=$((items_failed_in_package + 1))
+        fi
+      elif [[ "$package_name" == "herdr" ]]; then
+        # ~/.config/herdr holds server runtime (session.json, *.sock, logs), so
+        # only the tracked config file is linked, not the whole directory.
+        items_processed_in_package=$((items_processed_in_package + 1))
+        echo -e "${PURPLE}  DEBUG: Applying herdr config linking${NC}"
+        local herdr_ok=true herdr_deferred=false
+        if [ "$action" = "link" ]; then
+          migrate_herdr_legacy_symlink "$package_source_dir" || herdr_deferred=true
+        fi
+        if [ "$herdr_deferred" = true ]; then
+          print_message "$YELLOW" "  Package 'herdr' deferred: legacy directory symlink left in place while the server runs."
+          items_failed_in_package=$((items_failed_in_package + 1))
+        else
+          local herdr_config_source="$package_source_dir/config.toml"
+          local herdr_config_target="$HOME/.config/herdr/config.toml"
+          if [ -f "$herdr_config_source" ]; then
+            if ! process_single_item "$action" "$herdr_config_source" "$herdr_config_target" "herdr/config.toml" "$main_backup_dir"; then herdr_ok=false; fi
+          elif [ "$action" = "unlink" ] && [ -L "$herdr_config_target" ]; then
+            if ! process_single_item "$action" "$herdr_config_target" "$herdr_config_target" "herdr/config.toml" "$main_backup_dir"; then herdr_ok=false; fi
+          else
+            print_message "$YELLOW" "  No config.toml found in '$package_source_dir'. Skipping herdr config link."
+            herdr_ok=false
+          fi
+          if $herdr_ok; then items_succeeded_in_package=$((items_succeeded_in_package + 1)); else items_failed_in_package=$((items_failed_in_package + 1)); fi
         fi
       else
         echo -e "${PURPLE}  DEBUG: Applying Rule 1 for '$package_name'${NC}"

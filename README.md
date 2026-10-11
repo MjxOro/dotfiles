@@ -83,7 +83,7 @@ The script follows these rules for linking:
 
 1. Top-level non-dot-prefixed directories (like nvim, starship) link to ~/.config/
 2. Specific dotfiles (.zshrc, .tmux, .tmux.conf) inside package directories link to $HOME
-3. Tool-specific exceptions can link to native paths (for example `omp/` -> `~/.omp/`)
+3. Tool-specific exceptions link only tracked config while runtime stays local: `omp/` -> `~/.omp/`, `herdr/config.toml` -> `~/.config/herdr/config.toml` (herdr's session.json, sockets, and logs live in `~/.config/herdr/` unlinked)
 
 ## Dependencies
 
@@ -98,6 +98,9 @@ Optional tools:
 - Starship prompt
 - Oh My Zsh
 - Neovim (with unstable PPA option for Debian/Ubuntu)
+- Kimi Code CLI (Moonshot, via `installers/core.sh`)
+- OmO (oh-my-openagent CLI, via `installers/core.sh`; installs to `~/.local/bin/omo`, native macOS/Linux binary, `OMO_NO_MODIFY_PATH=1` so `.zshrc` stays untouched)
+- nvm + LTS Node (opt-in via `./install.sh --install-nvm`; Bun-first setups skip it)
 
 ## Customization
 
@@ -108,6 +111,21 @@ To add a new package:
 3. Run `./install.sh -p foo` to link only this package or `./install.sh` to link all
 
 `cliproxy/` now links to `~/.cliproxy/`, and `omp/` now links to `~/.omp/`. Sensitive per-machine files stay local through the package `.gitignore` files, while tracked config and script changes propagate across machines after a pull.
+
+Installer-managed CLIs whose home directory holds a versioned binary (Kimi Code in `~/.kimi-code/`) are installed via `installers/core.sh` with `PATH` from `zsh/.zshrc`, not symlinked as packages.
+
+### Agent skills (shared across Claude Code, Codex, Kimi, OMP)
+
+`agents/skills/` is the canonical store (one dir per `<name>/SKILL.md`), tracked in git.
+`install.sh` links it to `~/.config/agents/` and `~/.agents/`, then `agents/sync-skills.sh`
+fans every skill out to each installed agent's native dir (`~/.claude/skills`,
+`~/.codex/skills`, `~/.kimi/skills`, `~/.omp/agent/skills`).
+
+```bash
+npx skills add <owner>/<repo> --skill <name> -g  # lands in the store via ~/.agents
+./agents/sync-skills.sh                          # adopt + relink
+./install.sh -p agents                           # link-only path (runs the sync)
+```
 
 ### Proxy workflows
 

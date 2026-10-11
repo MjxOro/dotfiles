@@ -7,6 +7,11 @@
 - **Link Only**: `./install.sh -l` - Only create symlinks without installing dependencies
 - **Unlink**: `./install.sh -u` - Remove all managed dotfile symlinks
 
+## Agent Skills
+- Canonical store: `agents/skills/<name>/SKILL.md` (tracked, shared by Claude/Codex/Kimi/OMP)
+- Install: `npx skills add <owner>/<repo> --skill <name> -g`, then `./agents/sync-skills.sh`
+- Per-agent dirs (`~/.claude/skills`, `~/.omp/agent/skills`, …) hold generated symlinks only; never copy skill content there by hand
+
 ## Code Style Guidelines
 
 ### Shell Scripts (install.sh)

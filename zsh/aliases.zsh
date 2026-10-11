@@ -9,6 +9,9 @@ alias gs="git status"
 # misc
 alias updateZsh="source ~/.zshrc"
 
+# omp: stay in ~ instead of auto-switching to /tmp (upstream default without --allow-home)
+alias omp='omp --allow-home'
+
 fixmouse() {
   # Restore terminal input after a TUI or tmux leaves xterm mouse reporting enabled.
   printf '\e[?1006l\e[?1003l\e[?1002l\e[?1000l'

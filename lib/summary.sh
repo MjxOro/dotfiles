@@ -33,6 +33,7 @@ print_installation_summary() {
     command_exists eza && installed_tools+=("eza") || failed_tools+=("eza")
     command_exists lazygit && installed_tools+=("LazyGit") || failed_tools+=("LazyGit")
     bun_global_command_exists playwright && installed_tools+=("Playwright") || failed_tools+=("Playwright")
+    command_exists herdr && installed_tools+=("herdr") || failed_tools+=("herdr")
 
      # Check linked configs
      local linked_configs=()
@@ -44,6 +45,7 @@ print_installation_summary() {
   [ -L "$HOME/.config/lazygit" ] && linked_configs+=("LazyGit")
   [ -L "$HOME/.omp" ] && linked_configs+=("OMP")
   [ -L "$HOME/.cliproxy" ] && linked_configs+=("CLIProxy")
+  [ -L "$HOME/.config/herdr/config.toml" ] && linked_configs+=("herdr")
   [ -L "$HOME/.claude" ] && linked_configs+=("Claude")
      [[ "$(uname -s)" == "Darwin" ]] && [ -L "$HOME/.config/aerospace" ] && linked_configs+=("Aerospace")
      [[ "$(uname -s)" == "Darwin" ]] && [ -L "$HOME/.config/sketchybar" ] && linked_configs+=("SketchyBar")

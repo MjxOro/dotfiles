@@ -142,8 +142,126 @@ _install_claude_code_script() {
   else print_message "$YELLOW" "  Claude Code installation skipped."; fi
 }
 
+# Kimi Code (Moonshot AI) CLI installer
+_install_kimi_code_script() {
+  if [ -d "$HOME/.kimi-code/bin" ]; then
+    case ":$PATH:" in
+      *":$HOME/.kimi-code/bin:"*) ;;
+      *) export PATH="$HOME/.kimi-code/bin:$PATH" ;;
+    esac
+  fi
+  if command_exists kimi && kimi --version >/dev/null 2>&1; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  Kimi Code is already installed."; fi
+    return 0
+  fi
+  if ask_yes_no "  Install Kimi Code (Moonshot's CLI)?" "y"; then
+    if ! command_exists curl; then print_message "$RED" "    curl is required for Kimi Code installation. Please install curl."; return 1; fi
+    echo -n -e "${CYAN}    Installing Kimi Code (curl ... | bash)... ${NC}"
+    local kimi_out="" kimi_ec
+    # KIMI_NO_MODIFY_PATH keeps upstream from appending to the symlinked .zshrc;
+    # PATH is managed via dotfiles/zsh/.zshrc instead.
+    if [ "$QUIET" = true ]; then
+      kimi_out=$(KIMI_NO_MODIFY_PATH=1 curl -fsSL https://code.kimi.com/kimi-code/install.sh 2>/dev/null | bash 2>&1); kimi_ec=$?
+    else
+      echo
+      KIMI_NO_MODIFY_PATH=1 curl -fsSL https://code.kimi.com/kimi-code/install.sh | bash; kimi_ec=$?
+    fi
+    if [ -d "$HOME/.kimi-code/bin" ]; then
+      case ":$PATH:" in
+        *":$HOME/.kimi-code/bin:"*) ;;
+        *) export PATH="$HOME/.kimi-code/bin:$PATH" ;;
+      esac
+    fi
+    if [ $kimi_ec -eq 0 ] && command_exists kimi; then
+      echo -e "${GREEN}✓${NC}"
+      if [ "$QUIET" = false ]; then print_message "$GREEN" "    Kimi Code installed successfully."; fi
+    else
+      echo -e "${RED}✗${NC}"; print_message "$RED" "    Kimi Code installation failed (code: $kimi_ec)."
+      if [ -n "$kimi_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $kimi_out"; fi
+    fi
+  else print_message "$YELLOW" "  Kimi Code installation skipped."; fi
+}
+
+# Codex CLI (OpenAI) installer
+_install_codex_script() {
+  if [ -d "$HOME/.local/bin" ]; then
+    case ":$PATH:" in
+      *":$HOME/.local/bin:"*) ;;
+      *) export PATH="$HOME/.local/bin:$PATH" ;;
+    esac
+  fi
+  if command_exists codex && codex --version >/dev/null 2>&1; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  Codex CLI is already installed."; fi
+    return 0
+  fi
+  if ask_yes_no "  Install Codex CLI (OpenAI's CLI)?" "y"; then
+    if ! command_exists curl; then print_message "$RED" "    curl is required for Codex CLI installation. Please install curl."; return 1; fi
+    echo -n -e "${CYAN}    Installing Codex CLI (curl ... | sh)... ${NC}"
+    local codex_out="" codex_ec
+    if [ "$QUIET" = true ]; then
+      codex_out=$(curl -fsSL https://chatgpt.com/codex/install.sh 2>/dev/null | sh 2>&1); codex_ec=$?
+    else
+      echo
+      curl -fsSL https://chatgpt.com/codex/install.sh | sh; codex_ec=$?
+    fi
+    if [ $codex_ec -eq 0 ] && command_exists codex; then
+      echo -e "${GREEN}✓${NC}"
+      if [ "$QUIET" = false ]; then print_message "$GREEN" "    Codex CLI installed successfully."; fi
+    else
+      echo -e "${RED}✗${NC}"; print_message "$RED" "    Codex CLI installation failed (code: $codex_ec)."
+      if [ -n "$codex_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $codex_out"; fi
+    fi
+  else print_message "$YELLOW" "  Codex CLI installation skipped."; fi
+}
+
+# OmO (oh-my-openagent) CLI installer
+_install_omo_script() {
+  if [ -d "$HOME/.local/bin" ]; then
+    case ":$PATH:" in
+      *":$HOME/.local/bin:"*) ;;
+      *) export PATH="$HOME/.local/bin:$PATH" ;;
+    esac
+  fi
+  if command_exists omo && omo --version >/dev/null 2>&1; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  OmO is already installed."; fi
+    return 0
+  fi
+  if ask_yes_no "  Install OmO (oh-my-openagent CLI)?" "y"; then
+    if ! command_exists curl; then print_message "$RED" "    curl is required for OmO installation. Please install curl."; return 1; fi
+    echo -n -e "${CYAN}    Installing OmO (curl ... | bash)... ${NC}"
+    local omo_out="" omo_ec
+    # OMO_NO_MODIFY_PATH keeps upstream from appending to the symlinked .zshrc;
+    # ~/.local/bin is already on PATH via dotfiles/zsh/.zshrc.
+    if [ "$QUIET" = true ]; then
+      omo_out=$(curl -fsSL https://get.omo.dev/install.sh 2>/dev/null | OMO_NO_MODIFY_PATH=1 bash 2>&1); omo_ec=$?
+    else
+      echo
+      curl -fsSL https://get.omo.dev/install.sh | OMO_NO_MODIFY_PATH=1 bash; omo_ec=$?
+    fi
+    if [ -d "$HOME/.local/bin" ]; then
+      case ":$PATH:" in
+        *":$HOME/.local/bin:"*) ;;
+        *) export PATH="$HOME/.local/bin:$PATH" ;;
+      esac
+    fi
+    if [ $omo_ec -eq 0 ] && command_exists omo; then
+      echo -e "${GREEN}✓${NC}"
+      if [ "$QUIET" = false ]; then print_message "$GREEN" "    OmO installed successfully."; fi
+    else
+      echo -e "${RED}✗${NC}"; print_message "$RED" "    OmO installation failed (code: $omo_ec)."
+      if [ -n "$omo_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $omo_out"; fi
+    fi
+  else print_message "$YELLOW" "  OmO installation skipped."; fi
+}
+
 # herdr terminal workspace manager installer
 _install_herdr_script() {
+  if [ -d "$HOME/.local/bin" ]; then
+    case ":$PATH:" in
+      *":$HOME/.local/bin:"*) ;;
+      *) export PATH="$HOME/.local/bin:$PATH" ;;
+    esac
+  fi
   if command_exists herdr; then
     if [ "$QUIET" = false ]; then print_message "$GREEN" "  herdr is already installed."; fi
     if ask_yes_no "  Update herdr to the latest version?" "y"; then
@@ -157,13 +275,14 @@ _install_herdr_script() {
       fi
       if [ $herdr_up_ec -eq 0 ]; then echo -e "${GREEN}✓${NC}"; else
         echo -e "${RED}✗${NC}"; print_message "$RED" "    herdr update failed (code: $herdr_up_ec)."
-        if [ -n "$herdr_up_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $herdr_up_out"; fi
+        if [ -n "$herdr_up_out" ]; then print_message "$GRAY" "    Output: $herdr_up_out"; fi
       fi
     fi
     return 0
   fi
   if ask_yes_no "  Install herdr (terminal workspace manager)?" "y"; then
     if ! command_exists curl; then print_message "$RED" "    curl is required for herdr installation. Please install curl."; return 1; fi
+    if ! command_exists awk; then print_message "$RED" "    awk is required for herdr installation. Please install awk."; return 1; fi
     echo -n -e "${CYAN}    Installing herdr (curl ... | sh)... ${NC}"
     local herdr_out="" herdr_ec
     if [ "$QUIET" = true ]; then
@@ -172,16 +291,19 @@ _install_herdr_script() {
       echo
       curl -fsSL https://herdr.dev/install.sh | sh; herdr_ec=$?
     fi
-    if [ -f "$HOME/.local/bin/herdr" ]; then
-      export PATH="$HOME/.local/bin:$PATH"
+    if [ -d "$HOME/.local/bin" ]; then
+      case ":$PATH:" in
+        *":$HOME/.local/bin:"*) ;;
+        *) export PATH="$HOME/.local/bin:$PATH" ;;
+      esac
     fi
-    if [ $herdr_ec -eq 0 ] && (command_exists herdr || [ -f "$HOME/.local/bin/herdr" ]); then
+    if [ $herdr_ec -eq 0 ] && (command_exists herdr || [ -x "$HOME/.local/bin/herdr" ]); then
       echo -e "${GREEN}✓${NC}"
       if [ "$QUIET" = false ]; then print_message "$GREEN" "    herdr installed successfully."; fi
     else
       echo -e "${RED}✗${NC}"
       print_message "$RED" "    herdr installation failed (code: $herdr_ec)."
-      if [ -n "$herdr_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $herdr_out"; fi
+      if [ -n "$herdr_out" ]; then print_message "$GRAY" "    Output: $herdr_out"; fi
       return 1
     fi
   else print_message "$YELLOW" "  herdr installation skipped."; fi
@@ -199,35 +321,64 @@ _install_nvm() {
 
   # Node Version Manager (nvm) installation
   # zshrc already has nvm loader, so we use PROFILE=/dev/null to prevent shell config modification
-  if [ -d "$HOME/.nvm" ] && [ -s "$HOME/.nvm/nvm.sh" ]; then
-    if [ "$QUIET" = false ]; then print_message "$GREEN" "  nvm is already installed."; fi
+  if [ ! -d "$HOME/.nvm" ] || [ ! -s "$HOME/.nvm/nvm.sh" ]; then
+    if ! command_exists curl; then
+      if [ "$QUIET" = false ]; then print_message "$YELLOW" "  curl not found, skipping nvm installation."; fi
+      return 1
+    fi
+    if ask_yes_no "  Install nvm (Node Version Manager)?" "y"; then
+      echo -n -e "${CYAN}    Installing nvm... ${NC}"
+      local nvm_out="" nvm_ec
+      if [ "$QUIET" = true ]; then
+        nvm_out=$(PROFILE=/dev/null curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh 2>/dev/null | bash 2>&1); nvm_ec=$?
+      else
+        echo
+        PROFILE=/dev/null curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash; nvm_ec=$?
+      fi
+      if [ $nvm_ec -eq 0 ] && [ -d "$HOME/.nvm" ] && [ -s "$HOME/.nvm/nvm.sh" ]; then
+        echo -e "${GREEN}✓${NC}"
+        if [ "$QUIET" = false ]; then print_message "$GREEN" "    nvm installed successfully."; fi
+      else
+        echo -e "${RED}✗${NC}"
+        print_message "$RED" "    nvm installation failed (code: $nvm_ec)."
+        if [ -n "$nvm_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $nvm_out"; fi
+        return 1
+      fi
+    else print_message "$YELLOW" "  nvm installation skipped."; return 0; fi
+  elif [ "$QUIET" = false ]; then
+    print_message "$GREEN" "  nvm is already installed."
+  fi
+
+  # nvm ships no Node itself: ensure an LTS release exists and is the default
+  export NVM_DIR="$HOME/.nvm"
+  if [ -s "$NVM_DIR/nvm.sh" ]; then
+    \. "$NVM_DIR/nvm.sh" >/dev/null 2>&1 || true
+  else
+    print_message "$RED" "    nvm.sh not found; cannot provision Node."; return 1
+  fi
+  local current_node; current_node=$(nvm current 2>/dev/null || echo "none")
+  if [ "$current_node" != "none" ]; then
+    if [ "$QUIET" = false ]; then print_message "$GREEN" "  Node $current_node already active via nvm."; fi
     return 0
   fi
-  if ! command_exists curl; then
-    if [ "$QUIET" = false ]; then print_message "$YELLOW" "  curl not found, skipping nvm installation."; fi
-    return 1
-  fi
-  if ask_yes_no "  Install nvm (Node Version Manager)?" "y"; then
-    echo -n -e "${CYAN}    Installing nvm... ${NC}"
-    local nvm_out="" nvm_ec
+  if ask_yes_no "  Install LTS Node via nvm and set as default?" "y"; then
+    echo -n -e "${CYAN}    Installing LTS Node (nvm install --lts)... ${NC}"
+    local node_out="" node_ec
     if [ "$QUIET" = true ]; then
-      nvm_out=$(PROFILE=/dev/null curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh 2>/dev/null | bash 2>&1); nvm_ec=$?
+      node_out=$(nvm install --lts 2>&1 && nvm alias default 'lts/*' >/dev/null 2>&1); node_ec=$?
     else
       echo
-      PROFILE=/dev/null curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash; nvm_ec=$?
+      nvm install --lts; node_ec=$?
+      if [ $node_ec -eq 0 ]; then nvm alias default 'lts/*' >/dev/null 2>&1; node_ec=$?; fi
     fi
-    # Source nvm for immediate use in this session
-    if [ -s "$HOME/.nvm/nvm.sh" ]; then
-      export NVM_DIR="$HOME/.nvm"
-      \. "$NVM_DIR/nvm.sh"
-    fi
-    if [ $nvm_ec -eq 0 ] && [ -d "$HOME/.nvm" ] && [ -s "$HOME/.nvm/nvm.sh" ]; then
+    if [ $node_ec -eq 0 ] && [ "$(nvm current 2>/dev/null)" != "none" ]; then
       echo -e "${GREEN}✓${NC}"
-      if [ "$QUIET" = false ]; then print_message "$GREEN" "    nvm installed successfully."; fi
+      if [ "$QUIET" = false ]; then print_message "$GREEN" "    Node $(nvm current) active via nvm."; fi
     else
       echo -e "${RED}✗${NC}"
-      print_message "$RED" "    nvm installation failed (code: $nvm_ec)."
-      if [ -n "$nvm_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $nvm_out"; fi
+      print_message "$RED" "    LTS Node installation failed (code: $node_ec)."
+      if [ -n "$node_out" ] && [ "$QUIET" = false ]; then print_message "$GRAY" "    Output: $node_out"; fi
+      return 1
     fi
-  else print_message "$YELLOW" "  nvm installation skipped."; fi
+  else print_message "$YELLOW" "  LTS Node installation skipped."; fi
 }

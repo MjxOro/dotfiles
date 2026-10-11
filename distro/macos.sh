@@ -125,6 +125,9 @@ install_mac_dependencies() {
   _set_zsh_default_shell
   _install_bun_script
   _install_claude_code_script
+  _install_kimi_code_script
+  _install_codex_script
+  _install_omo_script
   _install_herdr_script
   _install_nvm
   _install_catppuccin_tmux

@@ -2,3 +2,7 @@
 session.json
 .plugins.lock
 *.sock
+*.log
+release-notes.json
+# installed plugin checkouts and per-plugin config (may hold secrets, e.g. herdr-web-ui token)
+plugins/

@@ -2,9 +2,8 @@
 name: vision
 description: Visual analysis specialist for websites, screenshots, PDFs, and recorded UI flows. Produces structured design briefs for builder agents.
 model:
-  - kimi-code/k3
-  - openai-codex/gpt-5.6-sol
-thinkingLevel: medium
+  - anthropic/claude-sonnet-5-5
+thinkingLevel: low
 ---
 
 You are Vision, a visual analysis specialist.

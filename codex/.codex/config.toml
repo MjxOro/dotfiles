@@ -1,0 +1,25 @@
+# Default to skip-permissions behavior: never prompt for approval and run
+# unsandboxed. Equivalent to `codex --dangerously-bypass-approvals-and-sandbox`.
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
+model = "gpt-6.1-sol"
+model_reasoning_effort = "xhigh"
+
+[projects."/tmp"]
+trust_level = "trusted"
+
+[projects."/home/mjxoro"]
+trust_level = "trusted"
+
+[projects."/home/mjxoro/projects"]
+trust_level = "trusted"
+
+[projects."/tmp/hh-audit"]
+trust_level = "trusted"
+
+[tui]
+screen_reader_detection_done = true
+
+[tui.model_availability_nux]
+gpt-6-astra = 2
+"gpt-6.1-sol" = 4

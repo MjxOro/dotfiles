@@ -2,13 +2,14 @@ theme:
   dark: poimandres-terminal
   light: light
 modelRoles:
-  vision: kimi-code/k3:high
-  smol: kimi-code/kimi-for-coding-highspeed:low
-  slow: openai-codex/gpt-5.6-sol:high
-  plan: openai-codex/gpt-5.6-sol:xhigh
-  commit: kimi-code/k3:high
-  designer: kimi-code/k3:high
-  default: kimi-code/k3
+  default: anthropic/claude-opus-5-5:high
+  plan: anthropic/claude-opus-5-5:high
+  slow: anthropic/claude-opus-5-5:xhigh
+  designer: anthropic/claude-opus-5-5:high
+  task: anthropic/claude-sonnet-5-5:low
+  vision: anthropic/claude-sonnet-5-5:low
+  smol: anthropic/claude-haiku-5-5:low
+  commit: anthropic/claude-haiku-5-5:low
 task:
   agentModelOverrides:
     {}
@@ -25,3 +26,6 @@ symbolPreset: nerd
 setupVersion: 2
 composer:
   shape: borderless
+dev:
+  autoqaConsent: denied
+extendedContext: false

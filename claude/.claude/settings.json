@@ -1,5 +1,29 @@
 {
   "model": "opus",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/Users/mjxoro/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/home/mjxoro/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
   "enabledPlugins": {
     "oh-my-claude@oh-my-claude": true,
     "frontend-design@claude-plugins-official": true,
@@ -20,6 +44,6 @@
       }
     }
   },
-  "claude.general.allowDangerouslySkipPermissions": true,
-  "hooks": {"SessionStart":[{"matcher":"*","hooks":[{"type":"command","command":"bash '/Users/mjxoro/.claude/hooks/herdr-agent-state.sh' session","timeout":10}]}]}
+  "theme": "dark",
+  "claude.general.allowDangerouslySkipPermissions": true
 }
